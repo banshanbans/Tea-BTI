@@ -24,11 +24,12 @@ export function RealmHome() {
 
   const realm = realms.items[0];
   if (!realm) return <div className="empty">还没有可进入的茶境。</div>;
-  const completed = realm.progress.status === "completed";
-  const inProgress = realm.progress.status === "in_progress";
+  const completed = Boolean(realm.progress.interactiveCompletedAt);
+  const readingCompleted = Boolean(realm.progress.readingCompletedAt);
   const completedScenes = realm.progress.completedScenes.length;
+  const inProgress = !completed && completedScenes > 0;
   const progressPercent = Math.round(completedScenes / 7 * 100);
-  const action = completed ? "再走一遍" : inProgress ? "继续体验" : "进入茶境";
+  const action = completed ? "再走一遍" : inProgress ? "继续互动" : readingCompleted ? "亲手体验" : "进入茶境";
   const realmHref = `/realm/${realm.realmId}?entry=realm${completed ? "&replay=1" : ""}`;
 
   return (
@@ -53,7 +54,7 @@ export function RealmHome() {
           <div className="realm-progress-line"><span style={{ width: `${progressPercent}%` }} /></div>
           <div className="realm-home-meta">
             <span>{completed ? "7 / 7 幕完成" : `${completedScenes} / 7 幕 · ${progressPercent}%`}</span>
-            <span>{realm.specimen ? "白毫标本 · 已收藏" : "约 70–100 秒"}</span>
+            <span>{realm.specimen ? `${readingCompleted && !completed ? "文字稿完成 · " : ""}白毫已收藏` : "约 70–100 秒"}</span>
           </div>
           {realm.outcome ? <div className="realm-home-outcome"><strong>{realm.outcome.title}</strong><span>{realm.outcome.summary}</span><small>{realm.outcome.disclaimer}</small></div> : null}
           <Link className="button primary block" href={realmHref}>{action} <ArrowRight size={18} /></Link>

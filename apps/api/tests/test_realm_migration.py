@@ -38,6 +38,9 @@ def test_migration_backfills_legacy_realm_unlock(tmp_path, monkeypatch):
         assert progress["realm_id"] == "duyun-maojian-mist-bud"
         assert progress["current_scene"] == "passport-specimen"
         assert progress["completed_at"] is not None
+        assert progress["first_completion_mode"] == "interactive"
+        assert progress["interactive_completed_at"] is not None
+        assert progress["reading_completed_at"] is None
         assert len(specimens) == 1
         assert specimens[0]["specimen_id"] == "duyun-maojian-pekoe"
     finally:

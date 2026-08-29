@@ -1450,6 +1450,121 @@
         }
       }
     },
+    "/api/v1/realms/{realm_id}/reading/complete": {
+      "post": {
+        "summary": "Realm Reading Complete",
+        "operationId": "realm_reading_complete_api_v1_realms__realm_id__reading_complete_post",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Realm Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmReadingCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmCompleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/v1/drink-feedback": {
       "post": {
         "summary": "Drink Feedback",
@@ -5475,7 +5590,14 @@
             "$ref": "#/components/schemas/RealmOutcomeResponse"
           },
           "run": {
-            "$ref": "#/components/schemas/RealmRunResponse"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmRunResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "passportEntry": {
             "$ref": "#/components/schemas/PassportEntryResponse"
@@ -5488,7 +5610,6 @@
           "specimen",
           "specimenAwarded",
           "outcome",
-          "run",
           "passportEntry"
         ],
         "title": "RealmCompleteResponse"
@@ -5518,6 +5639,9 @@
           "regionLabel": {
             "type": "string",
             "title": "Regionlabel"
+          },
+          "story": {
+            "$ref": "#/components/schemas/RealmStoryResponse"
           },
           "sceneOrder": {
             "items": {
@@ -5563,6 +5687,7 @@
           "subtitle",
           "regionId",
           "regionLabel",
+          "story",
           "sceneOrder",
           "scenes",
           "assets",
@@ -5740,6 +5865,50 @@
         ],
         "title": "RealmEvidenceResponse"
       },
+      "RealmExplorationPointResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "x": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "X"
+          },
+          "y": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Y"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "evidenceRefIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidencerefids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "title",
+          "body"
+        ],
+        "title": "RealmExplorationPointResponse"
+      },
       "RealmGestureResult": {
         "properties": {
           "inputMode": {
@@ -5884,6 +6053,15 @@
               "late"
             ],
             "title": "Stopwindow"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "interactive",
+              "reading_default"
+            ],
+            "title": "Source",
+            "default": "interactive"
           },
           "updatedAt": {
             "type": "string",
@@ -6084,6 +6262,45 @@
             ],
             "title": "Completedat"
           },
+          "firstCompletionMode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "interactive",
+                  "reading"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstcompletionmode"
+          },
+          "readingCompletedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readingcompletedat"
+          },
+          "interactiveCompletedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interactivecompletedat"
+          },
           "usedTasteWords": {
             "type": "boolean",
             "title": "Usedtastewords",
@@ -6152,6 +6369,34 @@
           "completedScene"
         ],
         "title": "RealmProgressUpdate"
+      },
+      "RealmReadingCompleteRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "const": true,
+            "title": "Confirmed"
+          },
+          "totalElapsedMs": {
+            "type": "integer",
+            "maximum": 3600000.0,
+            "minimum": 0.0,
+            "title": "Totalelapsedms",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "confirmed"
+        ],
+        "title": "RealmReadingCompleteRequest"
       },
       "RealmRunResponse": {
         "properties": {
@@ -6267,6 +6512,13 @@
             },
             "type": "array",
             "title": "Assetids"
+          },
+          "explorationPoints": {
+            "items": {
+              "$ref": "#/components/schemas/RealmExplorationPointResponse"
+            },
+            "type": "array",
+            "title": "Explorationpoints"
           }
         },
         "type": "object",
@@ -6373,6 +6625,84 @@
         ],
         "title": "RealmStartRequest"
       },
+      "RealmStoryChapterResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "eyebrow": {
+            "type": "string",
+            "title": "Eyebrow"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "boundary",
+              "metaphor_and_fact"
+            ],
+            "title": "Kind"
+          },
+          "evidenceRefIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidencerefids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "eyebrow",
+          "title",
+          "body",
+          "kind"
+        ],
+        "title": "RealmStoryChapterResponse"
+      },
+      "RealmStoryResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "estimatedMinutes": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Estimatedminutes"
+          },
+          "intro": {
+            "type": "string",
+            "title": "Intro"
+          },
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/RealmStoryChapterResponse"
+            },
+            "type": "array",
+            "title": "Chapters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "estimatedMinutes",
+          "intro",
+          "chapters"
+        ],
+        "title": "RealmStoryResponse"
+      },
       "RealmSummaryResponse": {
         "properties": {
           "realmId": {
@@ -6452,7 +6782,8 @@
               "microphone",
               "wipe",
               "keyboard",
-              "reducedMotion"
+              "reducedMotion",
+              "skipped"
             ],
             "title": "Steammode"
           },

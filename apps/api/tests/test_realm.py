@@ -68,6 +68,9 @@ def test_realm_is_freely_available_and_assets_keep_fact_boundaries(client, auth)
     detail = client.get(f"/api/v1/realms/{REALM_ID}", headers=auth).json()
     assert detail["personalization"]["source"] == "default"
     assert detail["definition"]["sceneOrder"] == SCENES
+    assert len(detail["definition"]["story"]["chapters"]) == 7
+    mountain = next(scene for scene in detail["definition"]["scenes"] if scene["id"] == "mist-mountain")
+    assert len(mountain["explorationPoints"]) == 3
     assets = {asset["role"]: asset for asset in detail["definition"]["assets"]}
     assert assets["dry_tea_reveal"]["authenticityState"] == "documentary"
     assert assets["dry_tea_reveal"]["rightsState"] == "open_license"
@@ -171,8 +174,11 @@ def test_realm_completion_is_atomic_unique_and_does_not_change_taste_or_tea_bti(
     assert payload["accepted"] is True
     assert payload["specimenAwarded"] is True
     assert payload["outcome"]["title"] == "清鲜的白毫"
+    assert payload["outcome"]["source"] == "interactive"
     assert payload["passportEntry"]["realmOutcome"] == payload["outcome"]
     assert payload["progress"]["status"] == "completed"
+    assert payload["progress"]["firstCompletionMode"] == "interactive"
+    assert payload["progress"]["interactiveCompletedAt"] is not None
     assert payload["specimen"]["specimenId"] == "duyun-maojian-pekoe"
     assert payload["passportEntry"]["realmUnlocked"] is True
     assert payload["passportEntry"]["realmCompletedAt"] is not None
@@ -231,6 +237,59 @@ def test_replay_has_its_own_run_updates_outcome_and_never_duplicates_specimen(cl
     assert second["outcome"]["title"] == "带火香的一芽"
     assert second["progress"]["completedAt"] == first_completed_at
     assert len(second["passportEntry"]["specimens"]) == 1
+
+
+def test_reading_can_complete_first_then_interaction_replaces_the_default_outcome(client, auth):
+    reading = client.post(f"/api/v1/realms/{REALM_ID}/reading/complete", headers=auth, json={
+        "clientEventId": "reading-first", "confirmed": True, "totalElapsedMs": 180000,
+    })
+    assert reading.status_code == 200
+    first = reading.json()
+    assert first["accepted"] is True
+    assert first["specimenAwarded"] is True
+    assert first["run"] is None
+    assert first["outcome"]["source"] == "reading_default"
+    assert first["outcome"]["title"] == "清鲜的白毫"
+    assert first["progress"]["firstCompletionMode"] == "reading"
+    assert first["progress"]["readingCompletedAt"] is not None
+    assert first["progress"]["interactiveCompletedAt"] is None
+
+    duplicate = client.post(f"/api/v1/realms/{REALM_ID}/reading/complete", headers=auth, json={
+        "clientEventId": "reading-again", "confirmed": True, "totalElapsedMs": 190000,
+    }).json()
+    assert duplicate["accepted"] is False
+    assert duplicate["specimenAwarded"] is False
+    assert duplicate["specimen"]["collectedAt"] == first["specimen"]["collectedAt"]
+
+    interactive = start(client, auth, event_id="interactive-after-reading").json()
+    assert interactive["run"]["replay"] is False
+    advance_first_six(client, auth, interactive["run"]["runId"], prefix="after-reading", stop_window="late")
+    completed = client.post(f"/api/v1/realms/{REALM_ID}/complete", headers=auth, json={
+        "clientEventId": "interactive-after-reading-complete", "runId": interactive["run"]["runId"],
+        "totalElapsedMs": 80000, "interactionMode": "pointer",
+    }).json()
+    assert completed["specimenAwarded"] is False
+    assert completed["outcome"]["source"] == "interactive"
+    assert completed["outcome"]["title"] == "带火香的一芽"
+    assert completed["progress"]["interactiveCompletedAt"] is not None
+    assert completed["progress"]["firstCompletionMode"] == "reading"
+
+
+def test_reading_after_interaction_never_overwrites_the_behavior_outcome(client, auth):
+    run_id = start(client, auth).json()["run"]["runId"]
+    advance_first_six(client, auth, run_id, prefix="interactive-first", stop_window="early")
+    interactive = client.post(f"/api/v1/realms/{REALM_ID}/complete", headers=auth, json={
+        "clientEventId": "interactive-first-complete", "runId": run_id,
+        "totalElapsedMs": 72000, "interactionMode": "pointer",
+    }).json()
+    reading = client.post(f"/api/v1/realms/{REALM_ID}/reading/complete", headers=auth, json={
+        "clientEventId": "reading-after-interaction", "confirmed": True, "totalElapsedMs": 160000,
+    }).json()
+    assert reading["accepted"] is True
+    assert reading["specimenAwarded"] is False
+    assert reading["outcome"] == interactive["outcome"]
+    assert reading["progress"]["firstCompletionMode"] == "interactive"
+    assert reading["progress"]["readingCompletedAt"] is not None
 
 
 def test_scene_result_is_whitelisted_and_bound_to_scene(client, auth):

@@ -1,9 +1,9 @@
 "use client";
 
-import { Check, Grains, Leaf, Plant, Sparkle } from "@phosphor-icons/react";
+import { ArrowSquareOut, Check, Grains, Leaf, Plant, Sparkle, X } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent, MutableRefObject, PointerEvent as ReactPointerEvent } from "react";
+import type { CSSProperties, KeyboardEvent, MutableRefObject, PointerEvent as ReactPointerEvent } from "react";
 
 import { useCraftController } from "@/components/realm/useCraftController";
 import { useSteamBlow } from "@/components/realm/useSteamBlow";
@@ -51,17 +51,31 @@ export function LiquorEntryVisual({ liquorUrl, rippleUrl, busy, skipAnimations, 
   );
 }
 
-export function MistMountainVisual({ mistUrl, score, direction, mode, busy, onMove, onKeyboard, onAdvance }: {
+type RealmExplorationPoint = { id: string; x: number; y: number; title: string; body: string; evidenceRefIds?: string[] };
+type RealmEvidence = { id: string; label: string; url: string };
+
+export function MistMountainVisual({ mistUrl, score, direction, mode, busy, explorationPoints = [], evidenceRefs = [], onMove, onKeyboard, onAdvance }: {
   mistUrl?: string;
   score: number;
   direction: 1 | -1;
   mode: "orientation" | "pointer" | "reducedMotion";
   busy: boolean;
+  explorationPoints?: RealmExplorationPoint[];
+  evidenceRefs?: RealmEvidence[];
   onMove: (distance: number, direction: 1 | -1) => void;
   onKeyboard: () => void;
   onAdvance: () => Promise<boolean>;
 }) {
   const pointerRef = useRef<{ x: number; y: number } | null>(null);
+  const pointButtonsRef = useRef(new Map<string, HTMLButtonElement>());
+  const [activePointId, setActivePointId] = useState<string | null>(null);
+  const activePoint = explorationPoints.find((point) => point.id === activePointId);
+  const source = (activePoint?.evidenceRefIds || []).map((id) => evidenceRefs.find((ref) => ref.id === id)).find(Boolean);
+  const closePoint = () => {
+    const previous = activePointId;
+    setActivePointId(null);
+    window.setTimeout(() => { if (previous) pointButtonsRef.current.get(previous)?.focus(); }, 0);
+  };
   const clearRatio = Math.min(1, score / 100);
   const edge = (1 - clearRatio) * 100;
   const mask = `linear-gradient(${direction > 0 ? "to left" : "to right"}, black ${Math.max(0, edge - 20)}%, transparent ${Math.min(100, edge + 6)}%)`;
@@ -74,6 +88,11 @@ export function MistMountainVisual({ mistUrl, score, direction, mode, busy, onMo
     onMove(Math.abs(dx) + Math.abs(dy), Math.abs(dx) > 2 ? (dx > 0 ? 1 : -1) : direction);
   };
   const keyboard = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape" && activePointId) {
+      event.preventDefault();
+      closePoint();
+      return;
+    }
     if (event.key.startsWith("Arrow") || event.key === "Enter" || event.key === " ") onKeyboard();
   };
 
@@ -90,10 +109,28 @@ export function MistMountainVisual({ mistUrl, score, direction, mode, busy, onMo
       onKeyDown={keyboard}>
       {mistUrl ? <motion.img className="realm-mist" src={mistUrl} alt="可拨开的生成雾层" style={{ WebkitMaskImage: mask, maskImage: mask }} animate={{ x: direction * score * 1.6, opacity: Math.max(0.05, 1 - score / 90) }} /> : null}
       <div className="realm-drift" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
+      {score >= 70 ? <div className="realm-exploration-points" aria-label="茶山资料光点">
+        {explorationPoints.map((point, index) => <button
+          key={point.id}
+          ref={(element) => { if (element) pointButtonsRef.current.set(point.id, element); }}
+          className={`realm-exploration-point ${activePointId === point.id ? "active" : ""}`}
+          style={{ left: `${point.x}%`, top: `${point.y}%` }}
+          aria-label={`查看茶山资料：${point.title}`}
+          aria-expanded={activePointId === point.id}
+          onClick={() => setActivePointId(point.id)}
+        ><span aria-hidden="true" />{index + 1}</button>)}
+      </div> : null}
+      {activePoint ? <aside className="realm-exploration-card" role="dialog" aria-label={activePoint.title}>
+        <button className="realm-exploration-close" aria-label="关闭资料卡" onClick={closePoint}><X size={17} /></button>
+        <small>茶山发现</small>
+        <h2>{activePoint.title}</h2>
+        <p>{activePoint.body}</p>
+        {source?.url ? <a href={source.url} target="_blank" rel="noreferrer">查看资料 · {source.label}<ArrowSquareOut size={13} /></a> : null}
+      </aside> : null}
       <div className="realm-mist-ui">
         <div className="realm-meter"><span style={{ width: `${score}%` }} /></div>
         <small>{score >= 70 ? "雾散了，山出来了。" : mode === "orientation" ? "轻轻倾斜手机" : "左右拖动拨开雾"}</small>
-        {score >= 70 ? <button className="button primary" disabled={busy} onClick={() => void onAdvance()}>山出现了</button> : null}
+        {score >= 70 ? <button className="button primary" disabled={busy} onClick={() => void onAdvance()}>继续去采芽</button> : null}
       </div>
     </div>
   );
@@ -110,13 +147,14 @@ export function isBudLift(startY: number, endY: number, durationMs: number, redu
   return reducedMotion || (durationMs >= 180 && startY - endY >= 64);
 }
 
-export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, feedback, teacherMessage, busy, reducedMotion, onChoose, onAdvance }: {
+export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, feedback, teacherMessage, teacherTarget, busy, reducedMotion, onChoose, onAdvance }: {
   assetUrls: Map<string, string>;
   observerUrl?: string;
   teacherUrl?: string;
   chosen: boolean;
   feedback: string;
   teacherMessage: string;
+  teacherTarget?: string;
   busy: boolean;
   reducedMotion: boolean;
   onChoose: (id: string, inputMode: "pointer" | "keyboard" | "reducedMotion") => void;
@@ -125,6 +163,7 @@ export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, fe
   const [shaking, setShaking] = useState<string | null>(null);
   const [lifting, setLifting] = useState<{ id: string; offset: number } | null>(null);
   const holdRef = useRef<{ id: string; pointerId: number; y: number; startedAt: number } | null>(null);
+  const keyboardActivationRef = useRef<string | null>(null);
   const resetLift = () => {
     holdRef.current = null;
     setLifting(null);
@@ -137,14 +176,14 @@ export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, fe
     onChoose(id, inputMode);
   };
   return (
-    <div className="realm-buds" aria-label="按住并上提一芽一叶">
+    <div className="realm-buds" aria-label="观察并上提芽叶">
       {!teacherMessage && !chosen && observerUrl ? <img className="realm-teacher-observer" src={observerUrl} alt="茶师傅正在观察芽叶" /> : null}
       {budOptions.map(({ id, role, label }) => {
         const selected = chosen && id === "bud-leaf";
         const assetUrl = assetUrls.get(role);
         const liftOffset = lifting?.id === id ? lifting.offset : 0;
         return <button key={id} aria-pressed={selected} className={`realm-bud ${selected ? "chosen lifted" : ""} ${shaking === id ? "shake" : ""} ${lifting?.id === id ? "dragging" : ""}`}
-          style={liftOffset ? { transform: `translateY(${liftOffset}px)` } : undefined}
+          style={{ touchAction: "none", ...(liftOffset ? { transform: `translateY(${liftOffset}px)` } : {}) }}
           onPointerDown={(event) => {
             if (busy || chosen || (event.pointerType === "mouse" && event.button !== 0)) return;
             event.preventDefault();
@@ -166,15 +205,21 @@ export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, fe
             if (valid) choose(id, reducedMotion ? "reducedMotion" : "pointer");
           }}
           onPointerCancel={resetLift}
-          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(id, reducedMotion ? "reducedMotion" : "keyboard"); } }}
-          onClick={(event) => event.preventDefault()}
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); keyboardActivationRef.current = id; choose(id, reducedMotion ? "reducedMotion" : "keyboard"); } }}
+          onClick={(event) => {
+            event.preventDefault();
+            if (busy || chosen) return;
+            if (event.detail === 0 && keyboardActivationRef.current !== id) choose(id, reducedMotion ? "reducedMotion" : "keyboard");
+            else if (reducedMotion && event.detail > 0) choose(id, "reducedMotion");
+            keyboardActivationRef.current = null;
+          }}
           onDragStart={(event) => event.preventDefault()}>
           {assetUrl ? <img className="realm-bud-img" src={assetUrl} alt="" /> : <Leaf className="realm-bud-fallback" size={48} weight="duotone" aria-hidden="true" />}
           <span className="realm-bud-label">{label}</span>
         </button>;
       })}
-      <p className="realm-bud-guide">{reducedMotion ? "选择“一芽一叶”即可完成" : "按住至少片刻，再向上提起"}</p>
-      {teacherMessage ? <motion.aside className="realm-teacher" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
+      <p className="realm-bud-guide">{reducedMotion ? "选择你认为合适的一片" : "按住至少片刻，再向上提起"}</p>
+      {teacherMessage ? <motion.aside key={`${teacherTarget}-${teacherMessage}`} className={`realm-teacher realm-teacher-${teacherTarget || "bud-single"}`} initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }}>
         {teacherUrl ? <img src={teacherUrl} alt="茶师傅温和伸手提醒采芽" /> : null}
         <p><strong>茶师傅</strong>{teacherMessage}</p>
       </motion.aside> : null}
@@ -206,6 +251,12 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
   const wipeRef = useRef<{ x: number; distance: number } | null>(null);
   const craftIndex = craft.index;
   const craftDone = craftIndex >= craftSteps.length;
+  const craftStyle = {
+    "--realm-kill": craft.visualState.killGreen,
+    "--realm-roll": craft.visualState.rolling,
+    "--realm-ball": craft.visualState.balling,
+    "--realm-pekoe": craft.visualState.pekoe,
+  } as CSSProperties;
   const pointerDown = (event: ReactPointerEvent<HTMLDivElement>) => { physics.onPointerDown(event); craft.pointerDown(event); };
   const pointerMove = (event: ReactPointerEvent<HTMLDivElement>) => { physics.onPointerMove(event); craft.pointerMove(event); };
   const pointerUp = (event: ReactPointerEvent<HTMLDivElement>) => { physics.onPointerUp(); craft.pointerUp(event); };
@@ -229,7 +280,7 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
   const finish = () => void onAdvance({ kind: "wok-craft", steamMode: steam.mode, gestures: craft.results });
   return (
     <div className="realm-craft">
-      <div className="realm-wok" ref={physics.wokRef} data-craft={craftIndex} data-physics-active={animated ? "true" : "false"} role="button" tabIndex={0} aria-label="制茶手势区域"
+      <div className="realm-wok" ref={physics.wokRef} style={craftStyle} data-craft={craftIndex} data-physics-active={animated ? "true" : "false"} role="button" tabIndex={0} aria-label="制茶手势区域"
         onPointerDown={steam.state === "cleared" ? pointerDown : steam.state === "listening" || steam.state === "fallback" ? steamPointerDown : undefined}
         onPointerMove={steam.state === "cleared" ? pointerMove : steam.state === "listening" || steam.state === "fallback" ? steamPointerMove : undefined}
         onPointerUp={steam.state === "cleared" ? pointerUp : steamPointerEnd}
@@ -241,7 +292,7 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
         </div>
         {steam.state === "cleared" ? <strong>{craftDone ? "四手已经做完" : craftSteps[craftIndex].gesture}</strong> : <strong>{steam.state === "listening" ? (steam.calibrating ? "先保持安静半秒" : "对着手机轻轻吹气") : "先把蒸汽散开"}</strong>}
       </div>
-      {steam.state === "idle" ? <div className="realm-steam-actions"><button className="button primary" onClick={() => void steam.start()}>吹开蒸汽</button><button className="button" onClick={steam.chooseWipe}>改用手指擦开</button><small>只在本机检测音量变化，不录音、不上传。</small></div> : null}
+      {steam.state === "idle" ? <div className="realm-steam-actions"><button className="button primary" onClick={() => void steam.start()}>吹一下，让蒸汽散开</button><button className="button" onClick={steam.chooseWipe}>手指拨开</button><button className="button" onClick={steam.skip}>直接开始制茶</button><small>吹气只是增强体验；只在本机检测音量变化，不录音、不上传。</small></div> : null}
       {steam.state === "listening" ? <div className="realm-steam-listening"><p className="realm-feedback" role="status">{steam.calibrating ? "可以直接开始吹，不必等校准结束。" : "对着手机底部麦克风连续吹气；也可以直接擦动锅面。"}</p><div className="realm-blow-meter" aria-label={`吹气强度 ${Math.round(steam.level * 100)}%`}><span style={{ width: `${Math.max(4, steam.level * 100)}%` }} /></div><small>吹气时，上方强度条会变长。</small><button className="button" onClick={steam.chooseWipe}>改用手指擦开</button></div> : null}
       {steam.state === "fallback" ? <div className="realm-steam-wipe" tabIndex={0} role="button" aria-label="左右擦开蒸汽"
         onPointerDown={steamPointerDown} onPointerMove={steamPointerMove}
@@ -261,7 +312,7 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
 export function HumanJudgmentVisual({ teacherUrl, maturity, onTry, onStop }: { teacherUrl?: string; maturity: number; onTry: () => void; onStop: (window: "early" | "balanced" | "late") => void }) {
   const percentage = Math.min(100, maturity * 20);
   const stopWindow = maturity <= 1 ? "early" : maturity <= 3 ? "balanced" : "late";
-  const labels = { early: "偏早 · 叶色鲜绿，青气仍明显", balanced: "刚好 · 青气渐退，白毫显露", late: "偏晚 · 叶形收紧，火香增强" } as const;
+  const cues = { early: "叶色仍鲜，青气还在。", balanced: "青气渐退，细毫开始显出来。", late: "叶形更紧，火香慢慢增强。" } as const;
   const red = Math.round(93 + percentage * 0.72);
   const green = Math.round(127 - percentage * 0.88);
   const blue = Math.round(79 - percentage * 0.72);
@@ -270,7 +321,7 @@ export function HumanJudgmentVisual({ teacherUrl, maturity, onTry, onStop }: { t
       {teacherUrl ? <img className="realm-teacher-explain" src={teacherUrl} alt="茶师傅讲解起锅判断" /> : null}
       <motion.div className="realm-leaf-mass" style={{ background: `radial-gradient(circle, rgba(${red},${green},${blue},.58), rgba(28,48,30,.14) 62%, transparent 64%)` }} animate={{ rotate: maturity * 7, scale: 1 + maturity * .025 }}><Grains size={80} weight="duotone" /></motion.div>
       <div className="realm-meter"><span style={{ width: `${percentage}%` }} /></div>
-      <p><strong>{labels[stopWindow]}</strong><br />没有唯一答案，停手的时刻由你来定。</p>
+      <p><strong>{cues[stopWindow]}</strong><br />没有唯一答案，停手的时刻由你来定；结果会在停下后揭晓。</p>
       <button className="button" disabled={maturity >= 5} onClick={onTry}>再试一手</button>
       <button className="button primary" onClick={() => onStop(stopWindow)}>现在停</button>
     </div>
@@ -289,11 +340,12 @@ export function RealTeaRevealVisual({ dryTeaUrl, revealed, userWords, busy, onRe
     <div className="realm-real-reveal">
       <div className={`realm-real-frame ${revealed ? "revealed" : ""}`}>
         <div className="realm-stylized-leaves"><Sparkle size={24} /><Plant size={68} weight="duotone" /><Leaf size={48} weight="duotone" /></div>
-        {dryTeaUrl ? <img src={dryTeaUrl} alt="论文 Figure 7A 中的都匀毛尖五级干茶对照" /> : null}
+        {dryTeaUrl ? <img className="realm-real-hero" src={dryTeaUrl} alt="论文 Figure 7A 中都匀毛尖干茶样本的局部事实对照" /> : null}
         {revealed ? <span className="realm-real-sweep" aria-hidden="true" /> : null}
       </div>
       <p>{userWords ? `你说“${userWords}”。这一口的路，从雾里的一芽开始。` : "杯里轻盈的鲜，来自嫩叶、火候，也来自人在关键时刻的判断。"}</p>
       <small className="realm-credit">实物参考：Xia et al. (2026), Food Chemistry: X, Fig. 7A, CC BY 4.0。论文样本与商品批次无关。</small>
+      {revealed && dryTeaUrl ? <details className="realm-real-evidence"><summary>查看论文五级干茶对照</summary><img src={dryTeaUrl} alt="论文 Figure 7A 中的都匀毛尖五级干茶对照" /></details> : null}
       {!revealed ? <button className="button primary" onClick={onReveal}>回到真实干茶</button> : <motion.button className="button primary" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} disabled={busy} onClick={() => void onAdvance()}>收下这一芽</motion.button>}
     </div>
   );

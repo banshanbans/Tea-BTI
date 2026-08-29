@@ -14,6 +14,7 @@ from .taste import get_or_create_passport, passport_response
 
 
 OUTCOME_DISCLAIMER = "这是互动体验结果，不代表真实加工批次或专业制茶能力评价。"
+READING_OUTCOME_DISCLAIMER = "这是文字稿的默认叙事结果，不代表你的互动选择或真实加工批次。"
 
 
 @dataclass
@@ -68,7 +69,8 @@ def _progress_response(realm: dict[str, Any], progress: RealmProgress | None) ->
             "realmId": realm["id"], "teaId": realm["teaId"], "status": "available",
             "currentScene": first_scene, "completedScenes": [], "interactionMode": None,
             "totalElapsedMs": 0, "replayCount": 0, "startedAt": None, "updatedAt": None,
-            "completedAt": None, "usedTasteWords": False,
+            "completedAt": None, "firstCompletionMode": None, "readingCompletedAt": None,
+            "interactiveCompletedAt": None, "usedTasteWords": False,
         }
     return {
         "realmId": progress.realm_id, "teaId": progress.tea_id,
@@ -77,6 +79,9 @@ def _progress_response(realm: dict[str, Any], progress: RealmProgress | None) ->
         "interactionMode": progress.interaction_mode, "totalElapsedMs": progress.total_elapsed_ms,
         "replayCount": progress.replay_count, "startedAt": as_utc(progress.started_at),
         "updatedAt": as_utc(progress.updated_at), "completedAt": as_utc(progress.completed_at),
+        "firstCompletionMode": progress.first_completion_mode,
+        "readingCompletedAt": as_utc(progress.reading_completed_at),
+        "interactiveCompletedAt": as_utc(progress.interactive_completed_at),
         "usedTasteWords": progress.used_taste_words,
     }
 
@@ -180,7 +185,16 @@ def _build_outcome(run: dict[str, Any]) -> dict[str, Any]:
     title, lead = templates[stop_window]
     return {
         "code": stop_window, "title": title, "summary": f"{lead}{modifier}", "stopWindow": stop_window,
-        "updatedAt": _iso_now(), "disclaimer": OUTCOME_DISCLAIMER,
+        "source": "interactive", "updatedAt": _iso_now(), "disclaimer": OUTCOME_DISCLAIMER,
+    }
+
+
+def _reading_outcome() -> dict[str, Any]:
+    return {
+        "code": "balanced", "title": "清鲜的白毫",
+        "summary": "你沿着文字读完了这一芽从黔南山地到杯中的来路。",
+        "stopWindow": "balanced", "source": "reading_default", "updatedAt": _iso_now(),
+        "disclaimer": READING_OUTCOME_DISCLAIMER,
     }
 
 
@@ -230,7 +244,7 @@ def start_realm(db: Session, user_id: str, realm_id: str, *, client_event_id: st
     existing_run = progress.run_state or {}
     should_start_new = not existing_run or replay or bool(existing_run.get("completedAt"))
     if should_start_new:
-        is_replay = bool(progress.completed_at)
+        is_replay = bool(progress.interactive_completed_at)
         progress.run_state = _new_run(realm, replay=is_replay, interaction_mode=interaction_mode)
         if is_replay:
             progress.replay_count += 1
@@ -332,26 +346,28 @@ def complete_realm(db: Session, user_id: str, realm_id: str, *, client_event_id:
         })
         progress.run_state = run
         progress.latest_outcome = outcome
+        progress.interactive_completed_at = utcnow()
         entry = get_or_create_passport(db, user_id, realm["teaId"])
         if progress.completed_at is None:
-            progress.completed_scenes = order
-            progress.current_scene = order[-1]
             progress.completed_at = utcnow()
-            progress.total_elapsed_ms = max(progress.total_elapsed_ms, total_elapsed_ms)
-            progress.interaction_mode = interaction_mode
-            progress.used_taste_words = bool(entry.user_description)
-            entry.realm_unlocked = True
-            if specimen is None:
-                specimen = RealmSpecimen(
-                    id=str(uuid.uuid4()), user_id=user_id, realm_id=realm_id,
-                    tea_id=realm["teaId"], specimen_id=specimen_def["id"],
-                )
-                db.add(specimen)
-                db.flush()
-                specimen_awarded = True
-                _record_event(db, user_id, client_event_id[:60] + ":specimen", "realm_specimen_collected", {
-                    "realmId": realm_id, "specimenId": specimen_def["id"],
-                })
+            progress.first_completion_mode = "interactive"
+        progress.completed_scenes = order
+        progress.current_scene = order[-1]
+        progress.total_elapsed_ms = max(progress.total_elapsed_ms, total_elapsed_ms)
+        progress.interaction_mode = interaction_mode
+        progress.used_taste_words = bool(entry.user_description)
+        entry.realm_unlocked = True
+        if specimen is None:
+            specimen = RealmSpecimen(
+                id=str(uuid.uuid4()), user_id=user_id, realm_id=realm_id,
+                tea_id=realm["teaId"], specimen_id=specimen_def["id"],
+            )
+            db.add(specimen)
+            db.flush()
+            specimen_awarded = True
+            _record_event(db, user_id, client_event_id[:60] + ":specimen", "realm_specimen_collected", {
+                "realmId": realm_id, "specimenId": specimen_def["id"],
+            })
         _record_event(db, user_id, client_event_id, "realm_completed", {
             "realmId": realm_id, "runId": run_id, "totalElapsedMs": total_elapsed_ms,
             "interactionMode": interaction_mode, "outcome": outcome["code"],
@@ -365,6 +381,73 @@ def complete_realm(db: Session, user_id: str, realm_id: str, *, client_event_id:
         raise RealmError(409, "REALM_COMPLETION_INCOMPLETE", "茶境完成状态不完整")
     return {
         "accepted": not duplicate_run, "progress": _progress_response(realm, progress),
+        "run": _run_response(progress), "outcome": outcome,
+        "specimen": _specimen_response(realm, specimen), "specimenAwarded": specimen_awarded,
+        "passportEntry": passport_response(entry, db),
+    }
+
+
+def complete_realm_reading(
+    db: Session, user_id: str, realm_id: str, *, client_event_id: str,
+    confirmed: bool, total_elapsed_ms: int,
+) -> dict[str, Any]:
+    try:
+        realm = catalog.require_realm(realm_id)
+    except KeyError as exc:
+        raise RealmError(404, "REALM_NOT_FOUND", "茶境不存在") from exc
+    if not confirmed:
+        raise RealmError(422, "REALM_READING_CONFIRMATION_REQUIRED", "请在读完文字稿后主动确认")
+
+    progress = _get_or_create_progress(db, user_id, realm)
+    specimen_def = realm["specimen"]
+    specimen = _find_specimen(db, user_id, realm_id, specimen_def["id"])
+    duplicate_event = db.scalar(select(AnalyticsEvent).where(
+        AnalyticsEvent.user_id == user_id, AnalyticsEvent.client_event_id == client_event_id,
+    ))
+    accepted = progress.reading_completed_at is None and duplicate_event is None
+    specimen_awarded = False
+
+    entry = get_or_create_passport(db, user_id, realm["teaId"])
+    if accepted:
+        now = utcnow()
+        progress.reading_completed_at = now
+        if progress.completed_at is None:
+            progress.completed_at = now
+            progress.first_completion_mode = "reading"
+        progress.total_elapsed_ms = max(progress.total_elapsed_ms, total_elapsed_ms)
+        progress.used_taste_words = bool(entry.user_description)
+        entry.realm_unlocked = True
+        if not progress.interactive_completed_at:
+            progress.latest_outcome = _reading_outcome()
+        if specimen is None:
+            specimen = RealmSpecimen(
+                id=str(uuid.uuid4()), user_id=user_id, realm_id=realm_id,
+                tea_id=realm["teaId"], specimen_id=specimen_def["id"],
+            )
+            db.add(specimen)
+            db.flush()
+            specimen_awarded = True
+            _record_event(db, user_id, client_event_id[:60] + ":specimen", "realm_specimen_collected", {
+                "realmId": realm_id, "specimenId": specimen_def["id"], "completionMode": "reading",
+            })
+        _record_event(db, user_id, client_event_id, "realm_reading_completed", {
+            "realmId": realm_id, "totalElapsedMs": total_elapsed_ms,
+            "specimenAwarded": specimen_awarded,
+        })
+        db.commit()
+    elif duplicate_event is None:
+        _record_event(db, user_id, client_event_id, "realm_reading_completed", {
+            "realmId": realm_id, "totalElapsedMs": total_elapsed_ms,
+            "specimenAwarded": False, "duplicate": True,
+        })
+        db.commit()
+
+    specimen = specimen or _find_specimen(db, user_id, realm_id, specimen_def["id"])
+    outcome = progress.latest_outcome
+    if specimen is None or outcome is None:
+        raise RealmError(409, "REALM_COMPLETION_INCOMPLETE", "茶境阅读完成状态不完整")
+    return {
+        "accepted": accepted, "progress": _progress_response(realm, progress),
         "run": _run_response(progress), "outcome": outcome,
         "specimen": _specimen_response(realm, specimen), "specimenAwarded": specimen_awarded,
         "passportEntry": passport_response(entry, db),

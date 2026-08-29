@@ -31,7 +31,7 @@ describe("Realm scene visual controllers", () => {
 
   it("requires a deliberate hold and 64px lift, then gives the first wrong pick a teacher intervention", () => {
     const onChoose = vi.fn();
-    render(<BudPickerVisual assetUrls={new Map()} teacherUrl="/media/teacher-correction.webp" chosen={false} feedback="" teacherMessage="这个还嫩了点。" busy={false} reducedMotion={false} onChoose={onChoose} onAdvance={vi.fn().mockResolvedValue(true)} />);
+    const { container } = render(<BudPickerVisual assetUrls={new Map()} teacherUrl="/media/teacher-correction.webp" chosen={false} feedback="" teacherMessage="这个还嫩了点。" teacherTarget="bud-single" busy={false} reducedMotion={false} onChoose={onChoose} onAdvance={vi.fn().mockResolvedValue(true)} />);
     expect(isBudLift(160, 95, 180)).toBe(true);
     expect(isBudLift(160, 97, 180)).toBe(false);
     expect(isBudLift(160, 90, 179)).toBe(false);
@@ -39,6 +39,7 @@ describe("Realm scene visual controllers", () => {
     expect(onChoose).toHaveBeenCalledWith("bud-leaf", "keyboard");
     expect(screen.getByText("茶师傅")).toBeInTheDocument();
     expect(screen.getByText("这个还嫩了点。")).toBeInTheDocument();
+    expect(container.querySelector(".realm-teacher-bud-single")).toBeInTheDocument();
   });
 
   it("keeps the bud under the finger and completes an upward pointer lift", () => {
@@ -66,7 +67,8 @@ describe("Realm scene visual controllers", () => {
     render(<HumanJudgmentVisual maturity={0} onTry={onTry} onStop={onStop} />);
 
     act(() => vi.advanceTimersByTime(60_000));
-    expect(screen.getByText("没有唯一答案，停手的时刻由你来定。")).toBeInTheDocument();
+    expect(screen.getByText(/没有唯一答案，停手的时刻由你来定/)).toBeInTheDocument();
+    expect(screen.queryByText(/偏早|刚好|偏晚/)).not.toBeInTheDocument();
     expect(onTry).not.toHaveBeenCalled();
     expect(onStop).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "现在停" }));
@@ -98,7 +100,7 @@ describe("Realm scene visual controllers", () => {
     const onFallback = vi.fn();
     render(<WokCraftVisual animated={false} busy={false} mode="pointer" gamma={0} tiltRef={{ current: { x: 0, y: 0 } }} onFallback={onFallback} onTone={vi.fn()} onAdvance={vi.fn().mockResolvedValue(true)} />);
     expect(getUserMedia).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "吹开蒸汽" }));
+    fireEvent.click(screen.getByRole("button", { name: "吹一下，让蒸汽散开" }));
     await waitFor(() => expect(getUserMedia).toHaveBeenCalledWith({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }));
     await waitFor(() => expect(stop).toHaveBeenCalled());
     expect(onFallback).toHaveBeenCalledWith("microphone_unsupported");
@@ -122,7 +124,7 @@ describe("Realm scene visual controllers", () => {
     } });
     const onFallback = vi.fn();
     render(<WokCraftVisual animated={false} busy={false} mode="pointer" gamma={0} tiltRef={{ current: { x: 0, y: 0 } }} onFallback={onFallback} onTone={vi.fn()} onAdvance={vi.fn().mockResolvedValue(true)} />);
-    fireEvent.click(screen.getByRole("button", { name: "吹开蒸汽" }));
+    fireEvent.click(screen.getByRole("button", { name: "吹一下，让蒸汽散开" }));
     await waitFor(() => expect(getUserMedia).toHaveBeenCalledOnce());
     Object.defineProperty(document, "hidden", { configurable: true, value: true });
     fireEvent(document, new Event("visibilitychange"));
@@ -131,5 +133,21 @@ describe("Realm scene visual controllers", () => {
     expect(onFallback).toHaveBeenCalledWith("microphone_error");
     expect(screen.getByRole("button", { name: "左右擦开蒸汽" })).toBeInTheDocument();
     Object.defineProperty(document, "hidden", { configurable: true, value: false });
+  });
+
+  it("lets users skip steam immediately and only offers gesture assistance after three misses", () => {
+    render(<WokCraftVisual animated={false} busy={false} mode="pointer" gamma={0} tiltRef={{ current: { x: 0, y: 0 } }} onFallback={vi.fn()} onTone={vi.fn()} onAdvance={vi.fn().mockResolvedValue(true)} />);
+    fireEvent.click(screen.getByRole("button", { name: "直接开始制茶" }));
+    const wok = screen.getByRole("button", { name: "制茶手势区域" });
+
+    fireEvent.pointerDown(wok, { pointerId: 1, clientX: 20, clientY: 20 });
+    fireEvent.pointerUp(wok, { pointerId: 1, clientX: 20, clientY: 20 });
+    expect(screen.queryByRole("button", { name: "这一步识别不顺，直接完成" })).not.toBeInTheDocument();
+    fireEvent.pointerDown(wok, { pointerId: 2, clientX: 20, clientY: 20 });
+    fireEvent.pointerUp(wok, { pointerId: 2, clientX: 20, clientY: 20 });
+    expect(screen.queryByRole("button", { name: "这一步识别不顺，直接完成" })).not.toBeInTheDocument();
+    fireEvent.pointerDown(wok, { pointerId: 3, clientX: 20, clientY: 20 });
+    fireEvent.pointerUp(wok, { pointerId: 3, clientX: 20, clientY: 20 });
+    expect(screen.getByRole("button", { name: "这一步识别不顺，直接完成" })).toBeInTheDocument();
   });
 });

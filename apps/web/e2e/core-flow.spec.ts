@@ -77,7 +77,7 @@ test("core journey, editable Tea Profile and revocable public sharing", async ({
   await expect(page).toHaveURL(/\/brew\//);
   await page.getByRole("button", { name: "打开麦克风" }).click();
   await expect(page.getByText(/正在陪伴|实时语音已连接|可使用文字输入/)).toBeVisible();
-  await page.getByRole("button", { name: "完成" }).click();
+  await page.getByRole("button", { name: "完成", exact: true }).click();
   await page.getByRole("button", { name: "结束并记下这一泡" }).click();
   await expect(page.getByText("这一泡，记下了。")).toBeVisible();
 
@@ -91,16 +91,17 @@ test("core journey, editable Tea Profile and revocable public sharing", async ({
   await page.getByRole("link", { name: /进入《雾里一芽》/ }).click();
   await expect(page).toHaveURL(/\/realm\/duyun-maojian-mist-bud/);
   await page.getByRole("button", { name: "进入茶境" }).click();
+  await page.getByRole("button", { name: "通过互动，亲手走完这一芽" }).click();
   await page.getByRole("button", { name: "轻触茶汤" }).click();
   await page.getByRole("button", { name: "返回上一幕" }).click();
   await expect(page.getByRole("heading", { name: "杯中起雾" })).toBeVisible();
   await page.getByRole("button", { name: "轻触茶汤" }).click();
   const mist = page.getByRole("group", { name: "拨开雾层" });
   await mist.press("Enter"); await mist.press("Enter"); await mist.press("Enter");
-  await page.getByRole("button", { name: "山出现了" }).click();
+  await page.getByRole("button", { name: "继续去采芽" }).click();
   await page.getByRole("button", { name: "一芽一叶" }).press("Enter");
   await page.getByRole("button", { name: "把它带去锅边" }).click();
-  await page.getByRole("button", { name: "改用手指擦开" }).click();
+  await page.getByRole("button", { name: "手指拨开" }).click();
   await page.getByRole("button", { name: "左右擦开蒸汽" }).press("Enter");
   const craft = page.getByRole("button", { name: "制茶手势区域" });
   for (let index = 0; index < 4; index += 1) {

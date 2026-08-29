@@ -244,6 +244,9 @@ class RealmProgress(Base):
     # JSON documents only keep the controlled, coarse-grained run summary.
     run_state: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     latest_outcome: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    first_completion_mode: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    reading_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    interactive_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

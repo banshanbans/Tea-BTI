@@ -30,7 +30,10 @@ from .profile import (
     ProfileError, create_profile_share, private_profile_response, public_profile_response,
     record_profile_event, require_public_share, revoke_profile_share, update_profile,
 )
-from .realm_v2 import RealmError, advance_realm, complete_realm, get_realm_detail, list_realms, record_realm_event, start_realm
+from .realm_v2 import (
+    RealmError, advance_realm, complete_realm, complete_realm_reading, get_realm_detail,
+    list_realms, record_realm_event, start_realm,
+)
 from .schemas import (
     AnonymousSessionResponse, BootstrapResponse, CapabilitiesResponse, DrinkFeedbackRequest,
     DrinkFeedbackResponse, FeedResponse, PassportEntryResponse, PassportResponse, PassportUpdate,
@@ -41,6 +44,7 @@ from .schemas import (
     ErrorResponse,
     RealmCompleteRequest, RealmCompleteResponse, RealmDetailResponse, RealmEventRequest,
     RealmListResponse, RealmMutationResponse, RealmProgressUpdate, RealmStartRequest,
+    RealmReadingCompleteRequest,
     PrivateProfileEventRequest, ProfileEventResponse, ProfileShareMutationResponse,
     ProfileShareRequest, PublicProfileEventRequest, PublicTeaProfileResponse,
     TeaProfileMutationResponse, TeaProfileResponse, TeaProfileUpdate,
@@ -388,6 +392,17 @@ def realm_complete(realm_id: str, payload: RealmCompleteRequest, user: CurrentUs
             run_id=payload.run_id,
             total_elapsed_ms=payload.total_elapsed_ms,
             interaction_mode=payload.interaction_mode,
+        )
+    except RealmError as exc:
+        raise_realm_error(exc)
+
+
+@app.post(settings.api_prefix + "/realms/{realm_id}/reading/complete", response_model=RealmCompleteResponse)
+def realm_reading_complete(realm_id: str, payload: RealmReadingCompleteRequest, user: CurrentUser, db: Db):
+    try:
+        return complete_realm_reading(
+            db, user.id, realm_id, client_event_id=payload.client_event_id,
+            confirmed=payload.confirmed, total_elapsed_ms=payload.total_elapsed_ms,
         )
     except RealmError as exc:
         raise_realm_error(exc)

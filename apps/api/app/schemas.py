@@ -235,6 +235,7 @@ class RealmOutcomeResponse(ApiModel):
     title: str
     summary: str
     stop_window: Literal["early", "balanced", "late"]
+    source: Literal["interactive", "reading_default"] = "interactive"
     updated_at: datetime
     disclaimer: str
 
@@ -259,6 +260,31 @@ class PassportResponse(ApiModel):
     items: list[PassportEntryResponse]
 
 
+class RealmExplorationPointResponse(ApiModel):
+    id: str
+    x: float = Field(ge=0, le=100)
+    y: float = Field(ge=0, le=100)
+    title: str
+    body: str
+    evidence_ref_ids: list[str] = Field(default_factory=list)
+
+
+class RealmStoryChapterResponse(ApiModel):
+    id: str
+    eyebrow: str
+    title: str
+    body: str
+    kind: Literal["fact", "boundary", "metaphor_and_fact"]
+    evidence_ref_ids: list[str] = Field(default_factory=list)
+
+
+class RealmStoryResponse(ApiModel):
+    title: str
+    estimated_minutes: int = Field(ge=1, le=30)
+    intro: str
+    chapters: list[RealmStoryChapterResponse]
+
+
 class RealmSceneResponse(ApiModel):
     id: str
     eyebrow: str
@@ -267,6 +293,7 @@ class RealmSceneResponse(ApiModel):
     completion_copy: str
     interaction: str
     asset_ids: list[str]
+    exploration_points: list[RealmExplorationPointResponse] = Field(default_factory=list)
 
 
 class RealmEvidenceResponse(ApiModel):
@@ -284,6 +311,7 @@ class RealmDefinitionResponse(ApiModel):
     subtitle: str
     region_id: str
     region_label: str
+    story: RealmStoryResponse
     scene_order: list[str]
     scenes: list[RealmSceneResponse]
     assets: list[RealmAssetResponse]
@@ -303,6 +331,9 @@ class RealmProgressResponse(ApiModel):
     started_at: datetime | None = None
     updated_at: datetime | None = None
     completed_at: datetime | None = None
+    first_completion_mode: Literal["interactive", "reading"] | None = None
+    reading_completed_at: datetime | None = None
+    interactive_completed_at: datetime | None = None
     used_taste_words: bool = False
 
 
@@ -322,7 +353,7 @@ class RealmPickBudResult(ApiModel):
 
 class RealmWokCraftResult(ApiModel):
     kind: Literal["wok-craft"]
-    steam_mode: Literal["microphone", "wipe", "keyboard", "reducedMotion"]
+    steam_mode: Literal["microphone", "wipe", "keyboard", "reducedMotion", "skipped"]
     gestures: dict[Literal["killGreen", "rolling", "balling", "pekoe"], RealmGestureResult]
 
 
@@ -424,13 +455,19 @@ class RealmCompleteRequest(ApiModel):
     interaction_mode: Literal["orientation", "pointer", "reducedMotion"]
 
 
+class RealmReadingCompleteRequest(ApiModel):
+    client_event_id: str = Field(min_length=1, max_length=80)
+    confirmed: Literal[True]
+    total_elapsed_ms: int = Field(default=0, ge=0, le=3600000)
+
+
 class RealmCompleteResponse(ApiModel):
     accepted: bool
     progress: RealmProgressResponse
     specimen: RealmSpecimenResponse
     specimen_awarded: bool
     outcome: RealmOutcomeResponse
-    run: RealmRunResponse
+    run: RealmRunResponse | None = None
     passport_entry: PassportEntryResponse
 
 

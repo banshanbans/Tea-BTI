@@ -29,14 +29,14 @@ async function dispatchTilt(page: Page, gamma: number, repeat = 1) {
 }
 
 async function chooseBudWithKeyboard(page: Page, label: string) {
-  await page.getByRole("button", { name: label }).press("Enter");
+  await page.getByRole("button", { name: label, exact: true }).press("Enter");
 }
 
 async function chooseBudByLifting(page: Page, label: string) {
-  const bud = page.getByRole("button", { name: label });
+  const bud = page.getByRole("button", { name: label, exact: true });
   const box = await bud.boundingBox();
   if (!box) throw new Error(`Bud option ${label} has no bounding box`);
-  expect(await bud.evaluate((element) => getComputedStyle(element).touchAction)).toBe("none");
+  await expect(bud).toHaveAttribute("style", /touch-action:\s*none/);
   await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.8);
   await page.mouse.down();
   await page.waitForTimeout(200);
@@ -45,8 +45,13 @@ async function chooseBudByLifting(page: Page, label: string) {
   await page.mouse.up();
 }
 
+async function beginInteractiveRealm(page: Page) {
+  await page.getByRole("button", { name: /进入茶境|继续茶境|重新进入/ }).click();
+  await page.getByRole("button", { name: /通过互动，亲手走完这一芽|继续互动/ }).click();
+}
+
 async function clearSteamByWiping(page: Page) {
-  await page.getByRole("button", { name: "改用手指擦开" }).click();
+  await page.getByRole("button", { name: "手指拨开" }).click();
   await page.getByRole("button", { name: "左右擦开蒸汽" }).press("Enter");
 }
 
@@ -113,7 +118,7 @@ async function completeSevenScenes(page: Page, options: { reviewPrevious?: boole
   }
   await clearMistByDragging(page);
   await expectNoHorizontalOverflow(page);
-  await page.getByRole("button", { name: "山出现了" }).click();
+  await page.getByRole("button", { name: "继续去采芽" }).click();
 
   await expectNoHorizontalOverflow(page);
   await chooseBudWithKeyboard(page, "只有一枚芽");
@@ -152,9 +157,9 @@ test("Tea Realm desktop fallback completes seven scenes and updates a replay out
   });
 
   await page.goto("/realm");
-  await expect(page.getByRole("heading", { name: "从杯中这一口， 回到雾里的一芽。" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /从杯中这一口.*回到雾里的一芽/ })).toBeVisible();
   await page.getByRole("link", { name: "进入茶境" }).click();
-  await page.getByRole("button", { name: "进入茶境" }).click();
+  await beginInteractiveRealm(page);
 
   await completeSevenScenes(page, { reviewPrevious: true, maturity: 2, pointerCraft: true });
   await expect(page.getByRole("heading", { name: "清鲜的白毫" })).toBeVisible();
@@ -168,7 +173,7 @@ test("Tea Realm desktop fallback completes seven scenes and updates a replay out
   await page.goto("/realm");
   await expect(page.getByText("7 / 7 幕完成")).toBeVisible();
   await page.getByRole("link", { name: "再走一遍" }).click();
-  await page.getByRole("button", { name: "重新进入" }).click();
+  await beginInteractiveRealm(page);
   await completeSevenScenes(page, { maturity: 4 });
   await expect(page.getByRole("heading", { name: "带火香的一芽" })).toBeVisible();
 });
@@ -176,9 +181,31 @@ test("Tea Realm desktop fallback completes seven scenes and updates a replay out
 test("early stop produces its own valid outcome", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "The three-outcome sweep runs once in Chromium");
   await page.goto("/realm/duyun-maojian-mist-bud?entry=realm");
-  await page.getByRole("button", { name: "进入茶境" }).click();
+  await beginInteractiveRealm(page);
   await completeSevenScenes(page, { maturity: 0 });
   await expect(page.getByRole("heading", { name: "鲜青的一芽" })).toBeVisible();
+});
+
+test("the complete story path awards the reading-default outcome without device permissions", async ({ page }) => {
+  await page.addInitScript(() => {
+    class ForbiddenOrientationEvent extends Event {
+      static requestPermission = () => { throw new Error("Story mode must not request orientation"); };
+    }
+    Object.defineProperty(window, "DeviceOrientationEvent", { configurable: true, value: ForbiddenOrientationEvent });
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: () => { throw new Error("Story mode must not request microphone"); } },
+    });
+  });
+  await page.goto("/realm/duyun-maojian-mist-bud?entry=realm");
+  await page.getByRole("button", { name: "进入茶境" }).click();
+  await page.getByRole("button", { name: "直接阅读，了解这杯茶的来路" }).click();
+  await expect(page.getByRole("heading", { name: "一芽如何走进杯中" })).toBeVisible();
+  await expect(page.locator(".realm-story-chapter")).toHaveCount(7);
+  await page.getByRole("button", { name: "我已经读完，收下白毫" }).click();
+  await expect(page.getByRole("heading", { name: "清鲜的白毫" })).toBeVisible();
+  await expect(page.getByText("这是文字稿的默认叙事结果，不代表你的互动选择或真实加工批次。")).toBeVisible();
+  await expect(page.getByRole("button", { name: "阅读完整文字稿" })).toBeVisible();
 });
 
 for (const width of [320, 430]) {
@@ -186,7 +213,7 @@ for (const width of [320, 430]) {
     test.skip(browserName !== "chromium", "The responsive scene sweep runs once in Chromium");
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/realm/duyun-maojian-mist-bud?entry=realm");
-    await page.getByRole("button", { name: "进入茶境" }).click();
+    await beginInteractiveRealm(page);
     await completeSevenScenes(page, { maturity: 2 });
     await expect(page.getByRole("heading", { name: "清鲜的白毫" })).toBeVisible();
   });
@@ -216,15 +243,17 @@ test("microphone analysis is opt-in and can clear steam locally", async ({ page,
     Object.defineProperty(window, "AudioContext", { configurable: true, value: LocalAudioContext });
   });
   await page.goto("/realm/duyun-maojian-mist-bud?entry=realm");
-  await page.getByRole("button", { name: "进入茶境" }).click();
+  await beginInteractiveRealm(page);
   await dispatchTilt(page, 0, 5);
   await page.getByRole("button", { name: "轻触茶汤" }).click();
   await clearMistByDragging(page);
-  await page.getByRole("button", { name: "山出现了" }).click();
-  await chooseBudWithKeyboard(page, "一芽一叶");
+  await page.getByRole("button", { name: "继续去采芽" }).click();
+  const targetBud = page.getByRole("button", { name: "一芽一叶", exact: true });
+  await targetBud.dispatchEvent("keydown", { key: "Enter", code: "Enter", bubbles: true });
+  await expect(targetBud).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "把它带去锅边" }).click();
-  await expect(page.getByRole("button", { name: "吹开蒸汽" })).toBeVisible();
-  await page.getByRole("button", { name: "吹开蒸汽" }).click();
+  await expect(page.getByRole("button", { name: "吹一下，让蒸汽散开" })).toBeVisible();
+  await page.getByRole("button", { name: "吹一下，让蒸汽散开" }).click();
   await expect(page.getByRole("button", { name: "制茶手势区域" })).toContainText("向前推", { timeout: 5_000 });
   for (const gamma of [35, -35, 35, -35, 35]) await dispatchTilt(page, gamma, 7);
   await expect(page.getByRole("button", { name: "制茶手势区域" })).toContainText("往复揉");
@@ -243,14 +272,16 @@ test("WebKit completes after direction and microphone permission denial", async 
     Object.defineProperty(window, "DeviceOrientationEvent", { configurable: true, value: DeniedOrientationEvent });
   });
   await page.goto("/realm/duyun-maojian-mist-bud?entry=realm");
-  await page.getByRole("button", { name: "进入茶境" }).click();
+  await beginInteractiveRealm(page);
   await expect(page.getByText("已自动切换为拖拽操作，不影响体验。")).toBeVisible();
   await page.getByRole("button", { name: "轻触茶汤" }).click();
   await clearMistByDragging(page);
-  await page.getByRole("button", { name: "山出现了" }).click();
-  await chooseBudWithKeyboard(page, "一芽一叶");
+  await page.getByRole("button", { name: "继续去采芽" }).click();
+  const targetBud = page.getByRole("button", { name: "一芽一叶", exact: true });
+  await targetBud.dispatchEvent("keydown", { key: "Enter", code: "Enter", bubbles: true });
+  await expect(targetBud).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "把它带去锅边" }).click();
-  await page.getByRole("button", { name: "吹开蒸汽" }).click();
+  await page.getByRole("button", { name: "吹一下，让蒸汽散开" }).click();
   await expect(page.getByRole("button", { name: "左右擦开蒸汽" })).toBeVisible();
   await expect(page.getByText("没有使用麦克风，改用手指擦开蒸汽。")).toBeVisible();
   await page.getByRole("button", { name: "左右擦开蒸汽" }).press("Enter");
@@ -268,15 +299,16 @@ test("WebKit completes after direction and microphone permission denial", async 
 test("reduced motion falls back cleanly and refresh restores the server-owned scene", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/realm/duyun-maojian-mist-bud?entry=realm");
-  await page.getByRole("button", { name: "进入茶境" }).click();
+  await beginInteractiveRealm(page);
   await expect(page.getByText("已自动切换为拖拽操作，不影响体验。")).toBeVisible();
   await page.getByRole("button", { name: "轻触茶汤" }).click();
   await expect(page.getByRole("heading", { name: "雾后是黔南的山" })).toBeVisible();
 
   await page.reload();
+  await beginInteractiveRealm(page);
   await expect(page.getByRole("heading", { name: "雾后是黔南的山" })).toBeVisible();
   await clearMistByDragging(page);
-  await expect(page.getByRole("button", { name: "山出现了" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "继续去采芽" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
@@ -296,7 +328,7 @@ test("Realm home stays clear of the bottom navigation at supported widths", asyn
   for (const width of [320, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/realm");
-    await expect(page.getByRole("link", { name: /进入茶境|继续体验|再走一遍/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /进入茶境|继续互动|亲手体验|再走一遍/ })).toBeVisible();
     await page.waitForTimeout(800);
     const layout = await page.evaluate(() => {
       const action = document.querySelector(".realm-home-copy a.button")?.getBoundingClientRect();

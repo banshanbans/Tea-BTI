@@ -89,5 +89,9 @@ def test_realm_assets_keep_their_rights_and_fact_boundaries():
     assert sum((ROOT / asset["media_path"]).stat().st_size for asset in teacher_assets) <= 500_000
     realm = realm_catalog["realms"][0]
     assert all(asset_id in asset_ids for scene in realm["scenes"] for asset_id in scene["assetIds"])
-    debt = next(item for item in realm["evidenceRefs"] if item["id"] == "duyun-53000-plus")
-    assert debt["status"] == "debt"
+    source = next(item for item in realm["evidenceRefs"] if item["id"] == "moa-duyun-maojian-2020")
+    assert source["status"] == "verified"
+    assert source["url"].startswith("https://cnafun.moa.gov.cn/")
+    assert len(realm["story"]["chapters"]) == 7
+    mountain = next(scene for scene in realm["scenes"] if scene["id"] == "mist-mountain")
+    assert {point["id"] for point in mountain["explorationPoints"]} == {"qiannan-origin", "mountain-mist", "bud-standard"}

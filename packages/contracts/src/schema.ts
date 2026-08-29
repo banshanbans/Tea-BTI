@@ -242,6 +242,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/realms/{realm_id}/reading/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Realm Reading Complete */
+        post: operations["realm_reading_complete_api_v1_realms__realm_id__reading_complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/drink-feedback": {
         parameters: {
             query?: never;
@@ -1125,7 +1142,7 @@ export interface components {
             /** Specimenawarded */
             specimenAwarded: boolean;
             outcome: components["schemas"]["RealmOutcomeResponse"];
-            run: components["schemas"]["RealmRunResponse"];
+            run?: components["schemas"]["RealmRunResponse"] | null;
             passportEntry: components["schemas"]["PassportEntryResponse"];
         };
         /** RealmDefinitionResponse */
@@ -1142,6 +1159,7 @@ export interface components {
             regionId: string;
             /** Regionlabel */
             regionLabel: string;
+            story: components["schemas"]["RealmStoryResponse"];
             /** Sceneorder */
             sceneOrder: string[];
             /** Scenes */
@@ -1196,6 +1214,21 @@ export interface components {
             status: "verified" | "debt";
             /** Supports */
             supports: string[];
+        };
+        /** RealmExplorationPointResponse */
+        RealmExplorationPointResponse: {
+            /** Id */
+            id: string;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Evidencerefids */
+            evidenceRefIds?: string[];
         };
         /** RealmGestureResult */
         RealmGestureResult: {
@@ -1254,6 +1287,12 @@ export interface components {
              * @enum {string}
              */
             stopWindow: "early" | "balanced" | "late";
+            /**
+             * Source
+             * @default interactive
+             * @enum {string}
+             */
+            source: "interactive" | "reading_default";
             /**
              * Updatedat
              * Format: date-time
@@ -1328,6 +1367,12 @@ export interface components {
             updatedAt?: string | null;
             /** Completedat */
             completedAt?: string | null;
+            /** Firstcompletionmode */
+            firstCompletionMode?: ("interactive" | "reading") | null;
+            /** Readingcompletedat */
+            readingCompletedAt?: string | null;
+            /** Interactivecompletedat */
+            interactiveCompletedAt?: string | null;
             /**
              * Usedtastewords
              * @default false
@@ -1349,6 +1394,21 @@ export interface components {
              * @default 0
              */
             elapsedMs: number;
+        };
+        /** RealmReadingCompleteRequest */
+        RealmReadingCompleteRequest: {
+            /** Clienteventid */
+            clientEventId: string;
+            /**
+             * Confirmed
+             * @constant
+             */
+            confirmed: true;
+            /**
+             * Totalelapsedms
+             * @default 0
+             */
+            totalElapsedMs: number;
         };
         /** RealmRunResponse */
         RealmRunResponse: {
@@ -1397,6 +1457,8 @@ export interface components {
             interaction: string;
             /** Assetids */
             assetIds: string[];
+            /** Explorationpoints */
+            explorationPoints?: components["schemas"]["RealmExplorationPointResponse"][];
         };
         /** RealmSpecimenResponse */
         RealmSpecimenResponse: {
@@ -1432,6 +1494,35 @@ export interface components {
              */
             replay: boolean;
         };
+        /** RealmStoryChapterResponse */
+        RealmStoryChapterResponse: {
+            /** Id */
+            id: string;
+            /** Eyebrow */
+            eyebrow: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "fact" | "boundary" | "metaphor_and_fact";
+            /** Evidencerefids */
+            evidenceRefIds?: string[];
+        };
+        /** RealmStoryResponse */
+        RealmStoryResponse: {
+            /** Title */
+            title: string;
+            /** Estimatedminutes */
+            estimatedMinutes: number;
+            /** Intro */
+            intro: string;
+            /** Chapters */
+            chapters: components["schemas"]["RealmStoryChapterResponse"][];
+        };
         /** RealmSummaryResponse */
         RealmSummaryResponse: {
             /** Realmid */
@@ -1462,7 +1553,7 @@ export interface components {
              * Steammode
              * @enum {string}
              */
-            steamMode: "microphone" | "wipe" | "keyboard" | "reducedMotion";
+            steamMode: "microphone" | "wipe" | "keyboard" | "reducedMotion" | "skipped";
             /** Gestures */
             gestures: {
                 [key: string]: components["schemas"]["RealmGestureResult"];
@@ -3002,6 +3093,88 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RealmCompleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RealmCompleteResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    realm_reading_complete_api_v1_realms__realm_id__reading_complete_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                realm_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RealmReadingCompleteRequest"];
             };
         };
         responses: {

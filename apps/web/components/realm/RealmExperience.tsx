@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion, type Variants } from "framer-motion";
 import { Check, FastForward, Grains, Leaf, Plant, SpeakerHigh, SpeakerSlash, Sparkle, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
@@ -28,15 +28,21 @@ const BUD_IMAGES: Record<string, string> = {
   stem: "/realm/bud-stem.png",
 };
 
-const copyVariants = {
+const BUD_HINTS: Record<string, string> = {
+  single: "只有一枚芽，还差那片陪在旁边的嫩叶。再找找“一芽一叶”。",
+  open: "叶子已经展开了，错过了最嫩的时机。再找找“一芽一叶”。",
+  stem: "这根梗太长了，采的时候要连着一点嫩叶。再找找“一芽一叶”。",
+};
+
+const copyVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.09, delayChildren: 0.06 } },
 };
-const copyItem = {
+const copyItem: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
 };
-const sceneVariants = {
+const sceneVariants: Variants = {
   enter: { opacity: 0, y: 30, scale: 0.985 },
   center: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: EASE } },
   exit: { opacity: 0, y: -20, scale: 0.995, transition: { duration: 0.28, ease: "easeIn" } },
@@ -167,6 +173,12 @@ export function RealmExperience({ realmId, replay }: { realmId: string; replay: 
     window.addEventListener("deviceorientation", handleOrientation);
     return () => window.removeEventListener("deviceorientation", handleOrientation);
   }, [mode, screen]);
+
+  useEffect(() => {
+    if (screen === "mist-mountain" && mistScore >= 70) {
+      void advance();
+    }
+  }, [mistScore, screen]);
 
   const assets = useMemo(() => new Map(detail?.definition.assets.map((asset) => [asset.role, asset]) || []), [detail]);
   const sceneIndex = detail ? detail.definition.sceneOrder.indexOf(screen) : 0;
@@ -532,7 +544,7 @@ export function RealmExperience({ realmId, replay }: { realmId: string; replay: 
             <motion.div className="realm-scene-copy" variants={copyVariants} initial="hidden" animate="show">
               <motion.p className="realm-kicker" variants={copyItem}>{scene?.eyebrow}</motion.p>
               <motion.h1 variants={copyItem}>{scene?.title}</motion.h1>
-              <motion.p variants={copyItem}>{scene?.instruction}</motion.p>
+              {scene?.instruction ? <motion.p variants={copyItem}>{scene.instruction}</motion.p> : null}
             </motion.div>
 
             {screen === "liquor-entry" ? (
@@ -572,7 +584,6 @@ export function RealmExperience({ realmId, replay }: { realmId: string; replay: 
                 <div className="realm-mist-ui">
                   <div className="realm-meter"><span style={{ width: `${mistScore}%` }} /></div>
                   <small>{mistScore >= 70 ? "雾散了，山出来了。" : mode === "orientation" ? "轻轻倾斜手机" : "左右拖动拨开雾"}</small>
-                  {mistScore >= 70 ? <button className="button primary" disabled={busy} onClick={() => void advance()}>山出现了</button> : null}
                 </div>
               </div>
             ) : null}
@@ -584,13 +595,16 @@ export function RealmExperience({ realmId, replay }: { realmId: string; replay: 
                 ].map(([id, label]) => (
                   <button key={id} className={`realm-bud ${budChosen && id === "bud-leaf" ? "chosen" : ""} ${shakeBud === id ? "shake" : ""}`} onClick={() => {
                     if (id === "bud-leaf") { setBudChosen(true); setWrongBud(""); tone(soundOn, 590); }
-                    else { setWrongBud("这一枚也在长大。再找找“一芽一叶”。"); setShakeBud(id); tone(soundOn, 220); }
+                    else { setWrongBud(BUD_HINTS[id] ?? "这一枚也在长大。再找找“一芽一叶”。"); setShakeBud(id); tone(soundOn, 220); }
                   }}>
                     <img className="realm-bud-img" src={BUD_IMAGES[id]} alt="" />
                     <span className="realm-bud-label">{label}</span>
                   </button>
                 ))}
-                <p className="realm-feedback" aria-live="polite">{budChosen ? "1 / 53,000+ · 这一片叶子很轻，人的劳动很重。" : wrongBud}</p>
+                <div className="realm-feedback" aria-live="polite">
+                  {!budChosen && wrongBud ? <img className="realm-farmer" src="/realm/tea-farmer.png" alt="茶农" /> : null}
+                  <span>{budChosen ? "1 / 53,000+ · 这一片叶子很轻，人的劳动很重。" : wrongBud}</span>
+                </div>
                 {budChosen ? <motion.button className="button primary" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} disabled={busy} onClick={() => void advance()}>把它带去锅边</motion.button> : null}
               </div>
             ) : null}

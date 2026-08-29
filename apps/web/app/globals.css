@@ -846,3 +846,8 @@ input, textarea {
 }
 .realm-tap-pill:active { transform: scale(.97); }
 .realm-tap-pill:disabled { opacity: .5; cursor: wait; }
+
+/* Realm — third scene: tea farmer feedback on wrong pick */
+.realm-feedback { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.realm-feedback > span { display: block; }
+.realm-farmer { height: 104px; max-width: 100%; object-fit: contain; filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .45)); }

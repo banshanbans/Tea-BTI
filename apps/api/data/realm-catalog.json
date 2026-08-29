@@ -69,7 +69,7 @@
           "id": "pick-bud",
           "eyebrow": "摘下一芽",
           "title": "哪一片，会成为毛尖？",
-          "instruction": "选中一芽一叶，向上提进竹篓。",
+          "instruction": "",
           "completionCopy": "就是它。一芽一叶。",
           "interaction": "select_and_lift",
           "assetIds": ["realm-duyun-mountain"]

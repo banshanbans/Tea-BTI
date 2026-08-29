@@ -62,11 +62,11 @@ describe("RealmExperience", () => {
     fireEvent.keyDown(mist, { key: "Enter" });
     fireEvent.keyDown(mist, { key: "Enter" });
     fireEvent.keyDown(mist, { key: "Enter" });
-    fireEvent.click(await screen.findByRole("button", { name: "山出现了" }));
 
+    // 雾散到 70% 后自动进入下一幕，不再出现「山出现了」按钮
     await screen.findByRole("heading", { name: "哪一片，会成为毛尖？" });
     fireEvent.click(screen.getByRole("button", { name: "只有一枚芽" }));
-    expect(screen.getByText("这一枚也在长大。再找找“一芽一叶”。")).toBeInTheDocument();
+    expect(screen.getByText("只有一枚芽，还差那片陪在旁边的嫩叶。再找找“一芽一叶”。")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "一芽一叶" }));
     expect(await screen.findByText("1 / 53,000+", { exact: false })).toBeInTheDocument();
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith(expect.stringContaining("/progress"), expect.anything()));

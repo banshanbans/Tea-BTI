@@ -844,14 +844,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .seed-carousel { margin: 22px 0 16px; }
 .seed-card-motion { touch-action: pan-y; user-select: none; cursor: grab; will-change: transform; }
 .seed-card-motion:active { cursor: grabbing; }
-.seed-focus-card { min-height: 585px; display: grid; grid-template-rows: auto 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 30px 30px 10px 30px; background: var(--card); box-shadow: 0 20px 48px rgba(37, 57, 40, .11); }
-.seed-focus-card > img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 0% !important; background: #eee9de; }
-.seed-focus-copy { display: flex; flex-direction: column; align-items: flex-start; padding: 19px 20px 17px; }
-.seed-focus-copy h2 { margin: 5px 0 7px; font-family: var(--serif); font-size: 28px; }
-.seed-focus-copy > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
-.seed-more { width: 100%; margin-top: 8px; }
-.seed-more small { display: block; color: var(--muted); font-size: 10px; line-height: 1.5; }
-.seed-peek { display: inline-flex; align-items: center; gap: 5px; margin-top: auto; padding: 7px 0 0; border: 0; color: var(--leaf); background: transparent; font-size: 12px; font-weight: 750; cursor: pointer; }
+.seed-card-motion[role="button"] { border-radius: 30px 30px 10px 30px; outline: none; }
+.seed-card-motion[role="button"]:focus-visible { box-shadow: 0 0 0 3px rgba(49,92,66,.3); }
+.seed-focus-card { position: relative; aspect-ratio: 3 / 4; min-height: 0; overflow: hidden; color: white; border: 1px solid rgba(49,92,66,.12); border-radius: 30px 30px 10px 30px; background: #eee9de; box-shadow: 0 20px 48px rgba(37, 57, 40, .11); }
+.seed-focus-card::after { content: ""; position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, transparent 48%, rgba(17,28,20,.08) 62%, rgba(17,28,20,.9) 100%); pointer-events: none; }
+.seed-focus-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 50% !important; background: #eee9de; }
+.seed-focus-copy { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 54px 20px 18px; text-shadow: 0 1px 3px rgba(0,0,0,.42); }
+.seed-focus-copy .eyebrow { color: rgba(255,255,255,.82); }
+.seed-focus-copy h2 { margin: 5px 0 6px; font-family: var(--serif); font-size: 28px; }
+.seed-focus-copy > p { max-width: 95%; margin: 0; color: rgba(255,255,255,.78); font-size: 13px; line-height: 1.6; }
+.seed-preview-hint { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; color: rgba(255,255,255,.9); font-size: 11px; font-weight: 750; }
 .seed-carousel-controls { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-top: 12px; }
 .seed-carousel-controls > button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: var(--card); }
 .seed-carousel-controls > button:last-child { justify-self: end; }
@@ -861,6 +863,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .seed-dots button.active { width: 24px; background: var(--leaf); }
 .seed-swipe-hint { margin: 3px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
 .seed-primary { margin-top: 9px; }
+
+.card-preview-layer { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); }
+.card-preview-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(9,18,12,.72); backdrop-filter: blur(9px); cursor: pointer; }
+.card-preview-dialog { position: relative; z-index: 1; width: min(100%, 390px); max-height: 94dvh; padding: 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 30px 30px 10px 30px; background: var(--paper); overflow: auto; box-shadow: 0 30px 90px rgba(5,13,8,.5); }
+.card-preview-dialog > img { display: block; width: 100%; height: auto; max-height: 72dvh; aspect-ratio: 3 / 4; object-fit: contain; border-radius: 22px 22px 7px 22px; background: #eee9de; }
+.card-preview-close { position: absolute; z-index: 2; top: 20px; right: 20px; width: 42px; height: 42px; display: grid; place-items: center; padding: 0; color: white; border: 1px solid rgba(255,255,255,.32); border-radius: 50%; background: rgba(15,29,20,.5); backdrop-filter: blur(10px); box-shadow: 0 8px 24px rgba(8,16,11,.2); cursor: pointer; }
+.card-preview-close:focus-visible { outline: 3px solid rgba(255,255,255,.76); outline-offset: 2px; }
+.card-preview-copy { padding: 14px 10px 8px; }
+.card-preview-copy h2 { margin: 4px 0 6px; font-family: var(--serif); font-size: 26px; }
+.card-preview-copy > p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.card-preview-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.card-preview-tags span { padding: 5px 9px; border-radius: 999px; color: var(--leaf); background: var(--leaf-soft); font-size: 10px; font-weight: 750; }
 
 .reveal-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
 .reveal-actions .button { width: 100%; min-height: 50px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding-inline: 10px; }
@@ -895,6 +909,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .passport-next-actions .button + .button { margin-top: 9px; }
 
 @media (max-width: 360px) {
-  .seed-focus-card { min-height: 535px; }
+  .seed-focus-copy { padding: 44px 17px 15px; }
+  .seed-focus-copy h2 { font-size: 25px; }
+  .card-preview-layer { padding-inline: 12px; }
   .tea-journey { padding-inline: 15px; }
 }

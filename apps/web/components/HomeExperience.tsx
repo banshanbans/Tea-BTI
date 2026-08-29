@@ -18,6 +18,13 @@ type MbtiCode = components["schemas"]["MbtiCode"];
 type Screen = "loading" | "mbti" | "seeds" | "feed" | "reveal" | "recommendation";
 type MbtiAxisLetter = "E" | "I" | "N" | "S" | "T" | "F" | "J" | "P";
 type MbtiAxisSelection = [MbtiAxisLetter, MbtiAxisLetter, MbtiAxisLetter, MbtiAxisLetter];
+type TeaCardPreviewData = {
+  name: string;
+  imageUrl: string;
+  eyebrow: string;
+  description: string;
+  tags: string[];
+};
 const SWIPE_THRESHOLD = 92;
 const SEED_SWIPE_THRESHOLD = 74;
 const MBTI_AXES = [
@@ -38,6 +45,37 @@ function TeaSwipeCard({ card, depth = 0 }: { card: TeaFeedCard; depth?: number }
         <div className="card-personality">{card.personalityKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div>
       </div>
     </article>
+  );
+}
+
+function TeaCardPreview({ card, onClose }: { card: TeaCardPreviewData; onClose: () => void }) {
+  useEffect(() => {
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
+
+  return (
+    <section className="card-preview-layer" role="dialog" aria-modal="true" aria-label={`${card.name}完整茶叶卡`}>
+      <button type="button" className="card-preview-backdrop" aria-label="轻触遮罩关闭完整茶叶卡" onClick={onClose} />
+      <motion.article
+        className="card-preview-dialog"
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 310, damping: 28 }}
+      >
+        <button type="button" autoFocus className="card-preview-close" aria-label="关闭完整茶叶卡" onClick={onClose}><X size={21} /></button>
+        <img src={card.imageUrl} alt={`${card.name}完整茶叶卡`} />
+        <div className="card-preview-copy">
+          <p className="eyebrow">{card.eyebrow}</p>
+          <h2>{card.name}</h2>
+          <p>{card.description}</p>
+          <div className="card-preview-tags">{card.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+        </div>
+      </motion.article>
+    </section>
   );
 }
 
@@ -131,8 +169,8 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [seedIndex, setSeedIndex] = useState(0);
-  const [seedExpanded, setSeedExpanded] = useState(false);
   const [seedTransitioning, setSeedTransitioning] = useState(false);
+  const [cardPreview, setCardPreview] = useState<TeaCardPreviewData | null>(null);
   const [mbtiAxes, setMbtiAxes] = useState<MbtiAxisSelection>(["I", "N", "F", "J"]);
   const seedTransitioningRef = useRef(false);
   const dragStartPointX = useRef<number | null>(null);
@@ -202,7 +240,6 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   function showSeed(index: number) {
     if (!seeds) return;
     setSeedIndex(Math.max(0, Math.min(seeds.items.length - 1, index)));
-    setSeedExpanded(false);
   }
 
   async function transitionSeed(targetIndex: number, direction: -1 | 1) {
@@ -212,7 +249,6 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
     }
     seedTransitioningRef.current = true;
     setSeedTransitioning(true);
-    setSeedExpanded(false);
     try {
       if (reducedMotion) {
         showSeed(targetIndex);
@@ -235,7 +271,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
     setBusy(true); setError("");
     try {
       const result = await authenticated<SeedBatch>("/onboarding/seed", { method: "POST", ...jsonBody({ mbti }) });
-      setSeeds(result); setSeedIndex(0); setSeedExpanded(false); setScreen("seeds");
+      setSeeds(result); setSeedIndex(0); setScreen("seeds");
     } catch { setError("这三杯还没靠岸，再试一次。"); }
     finally { setBusy(false); }
   }
@@ -328,12 +364,32 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
           <motion.div
             className="seed-card-motion"
             key={item.role}
+            role="button"
+            tabIndex={0}
+            aria-label={`查看${item.name}完整茶叶卡`}
             drag={seedTransitioning ? false : "x"}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.82}
             dragMomentum={false}
             style={{ x: seedX, rotate: reducedMotion ? 0 : seedRotation, scale: seedScale }}
-            onDragStart={() => setSeedExpanded(false)}
+            onTap={() => setCardPreview({
+              name: item.name,
+              imageUrl: mediaUrl(item.visual.url),
+              eyebrow: item.roleLabel,
+              description: item.explanation,
+              tags: item.tags,
+            })}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              setCardPreview({
+                name: item.name,
+                imageUrl: mediaUrl(item.visual.url),
+                eyebrow: item.roleLabel,
+                description: item.explanation,
+                tags: item.tags,
+              });
+            }}
             onDragEnd={(_, info) => {
               const projected = info.offset.x + info.velocity.x * 0.12;
               if (projected < -SEED_SWIPE_THRESHOLD) void transitionSeed(seedIndex + 1, 1);
@@ -344,8 +400,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
             <article className="seed-focus-card">
               <img className="presentation-art" draggable={false} src={mediaUrl(item.visual.url)} style={{ objectPosition: item.visual.objectPosition }} alt={`${item.name}立体设计图`} />
               <div className="seed-focus-copy"><span className="eyebrow">{item.roleLabel}</span><h2>{item.name}</h2><p>{item.explanation}</p>
-                {seedExpanded ? <div className="seed-more"><div className="tags light-tags">{item.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div><small>先记住这一眼，口味会在接下来的选择里慢慢清晰。</small></div> : null}
-                <button className="seed-peek" aria-expanded={seedExpanded} onClick={() => setSeedExpanded((expanded) => !expanded)}><Eye size={16} />{seedExpanded ? "收起" : "先看看"}</button>
+                <span className="seed-preview-hint"><Eye size={16} />轻触查看完整卡面</span>
               </div>
             </article>
           </motion.div>
@@ -357,6 +412,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
           <p className="seed-swipe-hint">左右滑动，也可以换一杯</p>
         </div>
         <button className="button primary block seed-primary" onClick={() => void loadFeed()}>{HOME_COPY.seedPrimary} <ArrowRight size={18} /></button>
+        {cardPreview ? <TeaCardPreview card={cardPreview} onClose={() => setCardPreview(null)} /> : null}
       </section></AppShell>
     );
   }
@@ -401,11 +457,32 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
           <motion.div
             key={`${deckCard.cardId}-${depth}`}
             className="deck-motion"
+            role="button"
+            tabIndex={0}
+            aria-label={`查看${deckCard.name}完整茶叶卡`}
             drag={busy ? false : "x"}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.86}
             dragMomentum={false}
             style={{ x: cardX, rotate: reducedMotion ? 0 : cardRotation }}
+            onTap={() => setCardPreview({
+              name: deckCard.name,
+              imageUrl: mediaUrl(deckCard.visual.url),
+              eyebrow: `${deckCard.region} · ${deckCard.teaType}`,
+              description: deckCard.headline,
+              tags: deckCard.personalityKeywords,
+            })}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              setCardPreview({
+                name: deckCard.name,
+                imageUrl: mediaUrl(deckCard.visual.url),
+                eyebrow: `${deckCard.region} · ${deckCard.teaType}`,
+                description: deckCard.headline,
+                tags: deckCard.personalityKeywords,
+              });
+            }}
             onDragStart={(_, info) => { dragStartPointX.current = info.point.x; }}
             onDragEnd={(_, info) => {
               const pointerOffset = dragStartPointX.current === null ? 0 : info.point.x - dragStartPointX.current;
@@ -434,6 +511,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
         <motion.button disabled={busy} className="swipe-action like" aria-label="这杯想喝" style={{ scale: likeScale, opacity: likeOpacity, boxShadow: likeGlow }} onClick={() => void swipe("like", 1)}><Heart size={27} weight="fill" /><span>想喝</span></motion.button>
       </div>
       {error ? <p className="error swipe-error" role="alert">{error}</p> : null}
+      {cardPreview ? <TeaCardPreview card={cardPreview} onClose={() => setCardPreview(null)} /> : null}
     </section></AppShell>
   ) : <AppShell active="swipe"><div className="empty"><button className="button" onClick={() => void loadFeed()}>重新装一组卡片</button></div></AppShell>;
 }

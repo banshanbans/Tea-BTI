@@ -74,7 +74,6 @@ export function TeaDetailView({ teaId, origin = "swipe" }: { teaId: string; orig
       <section className="panel tea-character" aria-labelledby="personality-keywords-title">
         <p className="eyebrow">Tea-BTI 破冰语言</p><h2 id="personality-keywords-title" className="section-title">性格关键词</h2>
         <div className="personality-keywords" aria-label="Tea-BTI 性格关键词">{tea.personalityKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div>
-        <p className="detail-disclaimer">性格关键词只用于探索与破冰，不代表科学测评或确定性匹配。</p>
       </section>
       <section className="tea-journey" aria-labelledby="tea-journey-title">
         <div className="tea-journey-head"><div><p className="eyebrow">这一杯的路</p><h2 id="tea-journey-title">接着往下走</h2></div><span>{journeySteps.filter((step) => step.complete).length} / {journeySteps.length}</span></div>

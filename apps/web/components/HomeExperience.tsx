@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
-import { ArrowRight, BookmarkSimple, CaretLeft, CaretRight, CircleNotch, Eye, Heart, Leaf, X } from "@phosphor-icons/react";
+import { ArrowRight, BookmarkSimple, CaretLeft, CaretRight, Eye, Heart, Leaf, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { components } from "@tea-bti/contracts";
 
@@ -15,10 +15,9 @@ import { teaDetailHref } from "@/lib/navigation";
 import { useAppStore } from "@/lib/store";
 
 type MbtiCode = components["schemas"]["MbtiCode"];
-type Screen = "launch" | "mbti" | "seeds" | "feed" | "reveal" | "recommendation";
+type Screen = "loading" | "mbti" | "seeds" | "feed" | "reveal" | "recommendation";
 type MbtiAxisLetter = "E" | "I" | "N" | "S" | "T" | "F" | "J" | "P";
 type MbtiAxisSelection = [MbtiAxisLetter, MbtiAxisLetter, MbtiAxisLetter, MbtiAxisLetter];
-const RETURNING_LAUNCH_MS = 800;
 const SWIPE_THRESHOLD = 92;
 const SEED_SWIPE_THRESHOLD = 74;
 const MBTI_AXES = [
@@ -121,8 +120,8 @@ function MbtiAxisWheel({ label, choices, value, disabled, onChange }: {
 }
 
 export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: boolean }) {
-  const [screen, setScreen] = useState<Screen>("launch");
-  const [launchReady, setLaunchReady] = useState(false);
+  const [screen, setScreen] = useState<Screen>("loading");
+  const [bootstrapReady, setBootstrapReady] = useState(false);
   const [bootstrapAttempt, setBootstrapAttempt] = useState(0);
   const [seeds, setSeeds] = useState<SeedBatch | null>(null);
   const [cards, setCards] = useState<TeaFeedCard[]>([]);
@@ -135,7 +134,6 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   const [seedExpanded, setSeedExpanded] = useState(false);
   const [seedTransitioning, setSeedTransitioning] = useState(false);
   const [mbtiAxes, setMbtiAxes] = useState<MbtiAxisSelection>(["I", "N", "F", "J"]);
-  const launchStartedAt = useRef(Date.now());
   const seedTransitioningRef = useRef(false);
   const dragStartPointX = useRef<number | null>(null);
   const { swipeCount, setBootstrap, incrementSwipe } = useAppStore();
@@ -172,8 +170,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
 
   useEffect(() => {
     let cancelled = false;
-    launchStartedAt.current = Date.now();
-    setLaunchReady(false);
+    setBootstrapReady(false);
     setError("");
     void (async () => {
       try {
@@ -184,8 +181,6 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
           setScreen("mbti");
         } else {
           await loadFeed(false);
-          const elapsed = Date.now() - launchStartedAt.current;
-          if (elapsed < RETURNING_LAUNCH_MS) await new Promise((resolve) => window.setTimeout(resolve, RETURNING_LAUNCH_MS - elapsed));
           if (!cancelled) setScreen("feed");
         }
       } catch {
@@ -194,7 +189,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
           setScreen("mbti");
         }
       } finally {
-        if (!cancelled) setLaunchReady(true);
+        if (!cancelled) setBootstrapReady(true);
       }
     })();
     return () => { cancelled = true; };
@@ -293,16 +288,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   const selectedMbtiCode = mbtiAxes.join("") as MbtiCode;
   const selectedMbti = MBTI_OPTIONS.find((option) => option.code === selectedMbtiCode) ?? MBTI_OPTIONS[0];
 
-  if (screen === "launch") return (
-    <AppShell active="swipe" navigation={false} header={false} shellClassName="launch-shell"><section className="launch-screen" aria-busy={!launchReady}>
-      <div className="launch-glow" aria-hidden="true" />
-      <header className="launch-brand">
-        <span className="launch-mark"><Leaf size={26} weight="fill" /></span>
-        <span><strong>Tea-BTI</strong><small>贵州茶味身份</small></span>
-      </header>
-      <div className="launch-wait" aria-live="polite"><CircleNotch className="spin" size={20} />{HOME_COPY.loading}</div>
-    </section></AppShell>
-  );
+  if (screen === "loading") return <p className="sr-only" role="status">正在载入</p>;
 
   if (screen === "mbti") return (
     <AppShell active="swipe" navigation={false} header={false} shellClassName="cold-start-shell"><section className="onboarding-screen cold-start-screen">
@@ -316,14 +302,13 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
           label={axis.label}
           choices={axis.choices}
           value={mbtiAxes[index]}
-          disabled={busy || !launchReady}
+          disabled={busy || !bootstrapReady}
           onChange={(value) => setMbtiAxis(index, value)}
         />)}
       </div>
       <p className="mbti-selected-copy" aria-live="polite"><strong>{selectedMbti.code}</strong><span>{selectedMbti.line}</span></p>
-      <p className="mbti-disclaimer">{HOME_COPY.mbtiDisclaimer}</p>
-      <button disabled={busy || !launchReady} className="button primary block mbti-confirm" onClick={() => chooseMbti(selectedMbti.code as MbtiCode)}>{HOME_COPY.mbtiConfirm} · {selectedMbti.code} <ArrowRight size={18} /></button>
-      <button disabled={busy || !launchReady} className="mbti-skip" onClick={() => chooseMbti(null)}>{HOME_COPY.mbtiSkip}</button>
+      <button disabled={busy || !bootstrapReady} className="button primary block mbti-confirm" onClick={() => chooseMbti(selectedMbti.code as MbtiCode)}>{HOME_COPY.mbtiConfirm} · {selectedMbti.code} <ArrowRight size={18} /></button>
+      <button disabled={busy || !bootstrapReady} className="mbti-skip" onClick={() => chooseMbti(null)}>{HOME_COPY.mbtiSkip}</button>
       {error ? <div className="error onboarding-error" role="alert"><span>{error}</span><button className="button compact" onClick={() => setBootstrapAttempt((attempt) => attempt + 1)}>{HOME_COPY.retryAction}</button></div> : null}
     </section></AppShell>
   );
@@ -339,7 +324,6 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
         <p className="eyebrow">{seeds.mbti ? `${seeds.mbti} · 开场三杯` : "凭感觉开场"}</p>
         <h1 className="section-title">{HOME_COPY.seedTitle}</h1>
         <p className="subtitle">{HOME_COPY.seedIntro}</p>
-        <p className="mbti-disclaimer">{HOME_COPY.mbtiDisclaimer}</p>
         <div className="seed-carousel" aria-label="三杯破冰结果" aria-roledescription="轮播">
           <motion.div
             className="seed-card-motion"

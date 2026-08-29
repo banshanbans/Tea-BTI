@@ -56,10 +56,12 @@ describe("HomeExperience", () => {
   it("completes MBTI seed, identified tea swipe and reveal without frontend tea mapping", async () => {
     render(<HomeExperience />);
     expect(await screen.findByRole("heading", { name: "找到你的 MBTI" })).toBeInTheDocument();
+    expect(screen.queryByText(/MBTI 只用于破冰/)).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "主导航" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("option", { name: "P" }));
     fireEvent.click(screen.getByRole("button", { name: /就选这个 · INFP/ }));
     expect(await screen.findByText("测试茶 1")).toBeInTheDocument();
+    expect(screen.queryByText(/MBTI 只用于破冰/)).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "主导航" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "先看看" }));
     expect(screen.getByText(/口味会在接下来的选择里慢慢清晰/)).toBeInTheDocument();
@@ -98,7 +100,7 @@ describe("HomeExperience", () => {
     expect(useAppStore.getState().swipeCount).toBe(7);
   });
 
-  it("shows a short brand transition and automatically resumes returning users in the feed", async () => {
+  it("resumes returning users directly in the feed without an intermediate brand page", async () => {
     vi.mocked(authenticated).mockImplementation(async (path: string) => {
       if (path === "/bootstrap") return {
         userId: "returning-user", mbti: "INFP", onboardingCompleted: true, swipeCount: 8,
@@ -112,9 +114,8 @@ describe("HomeExperience", () => {
     });
 
     render(<HomeExperience />);
-    expect(await screen.findByText("Tea-BTI")).toBeInTheDocument();
-    expect(screen.getByText("正在摆好三杯茶")).toBeInTheDocument();
-    expect(await screen.findByRole("heading", { name: "继续凭感觉" }, { timeout: 1600 })).toBeInTheDocument();
+    expect(screen.queryByText("正在摆好三杯茶")).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "继续凭感觉" })).toBeInTheDocument();
     expect(useAppStore.getState().swipeCount).toBe(8);
   });
 

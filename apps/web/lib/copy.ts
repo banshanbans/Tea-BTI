@@ -18,7 +18,6 @@ export const MBTI_OPTIONS = [
 ] as const;
 
 export const HOME_COPY = {
-  loading: "正在摆好三杯茶",
   retryTitle: "茶席还没准备好",
   retryAction: "再试一次",
   mbtiTitle: "找到你的 MBTI",
@@ -26,7 +25,6 @@ export const HOME_COPY = {
   mbtiSharedIntro: "你原来的记录都在。挑一个，我们重新开场。",
   mbtiConfirm: "就选这个",
   mbtiSkip: "还没测过？先凭感觉开始",
-  mbtiDisclaimer: "MBTI 只用于破冰，不代表人格与茶存在科学对应。真正的口味会由接下来的选择慢慢形成。",
   seedTitle: "三杯茶，先来见你。",
   seedIntro: "一杯像你，一杯意外，还有一杯换个方向。",
   seedPrimary: "开始刷茶",

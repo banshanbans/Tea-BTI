@@ -50,6 +50,7 @@ describe("TeaDetailView guided journey", () => {
     for (const heading of ["代表特点", "香气与滋味", "性格关键词", "冲泡建议"]) {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     }
+    expect(screen.queryByText(/性格关键词只用于探索与破冰/)).not.toBeInTheDocument();
     expect(screen.getByText("查看公开来源与图片边界")).toBeInTheDocument();
   });
 

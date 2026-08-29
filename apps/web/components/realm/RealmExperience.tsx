@@ -6,6 +6,8 @@ import { FastForward, SpeakerHigh, SpeakerSlash, X } from "@phosphor-icons/react
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { BackControl } from "@/components/BackControl";
+import { RealmEntryChoice } from "@/components/realm/RealmEntryChoice";
+import { RealmStoryView } from "@/components/realm/RealmStoryView";
 import {
   BudPickerVisual,
   HumanJudgmentVisual,
@@ -46,12 +48,13 @@ function tone(enabled: boolean, frequency = 480) {
   oscillator.addEventListener("ended", () => void context.close());
 }
 
-export function RealmExperience({ realmId, replay, entry = "realm", origin = "swipe", sourceTeaId }: {
+export function RealmExperience({ realmId, replay, entry = "realm", origin = "swipe", sourceTeaId, initialView = "cover" }: {
   realmId: string;
   replay: boolean;
   entry?: RealmEntry;
   origin?: TeaOrigin;
   sourceTeaId?: string;
+  initialView?: "cover" | "story";
 }) {
   const [detail, setDetail] = useState<RealmDetail | null>(null);
   const [screen, setScreen] = useState("");
@@ -72,6 +75,8 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const [maturity, setMaturity] = useState(0);
   const [realRevealed, setRealRevealed] = useState(false);
   const [completion, setCompletion] = useState<RealmComplete | null>(null);
+  const [choiceOpen, setChoiceOpen] = useState(false);
+  const [showStory, setShowStory] = useState(initialView === "story");
   const sceneStartedRef = useRef(Date.now());
   const experienceStartedRef = useRef(Date.now());
 
@@ -99,7 +104,6 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
       const initial = replay ? response.definition.sceneOrder[0] : response.run?.currentScene || response.progress.currentScene;
       setScreen(initial);
       setMode(response.run?.interactionMode || response.progress.interactionMode || "pointer");
-      if (response.run && !response.run.completedAt && !replay) setStarted(true);
       void authenticated<RealmMutation>(`/realms/${realmId}/events`, {
         method: "POST",
         ...jsonBody({ clientEventId: eventId("realm-preview"), eventType: "realm_preview_opened" }),
@@ -147,6 +151,15 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const validSourceTeaId = !detail || detail.definition.teaId === sourceTeaId ? sourceTeaId : undefined;
   const exitHref = realmExitHref(entry, validSourceTeaId, origin);
 
+  function setStoryView(next: boolean) {
+    setShowStory(next);
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (next) url.searchParams.set("mode", "story");
+    else url.searchParams.delete("mode");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+  }
+
   async function chooseMode(): Promise<{ interactionMode: InteractionMode; fallbackReason?: FallbackReason }> {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return { interactionMode: "reducedMotion", fallbackReason: "reduced_motion" };
     const touchDevice = navigator.maxTouchPoints > 0;
@@ -165,8 +178,8 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     }
   }
 
-  async function enter() {
-    if (!detail || busy) return;
+  async function enter(): Promise<boolean> {
+    if (!detail || busy) return false;
     setBusy(true); setError("");
     try {
       const selected = await chooseMode();
@@ -181,8 +194,11 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
       experienceStartedRef.current = Date.now();
       if (selected.fallbackReason) setNotice("已自动切换为拖拽操作，不影响体验。");
       tone(soundOn);
+      setChoiceOpen(false);
+      return true;
     } catch (cause) {
       setError((cause as Error).message);
+      return false;
     } finally { setBusy(false); }
   }
 
@@ -254,9 +270,10 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
       "bud-open": "这片已经舒展开了，再找更嫩的一芽一叶。",
       "bud-stem": "梗长了些，再看看芽和第一片叶靠得更近的。",
     };
+    const message = copy[id] || "再观察一下芽与第一片叶。";
     setWrongSelections((value) => [...value, id]);
-    if (wrongSelections.length === 0) setTeacherMessage(copy[id] || "再观察一下芽与第一片叶。");
-    else setWrongBud(copy[id] || "再找找一芽一叶。");
+    setTeacherMessage(message);
+    setWrongBud("");
     tone(soundOn, 220);
   }
 
@@ -275,7 +292,19 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     <div className="empty">{error || "雾正在从杯里升起…"}</div>
   </section>;
 
-  const completedAlready = detail.progress.status === "completed" && !replay;
+  if (showStory) return <RealmStoryView
+    realmId={realmId}
+    detail={detail}
+    exitHref={exitHref}
+    onBack={() => setStoryView(false)}
+    onCompleted={(response) => {
+      setCompletion(response);
+      setDetail({ ...detail, progress: response.progress, run: response.run, outcome: response.outcome });
+      setStoryView(false);
+    }}
+  />;
+
+  const completedAlready = Boolean(detail.progress.interactiveCompletedAt) && !replay;
   if (completedAlready || completion) {
     const collected = completion?.specimen;
     const outcome = completion?.outcome || detail.outcome;
@@ -289,6 +318,7 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
           {outcome ? <motion.small className="realm-outcome-note" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>{outcome.disclaimer}</motion.small> : null}
           <motion.div className="realm-complete-actions" variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>
             <Link className="button primary" href="/passport">查看茶护照</Link>
+            <button className="button" onClick={() => setStoryView(true)}>阅读完整文字稿</button>
             <Link className="button" href={exitHref}>{entry === "tea" ? "返回茶详情" : "回到茶境"}</Link>
           </motion.div>
         </motion.div>
@@ -307,9 +337,18 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
           <p className="realm-kicker">茶境 01 · {detail.definition.regionLabel}</p>
           <h1>{detail.definition.title}</h1>
           <p>{detail.personalization.introCopy}</p>
+          {detail.progress.readingCompletedAt && !detail.progress.interactiveCompletedAt ? <p className="realm-cover-read-note">文字稿已经读过；你仍可以亲手走完这一芽。</p> : null}
           <p className="realm-cover-note">需要时会询问方向权限，也可以一直用拖拽。</p>
-          <button className="button primary block" disabled={busy} onClick={() => void enter()}>{busy ? "正在入雾…" : replay ? "重新进入" : "进入茶境"}</button>
+          <button className="button primary block" disabled={busy} onClick={() => setChoiceOpen(true)}>{busy ? "正在入雾…" : replay ? "重新进入" : detail.run && !detail.run.completedAt ? "继续茶境" : "进入茶境"}</button>
         </motion.div>
+        <RealmEntryChoice
+          open={choiceOpen}
+          continuing={Boolean(detail.run && !detail.run.completedAt)}
+          busy={busy}
+          onClose={() => setChoiceOpen(false)}
+          onInteractive={() => void enter()}
+          onStory={() => { setChoiceOpen(false); setStoryView(true); }}
+        />
       </section>
     );
   }
@@ -343,9 +382,9 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
 
             {screen === "liquor-entry" ? <LiquorEntryVisual liquorUrl={liquor ? mediaUrl(liquor.url) : undefined} rippleUrl={ripple ? mediaUrl(ripple.url) : undefined} busy={busy} skipAnimations={skipAnimations || mode === "reducedMotion"} onAdvance={advance} /> : null}
 
-            {screen === "mist-mountain" ? <MistMountainVisual mistUrl={mist ? mediaUrl(mist.url) : undefined} score={mistScore} direction={mistDirection} mode={mode} busy={busy} onMove={handleMistMovement} onKeyboard={() => setMistScore((value) => Math.min(100, value + 25))} onAdvance={advance} /> : null}
+            {screen === "mist-mountain" ? <MistMountainVisual mistUrl={mist ? mediaUrl(mist.url) : undefined} score={mistScore} direction={mistDirection} mode={mode} busy={busy} explorationPoints={scene?.explorationPoints} evidenceRefs={detail.definition.evidenceRefs} onMove={handleMistMovement} onKeyboard={() => setMistScore((value) => Math.min(100, value + 25))} onAdvance={advance} /> : null}
 
-            {screen === "pick-bud" ? <BudPickerVisual assetUrls={budAssetUrls} observerUrl={teacherObserve ? mediaUrl(teacherObserve.url) : undefined} teacherUrl={teacherCorrection ? mediaUrl(teacherCorrection.url) : undefined} chosen={budChosen} feedback={wrongBud} teacherMessage={teacherMessage} busy={busy} reducedMotion={mode === "reducedMotion"} onChoose={chooseBud} onAdvance={() => advance({ kind: "pick-bud", selectedBud: "bud-leaf", wrongSelections, teacherShown: wrongSelections.length > 0, inputMode: pickInputMode })} /> : null}
+            {screen === "pick-bud" ? <BudPickerVisual assetUrls={budAssetUrls} observerUrl={teacherObserve ? mediaUrl(teacherObserve.url) : undefined} teacherUrl={teacherCorrection ? mediaUrl(teacherCorrection.url) : undefined} chosen={budChosen} feedback={wrongBud} teacherMessage={teacherMessage} teacherTarget={wrongSelections.at(-1)} busy={busy} reducedMotion={mode === "reducedMotion"} onChoose={chooseBud} onAdvance={() => advance({ kind: "pick-bud", selectedBud: "bud-leaf", wrongSelections, teacherShown: wrongSelections.length > 0, inputMode: pickInputMode })} /> : null}
 
             {screen === "wok-craft" ? <WokCraftVisual animated={!skipAnimations && mode !== "reducedMotion"} busy={busy} mode={mode} gamma={orientation.gamma} tiltRef={orientation.tiltRef} onFallback={(reason) => recordFallback(reason as FallbackReason)} onTone={(index) => tone(soundOn, 430 + index * 50)} onAdvance={advance} /> : null}
 

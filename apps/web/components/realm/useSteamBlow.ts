@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export type SteamMode = "microphone" | "wipe" | "keyboard" | "reducedMotion";
+export type SteamMode = "microphone" | "wipe" | "keyboard" | "reducedMotion" | "skipped";
 export type SteamState = "idle" | "listening" | "fallback" | "cleared";
 
 export function useSteamBlow({ active, reducedMotion, onFallback }: {
@@ -125,5 +125,5 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
     return () => { document.removeEventListener("visibilitychange", visibility); cleanup(); };
   }, [cleanup, fallback]);
 
-  return { state, mode, calibrating, level, start, chooseWipe, wipe: () => clearWith("wipe"), keyboard: () => clearWith(reducedMotion ? "reducedMotion" : "keyboard"), cleanup };
+  return { state, mode, calibrating, level, start, chooseWipe, skip: () => clearWith("skipped"), wipe: () => clearWith("wipe"), keyboard: () => clearWith(reducedMotion ? "reducedMotion" : "keyboard"), cleanup };
 }

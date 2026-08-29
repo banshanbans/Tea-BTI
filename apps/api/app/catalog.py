@@ -327,6 +327,7 @@ class Catalog:
             "subtitle": realm["subtitle"],
             "regionId": realm["regionId"],
             "regionLabel": realm["regionLabel"],
+            "story": realm["story"],
             "sceneOrder": [scene["id"] for scene in realm["scenes"]],
             "scenes": realm["scenes"],
             "assets": [self.realm_asset(asset_id) for asset_id in asset_ids],

@@ -10,6 +10,69 @@
       "regionLabel": "贵州 · 黔南",
       "defaultIntro": "想看看都匀毛尖的清鲜和嫩香，是怎么走进杯子里的吗？",
       "tasteIntroTemplate": "你说它像「{userWords}」。想看看这一口，是怎么走进杯子里的吗？",
+      "story": {
+        "title": "一芽如何走进杯中",
+        "estimatedMinutes": 4,
+        "intro": "不用完成手势，也可以沿着七段文字，读完都匀毛尖从黔南山地到杯中清鲜的来路。",
+        "chapters": [
+          {
+            "id": "story-liquor",
+            "eyebrow": "第一章 · 杯中起雾",
+            "title": "先从喝到的这一口开始",
+            "body": "Tea Realm 把茶汤化成雾，是连接杯中感受与产地的互动隐喻，不代表真实茶汤会产生山雾。都匀毛尖常见的客观感官描述包括香气清嫩、滋味鲜爽回甘。",
+            "kind": "metaphor_and_fact",
+            "evidenceRefIds": ["moa-duyun-maojian-2020", "db52-t-433-2018"]
+          },
+          {
+            "id": "story-mountain",
+            "eyebrow": "第二章 · 黔南的山",
+            "title": "都匀毛尖来自贵州黔南",
+            "body": "农业农村部相关资料记载，都匀位于贵州高原南部，山地云雾较多、昼夜温差较大；文中记载茶树生长山地海拔约 1400—1600 米。茶境中的山景是风格化氛围，不是某座茶园的纪实复原。",
+            "kind": "fact",
+            "evidenceRefIds": ["moa-duyun-maojian-2020"]
+          },
+          {
+            "id": "story-bud",
+            "eyebrow": "第三章 · 一芽一叶",
+            "title": "嫩度从采摘时就开始决定",
+            "body": "相关资料将高级都匀毛尖的采摘标准描述为清明前后的一芽一叶初展，长度不超过 2 厘米；炒制 500 克高级毛尖约需 5.3—5.6 万个芽头。互动中的四张芽叶图只帮助理解选择，不作为真实芽叶形态证据。",
+            "kind": "fact",
+            "evidenceRefIds": ["moa-duyun-maojian-2020", "db52-t-995-2015"]
+          },
+          {
+            "id": "story-craft",
+            "eyebrow": "第四章 · 一口锅",
+            "title": "鲜叶经过杀青、揉捻与搓团提毫",
+            "body": "杀青、揉捻、搓团提毫构成了都匀毛尖的重要加工步骤。手机倾斜和屏幕手势只是帮助理解动作关系，不测量真实锅温、叶片质量或专业制茶能力。",
+            "kind": "fact",
+            "evidenceRefIds": ["moa-duyun-maojian-2020", "db52-t-995-2015"]
+          },
+          {
+            "id": "story-judgment",
+            "eyebrow": "第五章 · 人的经验",
+            "title": "制茶不是等待一条固定倒计时",
+            "body": "鲜叶嫩度、含水状态和锅内变化并不完全相同，真实生产需要制茶者持续观察和判断。互动里的三个停手窗口是体验性表达，不是加工参数或操作指导。",
+            "kind": "boundary",
+            "evidenceRefIds": ["db52-t-995-2015"]
+          },
+          {
+            "id": "story-real-tea",
+            "eyebrow": "第六章 · 回到真实",
+            "title": "白毫、卷曲与三绿三黄",
+            "body": "都匀毛尖常见外形描述包括白毫显露、条索紧细、卷曲似鱼钩；干茶、茶汤和叶底呈现绿中带黄的特征。论文样本只作为实物对照，与具体商品批次无关。",
+            "kind": "fact",
+            "evidenceRefIds": ["moa-duyun-maojian-2020", "db52-t-433-2018", "pmc13091367-fig7"]
+          },
+          {
+            "id": "story-return",
+            "eyebrow": "第七章 · 回到杯中",
+            "title": "理解来路，再喝这一口",
+            "body": "Tea Realm 的终点不是给用户一张制茶成绩单，而是让杯中的清鲜、嫩香和回甘，能够重新连接到环境、原料、工艺与人的经验。白毫标本记录的是这次理解经历。",
+            "kind": "metaphor_and_fact",
+            "evidenceRefIds": ["moa-duyun-maojian-2020", "db52-t-433-2018"]
+          }
+        ]
+      },
       "specimen": {
         "id": "duyun-maojian-pekoe",
         "name": "白毫",
@@ -39,11 +102,11 @@
           "supports": ["都匀毛尖不同等级干茶实物锚点"]
         },
         {
-          "id": "duyun-53000-plus",
-          "label": "MVP 记忆点：1 / 53,000+",
-          "url": "",
-          "status": "debt",
-          "supports": ["正式公开前必须补齐权威来源"]
+          "id": "moa-duyun-maojian-2020",
+          "label": "农业农村部相关介绍：饮罢浮花清香味",
+          "url": "https://cnafun.moa.gov.cn/zt/gjcr/202005/t20200518_6344434.html",
+          "status": "verified",
+          "supports": ["黔南都匀产区", "山地云雾与海拔资料口径", "一芽一叶初展", "5.3—5.6 万芽头", "加工工序", "三绿三黄"]
         }
       ],
       "scenes": [
@@ -63,13 +126,39 @@
           "instruction": "倾斜手机，或左右拖动，把雾拨开。",
           "completionCopy": "多雾的山地，让这一片叶子慢慢长出了自己的节奏。",
           "interaction": "orientation_or_drag",
-          "assetIds": ["realm-duyun-mist", "realm-duyun-mountain"]
+          "assetIds": ["realm-duyun-mist", "realm-duyun-mountain"],
+          "explorationPoints": [
+            {
+              "id": "qiannan-origin",
+              "x": 22,
+              "y": 43,
+              "title": "都匀在黔南",
+              "body": "都匀毛尖产于贵州黔南州。眼前山景是风格化氛围，不是具体茶园的纪实照片。",
+              "evidenceRefIds": ["moa-duyun-maojian-2020"]
+            },
+            {
+              "id": "mountain-mist",
+              "x": 67,
+              "y": 34,
+              "title": "高山与云雾",
+              "body": "资料记载都匀山地云雾较多、昼夜温差较大，茶树生长山地海拔约 1400—1600 米。",
+              "evidenceRefIds": ["moa-duyun-maojian-2020"]
+            },
+            {
+              "id": "bud-standard",
+              "x": 55,
+              "y": 67,
+              "title": "一芽一叶",
+              "body": "清明前后采一芽一叶初展；约 5.3—5.6 万个芽头，才炒成 500 克高级毛尖。",
+              "evidenceRefIds": ["moa-duyun-maojian-2020", "db52-t-995-2015"]
+            }
+          ]
         },
         {
           "id": "pick-bud",
           "eyebrow": "第二幕 · 摘下一芽",
           "title": "哪一片，会成为毛尖？",
-          "instruction": "选中一芽一叶，向上提进竹篓。",
+          "instruction": "观察芽与叶的嫩度，选中你认为合适的一片，向上提进竹篓。",
           "completionCopy": "就是它。一芽一叶。",
           "interaction": "select_and_lift",
           "assetIds": ["realm-duyun-mountain", "realm-duyun-bud-single", "realm-duyun-bud-leaf", "realm-duyun-bud-open", "realm-duyun-bud-stem", "realm-duyun-teacher-observe", "realm-duyun-teacher-correction"]

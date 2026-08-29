@@ -150,8 +150,9 @@ Swipe 示例：
 | `PATCH /realms/{realmId}/progress` | 提交 `runId`、一幕完成、白名单 `sceneResult` 与耗时；只允许当前 Run 按 Definition 顺序推进 |
 | `POST /realms/{realmId}/events` | 只接受预告打开、交互降级与真实资产 Reveal 三类客户端事件 |
 | `POST /realms/{realmId}/complete` | 提交 `runId`；前六幕完成后由服务端生成确定性 Outcome，并原子写入完成进度、“白毫”标本、Passport 和黔南点亮状态 |
+| `POST /realms/{realmId}/reading/complete` | 用户读到文字稿末尾并提交 `confirmed=true` 后完成阅读通道；可首次发放白毫，但不清除未完成互动 Run |
 
-进度状态为 `available / in_progress / completed`；交互模式为 `orientation / pointer / reducedMotion`。`run_state` 只保存当前 Run 的幕序、白名单行为摘要和耗时；`latest_outcome` 只保存服务端审核模板结果。完成写入和标本发放均幂等；同一 `runId` 重复完成 `accepted=false`，新重玩完成 `accepted=true / specimenAwarded=false`。重玩不清除首次完成时间。Tea Realm 不写入 Taste Vector，不改变 Tea-BTI，也不进入公开 Profile 白名单。
+进度状态为 `available / in_progress / completed`；交互模式为 `orientation / pointer / reducedMotion`。`firstCompletionMode`、`readingCompletedAt` 与 `interactiveCompletedAt` 区分两条通道。阅读先完成时返回 `source=reading_default` 的“清鲜的白毫”；随后互动完成会覆盖为 `source=interactive` 的行为结局。互动先完成后再阅读不得覆盖行为结局。`run_state` 只保存互动 Run 的幕序、白名单行为摘要和耗时；阅读不会删除或伪造 Run。完成写入和标本发放均幂等。Tea Realm 不写入 Taste Vector，不改变 Tea-BTI，也不进入公开 Profile 白名单。
 
 ```json
 {

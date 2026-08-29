@@ -128,14 +128,20 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
     tracksRef.current.delete(event.pointerId);
   }, []);
 
-  const assist = useCallback(() => complete("assisted", 50, Math.max(2, current ? attempts[current] : 2)), [attempts, complete, current]);
+  const assist = useCallback(() => complete("assisted", 50, Math.max(3, current ? attempts[current] : 3)), [attempts, complete, current]);
   const keyboard = useCallback(() => complete(reducedMotion ? "reducedMotion" : "keyboard", 60, 1), [complete, reducedMotion]);
-  const canAssist = Boolean(current && attempts[current] >= 1);
+  const canAssist = Boolean(current && attempts[current] >= 3);
+  const visualState = useMemo(() => ({
+    killGreen: (results.killGreen?.score || 0) / 100,
+    rolling: (results.rolling?.score || 0) / 100,
+    balling: (results.balling?.score || 0) / 100,
+    pekoe: (results.pekoe?.score || 0) / 100,
+  }), [results]);
   const reset = useCallback(() => {
     setIndex(0); setAttempts({ killGreen: 0, rolling: 0, balling: 0, pekoe: 0 });
     setResults({}); setForwardPushes(0); tracksRef.current.clear(); finishedTracksRef.current = []; tiltSamplesRef.current = [];
   }, []);
 
-  return useMemo(() => ({ index, current, attempts, results, forwardPushes, canAssist, pointerDown, pointerMove, pointerUp, pointerCancel, assist, keyboard, reset }),
-    [attempts, assist, canAssist, current, forwardPushes, index, keyboard, pointerCancel, pointerDown, pointerMove, pointerUp, reset, results]);
+  return useMemo(() => ({ index, current, attempts, results, visualState, forwardPushes, canAssist, pointerDown, pointerMove, pointerUp, pointerCancel, assist, keyboard, reset }),
+    [attempts, assist, canAssist, current, forwardPushes, index, keyboard, pointerCancel, pointerDown, pointerMove, pointerUp, reset, results, visualState]);
 }

@@ -54,7 +54,7 @@
           "instruction": "轻触茶汤，进入这片叶子来时的地方。",
           "completionCopy": "这一口茶汤，慢慢变成了山间的雾。",
           "interaction": "tap",
-          "assetIds": ["realm-duyun-mist"]
+          "assetIds": ["realm-duyun-liquor", "realm-duyun-ripple", "realm-duyun-mist"]
         },
         {
           "id": "mist-mountain",
@@ -72,7 +72,7 @@
           "instruction": "选中一芽一叶，向上提进竹篓。",
           "completionCopy": "就是它。一芽一叶。",
           "interaction": "select_and_lift",
-          "assetIds": ["realm-duyun-mountain"]
+          "assetIds": ["realm-duyun-mountain", "realm-duyun-bud-single", "realm-duyun-bud-leaf", "realm-duyun-bud-open", "realm-duyun-bud-stem"]
         },
         {
           "id": "wok-craft",

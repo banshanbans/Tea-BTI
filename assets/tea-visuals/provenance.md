@@ -58,6 +58,10 @@
 
 都匀毛尖茶境保持原有边界：雾层、风格化山体、工坊背景和“白毫”数字标本为 ImageGen 生成的氛围素材；真实干茶 Reveal 来自 Xia, W.-W. et al. (2026), *Food Chemistry: X* 35, 103843, Figure 7A（CC BY 4.0）。界面明确说明它是论文样本，不代表商品批次。
 
+2026-08-29 从同伴分支 `codex/tea-bti` 迁入 4 张芽叶选择图以及茶汤、波纹各 1 张。团队确认这些图片属于项目生成素材，但原始生成提示词未随分支保存，因此清单保留可追溯的导入记录，不补写不存在的原始提示词。六张图片统一标记为 `ai_generated / synthetic_demo / demo_only`：茶汤和波纹只承担入境转场，芽叶图只承担选择教学，不作为都匀毛尖汤色、原料等级或真实形态的纪录证据。
+
+迁入的 PNG 原件保存在 `masters/realm/`，运行时使用 `media/realm/` 下的 WebP；六张 WebP 合计 424,466 bytes。运行时仍由 Manifest 和 `/api/v1/media/realm/{asset_id}` 提供，不从前端 `public/` 目录直连。
+
 其他七款本次只接入八茶目录、Swipe、详情及共用产品页面，不新增 Tea Realm。
 
 ## 文件关系

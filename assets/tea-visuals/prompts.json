@@ -72,6 +72,48 @@
       "attempt_limit": 2,
       "attempt_count": 1,
       "prompt": "Use case: stylized-concept. Digital museum specimen card for pekoe, ivory archival paper, an abstract curled tea-leaf gesture and delicate white-fiber traces. Portrait 4:5, no text or logo. A symbolic collectible, not a documentary tea-shape reference."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-liquor-import-v1",
+      "asset_id": "realm-duyun-liquor",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-ripple-import-v1",
+      "asset_id": "realm-duyun-ripple",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-bud-single-import-v1",
+      "asset_id": "realm-duyun-bud-single",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-bud-leaf-import-v1",
+      "asset_id": "realm-duyun-bud-leaf",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-bud-open-import-v1",
+      "asset_id": "realm-duyun-bud-open",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-bud-stem-import-v1",
+      "asset_id": "realm-duyun-bud-stem",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
     }
   ]
 }

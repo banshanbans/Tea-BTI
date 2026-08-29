@@ -54,13 +54,15 @@ def test_realm_assets_keep_their_rights_and_fact_boundaries():
 
     prompt_ids = {item["prompt_id"] for item in prompts["assets"]}
     assets = [asset for tea in manifest["teas"] for asset in tea["realm_assets"]]
-    assert len({asset["id"] for asset in assets}) == len(assets) == 5
+    assert len({asset["id"] for asset in assets}) == len(assets) == 11
 
     for asset in assets:
         master = ROOT / asset["master_path"]
         media = ROOT / asset["media_path"]
         assert master.is_file()
         assert media.is_file()
+        if asset.get("master_sha256"):
+            assert hashlib.sha256(master.read_bytes()).hexdigest() == asset["master_sha256"]
         assert hashlib.sha256(media.read_bytes()).hexdigest() == asset["sha256"]
         assert asset["master_width"] > 0 and asset["master_height"] > 0
         assert asset["media_width"] > 0 and asset["media_height"] > 0
@@ -77,6 +79,10 @@ def test_realm_assets_keep_their_rights_and_fact_boundaries():
     assert dry_tea["evidence_ref_ids"] == ["food-chemistry-x-2026-figure-7"]
 
     asset_ids = {asset["id"] for asset in assets}
+    imported_roles = {"liquor_base", "liquor_ripple", "bud_single", "bud_leaf", "bud_open", "bud_stem"}
+    imported_assets = [asset for asset in assets if asset["role"] in imported_roles]
+    assert {asset["role"] for asset in imported_assets} == imported_roles
+    assert sum((ROOT / asset["media_path"]).stat().st_size for asset in imported_assets) <= 1_500_000
     realm = realm_catalog["realms"][0]
     assert all(asset_id in asset_ids for scene in realm["scenes"] for asset_id in scene["assetIds"])
     debt = next(item for item in realm["evidenceRefs"] if item["id"] == "duyun-53000-plus")

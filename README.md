@@ -7,8 +7,10 @@ Tea-BTI 是一个面向原叶茶发现、体验与长期味觉身份产品。
 当用户真正选中一杯茶，AI 才在最需要它的时刻出现：陪用户把茶泡好、把感受说清楚，并把“像雨后的草”“喝完嘴里甜甜的”这样的自然表达翻译成可理解的茶语。随后，Tea Realm 把杯中的味道连接到贵州山地、原料、工艺与人的经验；Tea Passport 保存真实喝茶经历；Tea-BTI 则把长期行为沉淀成一个可解释、可变化、可分享的个人茶主页。
 
 - **公网体验：** [https://gks.socialdog.cn](https://gks.socialdog.cn)
-- **完整项目介绍：** [飞书文档](https://socialdog.feishu.cn/docx/LlJwdkBd1o9Qjbxj8uFcTWS6nrc?from=from_copylink)
 - **项目 Tag：** `#Guikesong`
+
+> [!IMPORTANT]
+> ### 📘 [完整项目介绍+Why AI：飞书文档](https://socialdog.feishu.cn/docx/LlJwdkBd1o9Qjbxj8uFcTWS6nrc?from=from_copylink)
 
 ## 技术栈与技术选型
 

@@ -26,7 +26,7 @@ export function recognizeForwardPush(points: GesturePoint[], width: number, heig
 }
 
 export function recognizeRolling(points: GesturePoint[], width: number, height: number): GestureRecognition {
-  if (points.length < 5) return { matched: false, score: 0 };
+  if (points.length < 4) return { matched: false, score: 0 };
   let minX = points[0].x;
   let maxX = points[0].x;
   let minY = points[0].y;
@@ -43,7 +43,7 @@ export function recognizeRolling(points: GesturePoint[], width: number, height: 
 }
 
 export function recognizeCircle(points: GesturePoint[], width: number, height: number): GestureRecognition {
-  if (points.length < 8) return { matched: false, score: 0 };
+  if (points.length < 6) return { matched: false, score: 0 };
   const xs = points.map((point) => point.x);
   const ys = points.map((point) => point.y);
   const boxWidth = Math.max(...xs) - Math.min(...xs);
@@ -90,7 +90,7 @@ function reversals(values: number[], threshold: number): number {
 
 export function recognizePekoeMulti(first: GesturePoint[], second: GesturePoint[], width: number): GestureRecognition {
   const count = Math.min(first.length, second.length);
-  if (count < 5) return { matched: false, score: 0 };
+  if (count < 4) return { matched: false, score: 0 };
   const duration = Math.min(first.at(-1)!.time, second.at(-1)!.time) - Math.max(first[0].time, second[0].time);
   const relative = Array.from({ length: count }, (_, index) => first[index].x - second[index].x);
   const centroids = Array.from({ length: count }, (_, index) => (first[index].x + second[index].x) / 2);
@@ -101,7 +101,7 @@ export function recognizePekoeMulti(first: GesturePoint[], second: GesturePoint[
 }
 
 export function recognizePekoeSingle(points: GesturePoint[], height: number): GestureRecognition {
-  if (points.length < 5) return { matched: false, score: 0 };
+  if (points.length < 4) return { matched: false, score: 0 };
   const ys = points.map((point) => point.y);
   const span = Math.max(...ys) - Math.min(...ys);
   const reverseCount = reversals(ys, height * 0.018);

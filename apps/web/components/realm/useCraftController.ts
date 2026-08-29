@@ -82,7 +82,7 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
     const rect = event.currentTarget.getBoundingClientRect();
     const native = event.nativeEvent;
     const coalesced = typeof native.getCoalescedEvents === "function" ? native.getCoalescedEvents() : [];
-    const samples = coalesced.length ? coalesced : [native];
+    const samples = [...coalesced, native];
     for (const sample of samples) track.push({ x: sample.clientX - rect.left, y: sample.clientY - rect.top, time: performance.now() });
   }, []);
 

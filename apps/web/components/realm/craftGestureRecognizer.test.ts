@@ -30,6 +30,8 @@ describe("Tea Realm craft gesture recognizers", () => {
     const smooth = [20, 24, 28, 32, 36, 40, 36, 32, 28, 24, 20, 24, 28, 32, 36, 40, 36, 32, 28, 24, 20]
       .map((x, index) => point(x, 100 + index % 2, index * 20));
     expect(recognizeRolling(smooth, 100, 180).matched).toBe(true);
+    const sparse = [20, 80, 20, 80].map((x, index) => point(x, 100, index * 80));
+    expect(recognizeRolling(sparse, 100, 180).matched).toBe(true);
   });
 
   it("recognizes a closed circle near 360 degrees and rejects a small loop", () => {

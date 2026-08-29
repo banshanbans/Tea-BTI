@@ -602,7 +602,6 @@ export function RealmExperience({ realmId, replay }: { realmId: string; replay: 
                   </button>
                 ))}
                 <div className="realm-feedback" aria-live="polite">
-                  {!budChosen && wrongBud ? <img className="realm-farmer" src="/realm/tea-farmer.png" alt="茶农" /> : null}
                   <span>{budChosen ? "1 / 53,000+ · 这一片叶子很轻，人的劳动很重。" : wrongBud}</span>
                 </div>
                 {budChosen ? <motion.button className="button primary" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} disabled={busy} onClick={() => void advance()}>把它带去锅边</motion.button> : null}

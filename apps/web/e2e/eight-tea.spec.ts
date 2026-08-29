@@ -4,8 +4,7 @@ const teaNames = ["都匀毛尖", "湄潭翠芽", "绿宝石茶", "普安红", "
 
 async function enterFeed(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await page.getByRole("button", { name: "还没测过？先凭感觉开始" }).click();
-  await page.getByRole("button", { name: "开始刷茶" }).click();
+  await page.getByRole("button", { name: "还不知道，直接看茶叶卡" }).click();
   await expect(page.getByRole("navigation", { name: "主导航" })).toBeVisible();
 }
 

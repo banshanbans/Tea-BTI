@@ -8,6 +8,7 @@ import type { components } from "@tea-bti/contracts";
 
 import { AppShell } from "@/components/AppShell";
 import { BackControl } from "@/components/BackControl";
+import { OnboardingChoiceDialog } from "@/components/onboarding/OnboardingChoiceDialog";
 import { authenticated, jsonBody, mediaUrl } from "@/lib/api";
 import type { Bootstrap, Recommendation, SeedBatch, SwipeResult, TeaFeedCard, TeaSummary } from "@/lib/api";
 import { HOME_COPY, MBTI_OPTIONS } from "@/lib/copy";
@@ -171,9 +172,14 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   const [seedIndex, setSeedIndex] = useState(0);
   const [seedTransitioning, setSeedTransitioning] = useState(false);
   const [cardPreview, setCardPreview] = useState<TeaCardPreviewData | null>(null);
+  const [onboardingChoiceOpen, setOnboardingChoiceOpen] = useState(false);
+  const [onboardingChoiceError, setOnboardingChoiceError] = useState("");
   const [mbtiAxes, setMbtiAxes] = useState<MbtiAxisSelection>(["I", "N", "F", "J"]);
   const seedTransitioningRef = useRef(false);
   const dragStartPointX = useRef<number | null>(null);
+  const onboardingChoiceShownRef = useRef(false);
+  const onboardingAlreadyCompletedRef = useRef(false);
+  const mbtiScreenRef = useRef<HTMLElement>(null);
   const { swipeCount, setBootstrap, incrementSwipe } = useAppStore();
   const reducedMotion = useReducedMotion();
   const seedX = useMotionValue(0);
@@ -214,9 +220,14 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
       try {
         const bootstrap = await authenticated<Bootstrap>("/bootstrap");
         if (cancelled) return;
+        onboardingAlreadyCompletedRef.current = bootstrap.onboardingCompleted;
         setBootstrap(bootstrap.swipeCount, bootstrap.mbti ?? null);
         if (forceOnboarding || !bootstrap.onboardingCompleted) {
           setScreen("mbti");
+          if (!onboardingChoiceShownRef.current) {
+            onboardingChoiceShownRef.current = true;
+            setOnboardingChoiceOpen(true);
+          }
         } else {
           await loadFeed(false);
           if (!cancelled) setScreen("feed");
@@ -225,6 +236,10 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
         if (!cancelled) {
           setError(HOME_COPY.retryTitle);
           setScreen("mbti");
+          if (!onboardingChoiceShownRef.current) {
+            onboardingChoiceShownRef.current = true;
+            setOnboardingChoiceOpen(true);
+          }
         }
       } finally {
         if (!cancelled) setBootstrapReady(true);
@@ -267,13 +282,37 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
     }
   }
 
-  async function chooseMbti(mbti: MbtiCode | null) {
+  async function chooseMbti(mbti: MbtiCode) {
     setBusy(true); setError("");
     try {
       const result = await authenticated<SeedBatch>("/onboarding/seed", { method: "POST", ...jsonBody({ mbti }) });
       setSeeds(result); setSeedIndex(0); setScreen("seeds");
     } catch { setError("这三杯还没靠岸，再试一次。"); }
     finally { setBusy(false); }
+  }
+
+  function showMbtiPicker() {
+    if (busy || !bootstrapReady) return;
+    setOnboardingChoiceError("");
+    setOnboardingChoiceOpen(false);
+    window.requestAnimationFrame(() => mbtiScreenRef.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus());
+  }
+
+  async function skipMbtiToFeed() {
+    if (busy || !bootstrapReady) return;
+    setBusy(true); setError(""); setOnboardingChoiceError("");
+    try {
+      if (!onboardingAlreadyCompletedRef.current) {
+        await authenticated<SeedBatch>("/onboarding/seed", { method: "POST", ...jsonBody({ mbti: null }) });
+        onboardingAlreadyCompletedRef.current = true;
+      }
+      await loadFeed();
+      setOnboardingChoiceOpen(false);
+    } catch {
+      const message = "茶叶卡还没准备好，再试一次。";
+      if (onboardingChoiceOpen) setOnboardingChoiceError(message);
+      else setError(message);
+    } finally { setBusy(false); }
   }
 
   async function swipe(action: "like" | "skip" | "save", direction?: -1 | 1) {
@@ -327,7 +366,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   if (screen === "loading") return <p className="sr-only" role="status">正在载入</p>;
 
   if (screen === "mbti") return (
-    <AppShell active="swipe" navigation={false} header={false} shellClassName="cold-start-shell"><section className="onboarding-screen cold-start-screen">
+    <AppShell active="swipe" navigation={false} header={false} shellClassName="cold-start-shell"><section ref={mbtiScreenRef} className="onboarding-screen cold-start-screen" aria-hidden={onboardingChoiceOpen || undefined} inert={onboardingChoiceOpen || undefined}>
       <div className="cold-start-head"><span className="brand">Tea-BTI</span><span>1 / 2</span></div>
       <p className="eyebrow">先从四个字母开场</p>
       <h1 className="title">{HOME_COPY.mbtiTitle}</h1>
@@ -344,9 +383,9 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
       </div>
       <p className="mbti-selected-copy" aria-live="polite"><strong>{selectedMbti.code}</strong><span>{selectedMbti.line}</span></p>
       <button disabled={busy || !bootstrapReady} className="button primary block mbti-confirm" onClick={() => chooseMbti(selectedMbti.code as MbtiCode)}>{HOME_COPY.mbtiConfirm} · {selectedMbti.code} <ArrowRight size={18} /></button>
-      <button disabled={busy || !bootstrapReady} className="mbti-skip" onClick={() => chooseMbti(null)}>{HOME_COPY.mbtiSkip}</button>
-      {error ? <div className="error onboarding-error" role="alert"><span>{error}</span><button className="button compact" onClick={() => setBootstrapAttempt((attempt) => attempt + 1)}>{HOME_COPY.retryAction}</button></div> : null}
-    </section></AppShell>
+      <button disabled={busy || !bootstrapReady} className="mbti-skip" onClick={() => void skipMbtiToFeed()}>{HOME_COPY.mbtiSkip}</button>
+      {error ? <div className="error onboarding-error" role="alert"><span>{error}</span>{error === HOME_COPY.retryTitle ? <button className="button compact" onClick={() => setBootstrapAttempt((attempt) => attempt + 1)}>{HOME_COPY.retryAction}</button> : null}</div> : null}
+    </section>{onboardingChoiceOpen ? <OnboardingChoiceDialog busy={busy || !bootstrapReady} error={onboardingChoiceError} onChooseMbti={showMbtiPicker} onChooseCards={() => void skipMbtiToFeed()} /> : null}</AppShell>
   );
 
   if (screen === "seeds" && seeds) {

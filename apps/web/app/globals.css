@@ -631,6 +631,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .mbti-selected-copy span { text-wrap: balance; }
 .mbti-confirm { min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 13px; }
 .mbti-skip { width: 100%; min-height: 44px; margin-top: 5px; border: 0; color: var(--muted); background: transparent; font-size: 12px; cursor: pointer; }
+.onboarding-choice-layer { position: fixed; z-index: 110; inset: 0; display: grid; place-items: center; padding: max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); }
+.onboarding-choice-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(23,35,26,.34); backdrop-filter: blur(8px); cursor: pointer; }
+.onboarding-choice-dialog { position: relative; width: min(100%,356px); max-height: calc(100dvh - 36px); overflow-y: auto; padding: 31px 24px 24px; border: 1px solid rgba(49,92,66,.14); border-radius: 30px 30px 10px 30px; color: var(--ink); background: rgba(255,253,247,.98); box-shadow: 0 30px 90px rgba(19,35,24,.28); text-align: center; }
+.onboarding-choice-close { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 1px solid rgba(49,92,66,.12); border-radius: 50%; color: var(--muted); background: rgba(245,243,235,.78); cursor: pointer; }
+.onboarding-choice-mark { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 17px; border-radius: 18px 18px 6px 18px; color: white; background: var(--leaf); box-shadow: 0 12px 28px rgba(49,92,66,.22); }
+.onboarding-choice-dialog .eyebrow { margin: 0; }
+.onboarding-choice-dialog h1 { margin: 9px 0 13px; font-family: var(--serif); font-size: clamp(27px,8vw,35px); line-height: 1.2; letter-spacing: -.045em; text-wrap: balance; }
+.onboarding-choice-dialog > p:not(.eyebrow,.error) { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; text-wrap: balance; }
+.onboarding-choice-actions { display: grid; gap: 9px; margin-top: 23px; }
+.onboarding-choice-actions .button { min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.onboarding-choice-error { margin: 12px 0 0; text-align: left; }
 .onboarding-error { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-top: 8px; }
 .seed-grid { gap: 14px; }
 .seed-card { grid-template-columns: 98px 1fr; padding: 9px; border-radius: 24px 24px 8px 24px; box-shadow: 0 12px 34px rgba(39, 58, 43, .07); }

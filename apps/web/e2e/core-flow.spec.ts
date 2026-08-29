@@ -2,10 +2,12 @@ import { expect, test } from "@playwright/test";
 
 test("core journey, editable Tea Profile and revocable public sharing", async ({ page, browser }) => {
   await page.goto("/");
+  await expect(page.getByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).toBeVisible();
+  await page.getByRole("button", { name: /我知道自己的 MBTI/ }).click();
   await expect(page.getByRole("heading", { name: "找到你的 MBTI" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "主导航" })).toHaveCount(0);
-  await page.getByRole("button", { name: "还没测过？先凭感觉开始" }).click();
-  await expect(page.getByText("凭感觉开场")).toBeVisible();
+  await page.getByRole("button", { name: /就选这个 · INFJ/ }).click();
+  await expect(page.getByText("三杯茶，先来见你。")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "主导航" })).toHaveCount(0);
   await page.getByRole("button", { name: "开始刷茶" }).click();
   await expect(page.getByRole("navigation", { name: "主导航" })).toBeVisible();
@@ -28,6 +30,8 @@ test("core journey, editable Tea Profile and revocable public sharing", async ({
   await page.mouse.up();
   await expect(page.getByText("这一杯是")).toBeVisible();
   await page.getByRole("button", { name: "关闭茶叶揭晓" }).click({ position: { x: 12, y: 12 } });
+  const cardPreview = page.getByRole("dialog", { name: /完整茶叶卡/ });
+  if (await cardPreview.isVisible()) await cardPreview.getByRole("button", { name: "关闭完整茶叶卡", exact: true }).click();
   await expect(topCard.getByRole("heading")).not.toHaveText(cardTitle!);
   await expect.poll(async () => {
     const resumedBox = await topCard.boundingBox();
@@ -154,7 +158,7 @@ test("core journey, editable Tea Profile and revocable public sharing", async ({
   expect(await visitor.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await visitor.getByRole("button", { name: "开始我的三杯 →" }).click();
   await expect(visitor).toHaveURL(/\/?fromProfile=/);
-  await expect(visitor.getByRole("heading", { name: "找到你的 MBTI" })).toBeVisible();
+  await expect(visitor.getByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).toBeVisible();
   await expect(visitor.getByRole("navigation", { name: "主导航" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "撤销并让旧链接失效" }).click();

@@ -55,6 +55,9 @@ describe("HomeExperience", () => {
 
   it("completes MBTI seed, identified tea swipe and reveal without frontend tea mapping", async () => {
     render(<HomeExperience />);
+    expect(await screen.findByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "找到你的 MBTI" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /我知道自己的 MBTI/ }));
     expect(await screen.findByRole("heading", { name: "找到你的 MBTI" })).toBeInTheDocument();
     expect(screen.queryByText(/MBTI 只用于破冰/)).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "主导航" })).not.toBeInTheDocument();
@@ -104,6 +107,8 @@ describe("HomeExperience", () => {
       throw new Error(`Unexpected path: ${path}`);
     });
     render(<HomeExperience forceOnboarding />);
+    expect(await screen.findByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /我知道自己的 MBTI/ }));
     expect(await screen.findByRole("heading", { name: "找到你的 MBTI" })).toBeInTheDocument();
     expect(screen.getByText(/你原来的记录都在/)).toBeInTheDocument();
     expect(authenticated).not.toHaveBeenCalledWith(expect.stringContaining("/feed"));
@@ -126,6 +131,7 @@ describe("HomeExperience", () => {
     render(<HomeExperience />);
     expect(screen.queryByText("正在摆好三杯茶")).not.toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "继续凭感觉" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).not.toBeInTheDocument();
     expect(useAppStore.getState().swipeCount).toBe(8);
   });
 
@@ -152,24 +158,105 @@ describe("HomeExperience", () => {
 
   it("changes each MBTI axis independently with keyboard and keeps a skip path", async () => {
     render(<HomeExperience />);
-    const energyWheel = await screen.findByRole("listbox", { name: "能量维度" });
+    fireEvent.click(await screen.findByRole("button", { name: /我知道自己的 MBTI/ }));
+    const energyWheel = screen.getByRole("listbox", { name: "能量维度" });
     expect(screen.getAllByRole("listbox")).toHaveLength(4);
     fireEvent.keyDown(energyWheel, { key: "ArrowUp" });
     fireEvent.click(screen.getByRole("option", { name: "S" }));
     fireEvent.click(screen.getByRole("option", { name: "T" }));
     fireEvent.click(screen.getByRole("option", { name: "P" }));
     expect(screen.getByRole("button", { name: /就选这个 · ESTP/ })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "还没测过？先凭感觉开始" }));
+    fireEvent.click(screen.getByRole("button", { name: "还不知道？直接看茶叶卡" }));
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith("/onboarding/seed", expect.objectContaining({ body: JSON.stringify({ mbti: null }) })));
+    expect(await screen.findByRole("heading", { name: "先凭感觉" })).toBeInTheDocument();
+    expect(screen.queryByText("测试茶 1")).not.toBeInTheDocument();
   });
 
   it("returns from the three-cup results to the preserved MBTI selection", async () => {
     render(<HomeExperience />);
-    fireEvent.click(await screen.findByRole("option", { name: "P" }));
+    fireEvent.click(await screen.findByRole("button", { name: /我知道自己的 MBTI/ }));
+    fireEvent.click(screen.getByRole("option", { name: "P" }));
     fireEvent.click(screen.getByRole("button", { name: /就选这个 · INFP/ }));
     await screen.findByText("测试茶 1");
     fireEvent.click(screen.getByRole("button", { name: "返回 MBTI 选择" }));
     expect(await screen.findByRole("button", { name: /就选这个 · INFP/ })).toBeInTheDocument();
     expect(screen.queryByText("测试茶 1")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).not.toBeInTheDocument();
+  });
+
+  it("opens with the background inert, focuses the primary action and sends unknown MBTI directly to the feed", async () => {
+    const { container } = render(<HomeExperience />);
+    const dialog = await screen.findByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" });
+    const primary = screen.getByRole("button", { name: /我知道自己的 MBTI/ });
+    await waitFor(() => expect(primary).toHaveFocus());
+    expect(container.querySelector(".onboarding-screen")).toHaveAttribute("inert");
+    expect(container.querySelector(".onboarding-screen")).toHaveAttribute("aria-hidden", "true");
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.click(screen.getByRole("button", { name: "还不知道，直接看茶叶卡" }));
+    expect(await screen.findByRole("heading", { name: "先凭感觉" })).toBeInTheDocument();
+    expect(dialog).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
+    expect(screen.queryByText("测试茶 1")).not.toBeInTheDocument();
+    expect(authenticated).toHaveBeenCalledWith("/onboarding/seed", expect.objectContaining({ body: JSON.stringify({ mbti: null }) }));
+    expect(authenticated).toHaveBeenCalledWith("/feed?limit=8");
+  });
+
+  it.each([
+    ["主按钮", () => fireEvent.click(screen.getByRole("button", { name: /我知道自己的 MBTI/ }))],
+    ["关闭按钮", () => fireEvent.click(document.querySelector(".onboarding-choice-close") as HTMLElement)],
+    ["遮罩", () => fireEvent.click(document.querySelector(".onboarding-choice-backdrop") as HTMLElement)],
+    ["Escape", () => fireEvent.keyDown(document, { key: "Escape" })],
+  ])("%s closes the choice dialog without seeding", async (_label, dismiss) => {
+    render(<HomeExperience />);
+    await screen.findByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" });
+    dismiss();
+    const energyWheel = await screen.findByRole("listbox", { name: "能量维度" });
+    await waitFor(() => expect(energyWheel).toHaveFocus());
+    expect(authenticated).not.toHaveBeenCalledWith("/onboarding/seed", expect.anything());
+  });
+
+  it("keeps a failed direct-feed request in the dialog and retries in place", async () => {
+    let seedAttempts = 0;
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/bootstrap") return {
+        userId: "user-1", mbti: null, onboardingCompleted: false, swipeCount: 0,
+        recommendationReady: false, tasteProfile: { vector: {}, sampleCount: 0, confidenceState: "forming" },
+        capabilities: { voice: "mock", tasteNormalization: "mock", missingConfig: [] },
+      } as never;
+      if (path === "/onboarding/seed") {
+        seedAttempts += 1;
+        if (seedAttempts === 1) throw new Error("not ready");
+        return { mbti: null, items: [] } as never;
+      }
+      if (path.startsWith("/feed")) return { items: [{ cardId: "retry-card", teaId: "tea-1", name: "重试茶", region: "贵州", teaType: "绿茶", personalityKeywords: ["清醒"], headline: "重试成功", body: "茶叶卡已就绪", tags: ["清鲜"], scene: "早晨", visual }] } as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<HomeExperience />);
+    fireEvent.click(await screen.findByRole("button", { name: "还不知道，直接看茶叶卡" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("茶叶卡还没准备好，再试一次。");
+    expect(screen.getByRole("dialog", { name: "让我根据你的 MBTI，推荐属于你的贵州本命茶" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "还不知道，直接看茶叶卡" }));
+    expect(await screen.findByRole("heading", { name: "重试成功" })).toBeInTheDocument();
+    expect(seedAttempts).toBe(2);
+  });
+
+  it("lets a shared visitor choose cards without clearing an already completed onboarding record", async () => {
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/bootstrap") return {
+        userId: "existing-user", mbti: "INFP", onboardingCompleted: true, swipeCount: 7,
+        recommendationReady: true, tasteProfile: { vector: { freshness: .7 }, sampleCount: 7, confidenceState: "early" },
+        capabilities: { voice: "mock", tasteNormalization: "mock", missingConfig: [] },
+      } as never;
+      if (path.startsWith("/feed")) return { items: [{ cardId: "shared-card", teaId: "tea-1", name: "保留记录的茶", region: "贵州", teaType: "绿茶", personalityKeywords: ["清醒"], headline: "继续探索", body: "原记录还在", tags: ["清鲜"], scene: "早晨", visual }] } as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<HomeExperience forceOnboarding />);
+    fireEvent.click(await screen.findByRole("button", { name: "还不知道，直接看茶叶卡" }));
+    expect(await screen.findByRole("heading", { name: "继续探索" })).toBeInTheDocument();
+    expect(authenticated).not.toHaveBeenCalledWith("/onboarding/seed", expect.anything());
+    expect(useAppStore.getState().swipeCount).toBe(7);
   });
 });

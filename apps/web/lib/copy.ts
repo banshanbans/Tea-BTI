@@ -24,7 +24,7 @@ export const HOME_COPY = {
   mbtiIntro: "挑一个，看看哪三杯会先来找你。",
   mbtiSharedIntro: "你原来的记录都在。挑一个，我们重新开场。",
   mbtiConfirm: "就选这个",
-  mbtiSkip: "还没测过？先凭感觉开始",
+  mbtiSkip: "还不知道？直接看茶叶卡",
   seedTitle: "三杯茶，先来见你。",
   seedIntro: "一杯像你，一杯意外，还有一杯换个方向。",
   seedPrimary: "开始刷茶",

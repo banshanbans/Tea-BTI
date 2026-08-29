@@ -54,7 +54,7 @@ def test_realm_assets_keep_their_rights_and_fact_boundaries():
 
     prompt_ids = {item["prompt_id"] for item in prompts["assets"]}
     assets = [asset for tea in manifest["teas"] for asset in tea["realm_assets"]]
-    assert len({asset["id"] for asset in assets}) == len(assets) == 11
+    assert len({asset["id"] for asset in assets}) == len(assets) == 14
 
     for asset in assets:
         master = ROOT / asset["master_path"]
@@ -83,6 +83,10 @@ def test_realm_assets_keep_their_rights_and_fact_boundaries():
     imported_assets = [asset for asset in assets if asset["role"] in imported_roles]
     assert {asset["role"] for asset in imported_assets} == imported_roles
     assert sum((ROOT / asset["media_path"]).stat().st_size for asset in imported_assets) <= 1_500_000
+    teacher_roles = {"teacher_observe", "teacher_correction", "teacher_explain"}
+    teacher_assets = [asset for asset in assets if asset["role"] in teacher_roles]
+    assert {asset["role"] for asset in teacher_assets} == teacher_roles
+    assert sum((ROOT / asset["media_path"]).stat().st_size for asset in teacher_assets) <= 500_000
     realm = realm_catalog["realms"][0]
     assert all(asset_id in asset_ids for scene in realm["scenes"] for asset_id in scene["assetIds"])
     debt = next(item for item in realm["evidenceRefs"] if item["id"] == "duyun-53000-plus")

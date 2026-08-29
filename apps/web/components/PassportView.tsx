@@ -25,6 +25,7 @@ export function PassportView() {
               <img src={mediaUrl(entry.tea.visual.url)} alt={entry.tea.name} />
               <div><span className="eyebrow">{entry.tea.region}</span><h3>{entry.tea.name}</h3><p>{entry.userDescription ? `“${entry.userDescription}”` : "还没有留下自己的描述"}</p><p className="passport-badges">{[entry.brewed && "已泡过", entry.tasted && "已品过", entry.saved && "已收藏", entry.realmCompletedAt && "已完成茶境"].filter(Boolean).map((label) => <span key={String(label)}><CheckCircle size={12} weight="fill" />{label}</span>)}</p></div>
             </Link>
+            {entry.realmOutcome ? <div className="passport-realm-outcome"><p className="eyebrow">最近一次《雾里一芽》</p><strong>{entry.realmOutcome.title}</strong><span>{entry.realmOutcome.summary}</span><small>{entry.realmOutcome.disclaimer}</small></div> : null}
             {entry.specimens?.length ? <div className="passport-specimens">{entry.specimens.map((item) => <div key={item.specimenId}><img src={mediaUrl(item.asset.url)} alt={`${item.name}数字标本`} /><p><span className="eyebrow"><Leaf size={12} weight="fill" />茶境标本</span><strong>{item.name}</strong><small>{item.description}</small></p></div>)}</div> : null}
           </article>
         )) : <div className="panel empty">还没有记录。<br /><Link className="button primary" href="/">先去刷第一杯 <ArrowRight size={17} /></Link></div>}

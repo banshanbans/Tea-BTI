@@ -72,7 +72,7 @@
           "instruction": "选中一芽一叶，向上提进竹篓。",
           "completionCopy": "就是它。一芽一叶。",
           "interaction": "select_and_lift",
-          "assetIds": ["realm-duyun-mountain", "realm-duyun-bud-single", "realm-duyun-bud-leaf", "realm-duyun-bud-open", "realm-duyun-bud-stem"]
+          "assetIds": ["realm-duyun-mountain", "realm-duyun-bud-single", "realm-duyun-bud-leaf", "realm-duyun-bud-open", "realm-duyun-bud-stem", "realm-duyun-teacher-observe", "realm-duyun-teacher-correction"]
         },
         {
           "id": "wok-craft",
@@ -81,7 +81,7 @@
           "instruction": "依次翻动、推揉、画圆，再让白毫显出来。",
           "completionCopy": "四手做完，名字才浮上来：杀青、揉捻、搓团、提毫。",
           "interaction": "gesture_sequence",
-          "assetIds": ["realm-duyun-workshop"]
+          "assetIds": ["realm-duyun-workshop", "realm-duyun-teacher-explain"]
         },
         {
           "id": "human-judgment",
@@ -90,7 +90,7 @@
           "instruction": "再感受几下叶片的变化，然后由你决定。",
           "completionCopy": "火候停在哪里，要靠手和鼻子慢慢认。",
           "interaction": "judgment",
-          "assetIds": ["realm-duyun-workshop"]
+          "assetIds": ["realm-duyun-workshop", "realm-duyun-teacher-explain"]
         },
         {
           "id": "real-tea-reveal",

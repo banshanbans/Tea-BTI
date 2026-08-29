@@ -35,7 +35,7 @@ export function RealmHome() {
     <motion.section className="realm-home-page" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}>
       <motion.p className="eyebrow" variants={reveal}>杯中的茶境</motion.p>
       <motion.h1 className="title" variants={reveal}>从杯中这一口，<br />回到雾里的一芽。</motion.h1>
-      <motion.p className="subtitle" variants={reveal}>用一分钟，跟着一片嫩叶走进黔南的雾。</motion.p>
+      <motion.p className="subtitle" variants={reveal}>用 70–100 秒，把手机变成制茶工具，跟着一片嫩叶走进黔南的雾。</motion.p>
 
       <motion.div className={`realm-region-status ${realms.litRegionIds.includes(realm.regionId) ? "lit" : ""}`} aria-label="茶境地图" variants={reveal}>
         <span className="realm-region-icon">{completed ? <CheckCircle size={28} weight="duotone" /> : <MapPin size={28} weight="duotone" />}</span>
@@ -53,8 +53,9 @@ export function RealmHome() {
           <div className="realm-progress-line"><span style={{ width: `${progressPercent}%` }} /></div>
           <div className="realm-home-meta">
             <span>{completed ? "7 / 7 幕完成" : `${completedScenes} / 7 幕 · ${progressPercent}%`}</span>
-            <span>{realm.specimen ? "白毫标本 · 已收藏" : "约 55 秒"}</span>
+            <span>{realm.specimen ? "白毫标本 · 已收藏" : "约 70–100 秒"}</span>
           </div>
+          {realm.outcome ? <div className="realm-home-outcome"><strong>{realm.outcome.title}</strong><span>{realm.outcome.summary}</span><small>{realm.outcome.disclaimer}</small></div> : null}
           <Link className="button primary block" href={realmHref}>{action} <ArrowRight size={18} /></Link>
         </div>
       </motion.article>

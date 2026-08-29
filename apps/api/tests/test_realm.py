@@ -73,6 +73,11 @@ def test_realm_is_freely_available_and_assets_keep_fact_boundaries(client, auth)
     assert assets["dry_tea_reveal"]["rightsState"] == "open_license"
     for role in {"mist_overlay", "mountain_background", "workshop_background", "specimen_card"}:
         assert assets[role]["authenticityState"] == "synthetic_demo"
+    for role in {"teacher_observe", "teacher_correction", "teacher_explain"}:
+        assert assets[role]["sourceKind"] == "ai_generated"
+        assert assets[role]["authenticityState"] == "synthetic_demo"
+        assert assets[role]["rightsState"] == "demo_only"
+        assert assets[role]["url"].startswith("/api/v1/media/realm/")
 
 
 def test_realm_personalization_uses_confirmed_taste_words(client, auth):

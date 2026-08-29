@@ -114,6 +114,27 @@
       "attempt_limit": 1,
       "attempt_count": 1,
       "prompt": "Imported team-generated asset from codex/tea-bti. The original generation prompt was not preserved. This record intentionally documents the gap instead of reconstructing an unverified prompt."
+    },
+    {
+      "prompt_id": "prompt-realm-teacher-observe-v1",
+      "asset_id": "realm-duyun-teacher-observe",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Use the supplied character image only as loose visual direction, not as an exact copy. Create an original stylized 2D editorial illustration for a mobile interactive story: a friendly experienced Guizhou tea craftswoman, waist-up observing freshly picked tea buds with calm attention. Preserve only broad cues of deep indigo-blue work clothing, woven tea basket straps, warm approachable expression. Make her visibly middle-aged with subtle smile lines, sun-touched skin, and gently weathered working hands. Clothing decoration must be invented geometric botanical embroidery and must NOT be presented as an authentic reconstruction of any specific ethnic costume. Warm rice-paper and ink-wash aesthetic matching a cream and dark-green tea app. Three-quarter view, centered isolated character, clear hands, no speech bubble, no lettering, no logo, no scenery, transparent background with clean alpha edges. Production asset, portrait orientation, high resolution."
+    },
+    {
+      "prompt_id": "prompt-realm-teacher-correction-v1",
+      "asset_id": "realm-duyun-teacher-correction",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Use the supplied character image only as loose visual direction, not as an exact copy. Create an original stylized 2D editorial illustration for a mobile tea interaction: the same friendly experienced Guizhou tea craftswoman as a consistent character, waist-up, leaning slightly forward and extending one open weathered hand toward the viewer in a gentle correcting gesture, while the other hand indicates a proper one-bud-one-leaf tea shoot. Deep indigo-blue practical work clothing, woven tea basket straps, middle-aged, subtle smile lines, kind nonjudgmental expression. Invented geometric botanical embroidery; do NOT present it as an authentic reconstruction of a specific ethnic costume. Warm rice-paper and ink-wash aesthetic matching a cream and dark-green tea app. Three-quarter view, clear anatomically correct hands, isolated character, no speech bubble, no lettering, no logo, no scenery, transparent background with clean alpha edges. Production UI overlay asset, portrait orientation, high resolution."
+    },
+    {
+      "prompt_id": "prompt-realm-teacher-explain-v1",
+      "asset_id": "realm-duyun-teacher-explain",
+      "attempt_limit": 1,
+      "attempt_count": 1,
+      "prompt": "Use the supplied character image only as loose visual direction, not as an exact copy. Create an original stylized 2D editorial illustration for a mobile tea story: the same friendly experienced Guizhou tea craftswoman as a consistent character, waist-up in a warm teaching pose, one weathered hand open beside a small tea leaf and the other gesturing gently as if explaining craft judgment. Deep indigo-blue practical work clothing, woven tea basket straps, middle-aged with subtle smile lines and working-hand texture, calm encouraging expression. Invented geometric botanical embroidery; do NOT present it as an authentic reconstruction of any specific ethnic costume. Warm rice-paper and ink-wash aesthetic matching a cream and dark-green tea app. Slight three-quarter view, clear anatomically correct hands, isolated character, no speech bubble, no lettering, no logo, no scenery, transparent background with clean alpha edges. Production UI overlay asset, portrait orientation, high resolution."
     }
   ]
 }

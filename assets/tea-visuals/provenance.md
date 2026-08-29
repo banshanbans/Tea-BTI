@@ -62,6 +62,10 @@
 
 迁入的 PNG 原件保存在 `masters/realm/`，运行时使用 `media/realm/` 下的 WebP；六张 WebP 合计 424,466 bytes。运行时仍由 Manifest 和 `/api/v1/media/realm/{asset_id}` 提供，不从前端 `public/` 目录直连。
 
+Tea Realm V2 另新增三张茶师傅角色素材：观察、伸手纠正、温和讲解。用户提供的人物图只作为宽泛的角色方向参考，未提交仓库；三张成品由 OpenAI 内置 ImageGen 分别生成，再以边缘洪泛方式移除生成图中的浅色背景，保留透明 PNG 母版并导出 720×1080 WebP。三张运行图合计约 228 KiB，按当前幕通过 Manifest/API 加载。
+
+这些人物图统一登记为 `ai_generated / synthetic_demo / demo_only`。蓝色工作服、背篓和虚构植物几何纹样只用于叙事辨识，不声称复原任何特定民族服饰，也不作为贵州茶工、地域人物或真实制茶动作的纪实证据。生成提示方向明确要求中年感、劳动手部、无对白框、无文字与透明背景；角色对白始终由前端可访问文本渲染。
+
 其他七款本次只接入八茶目录、Swipe、详情及共用产品页面，不新增 Tea Realm。
 
 ## 文件关系
@@ -70,5 +74,6 @@
 - `masters/detail/source/`：八张实拍原件与用户附带来源说明；
 - `masters/detail/edited/`：两张版本化精确去水印母版；
 - `media/presentation/`、`media/detail/`：确定性导出的活动 WebP；
+- `masters/realm/`、`media/realm/`：Tea Realm 氛围、交互、人物母版与运行图；
 - `manifest.json`：资产、尺寸、哈希、来源、权利、编辑链与历史状态；
 - `manifest.schema.json`：清单结构约束。

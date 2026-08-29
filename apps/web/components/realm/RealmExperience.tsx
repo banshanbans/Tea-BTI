@@ -2,11 +2,21 @@
 
 import Link from "next/link";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { FastForward, Grains, Leaf, Plant, Selection, SpeakerHigh, SpeakerSlash, Sparkle, Tree, X } from "@phosphor-icons/react";
+import { FastForward, SpeakerHigh, SpeakerSlash, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
 
 import { BackControl } from "@/components/BackControl";
+import {
+  BudPickerVisual,
+  craftSteps,
+  HumanJudgmentVisual,
+  LiquorEntryVisual,
+  MistMountainVisual,
+  RealmAtmosphere,
+  RealTeaRevealVisual,
+  SpecimenCollectVisual,
+  WokCraftVisual,
+} from "@/components/realm/RealmSceneVisuals";
 import { authenticated, jsonBody, mediaUrl } from "@/lib/api";
 import type { RealmComplete, RealmDetail, RealmMutation } from "@/lib/api";
 import { realmExitHref } from "@/lib/navigation";
@@ -14,21 +24,6 @@ import type { RealmEntry, TeaOrigin } from "@/lib/navigation";
 
 type InteractionMode = "orientation" | "pointer" | "reducedMotion";
 type FallbackReason = "permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error";
-
-const craftSteps = [
-  { name: "杀青", hint: "推开青气，让鲜叶停在当下。", gesture: "向前推" },
-  { name: "揉捻", hint: "让叶片彼此靠近，汤感从这里开始聚。", gesture: "往复揉" },
-  { name: "搓团", hint: "收紧叶形，把香气与质感留住。", gesture: "画一个圆" },
-  { name: "提毫", hint: "最后一次轻搓，白毫才慢慢显出来。", gesture: "轻轻搓" },
-] as const;
-
-function BudIcon({ id }: { id: string }) {
-  const props = { size: 42, weight: "duotone" as const };
-  if (id === "single") return <Plant {...props} />;
-  if (id === "bud-leaf") return <Leaf {...props} />;
-  if (id === "open") return <Tree {...props} />;
-  return <Selection {...props} />;
-}
 
 function eventId(prefix: string) {
   const suffix = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
@@ -68,6 +63,7 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const [soundOn, setSoundOn] = useState(true);
   const [skipAnimations, setSkipAnimations] = useState(false);
   const [mistScore, setMistScore] = useState(0);
+  const [mistDirection, setMistDirection] = useState<1 | -1>(1);
   const [wrongBud, setWrongBud] = useState("");
   const [budChosen, setBudChosen] = useState(false);
   const [craftIndex, setCraftIndex] = useState(0);
@@ -77,7 +73,6 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const [completion, setCompletion] = useState<RealmComplete | null>(null);
   const sceneStartedRef = useRef(Date.now());
   const experienceStartedRef = useRef(Date.now());
-  const pointerRef = useRef<{ x: number; y: number } | null>(null);
 
   const load = useCallback(async () => {
     setError("");
@@ -104,7 +99,10 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     if (mode !== "orientation" || screen !== "mist-mountain") return;
     const handleOrientation = (event: DeviceOrientationEvent) => {
       const gamma = event.gamma;
-      if (typeof gamma === "number") setMistScore((value) => Math.min(100, value + Math.abs(gamma) / 6));
+      if (typeof gamma === "number") {
+        if (Math.abs(gamma) > 2) setMistDirection(gamma > 0 ? 1 : -1);
+        setMistScore((value) => Math.min(100, value + Math.abs(gamma) / 6));
+      }
     };
     window.addEventListener("deviceorientation", handleOrientation);
     return () => window.removeEventListener("deviceorientation", handleOrientation);
@@ -118,6 +116,21 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const workshop = assets.get("workshop_background");
   const dryTea = assets.get("dry_tea_reveal");
   const specimen = assets.get("specimen_card");
+  const liquor = assets.get("liquor_base");
+  const ripple = assets.get("liquor_ripple");
+  const budAssetUrls = useMemo(() => {
+    const urls = new Map<string, string>();
+    for (const role of ["bud_single", "bud_leaf", "bud_open", "bud_stem"]) {
+      const asset = assets.get(role);
+      if (asset) urls.set(role, mediaUrl(asset.url));
+    }
+    return urls;
+  }, [assets]);
+  const background = useMemo(() => {
+    if (["wok-craft", "human-judgment", "real-tea-reveal"].includes(screen)) return workshop;
+    if (["liquor-entry", "passport-specimen"].includes(screen)) return mist;
+    return mountain;
+  }, [screen, mist, mountain, workshop]);
   const validSourceTeaId = !detail || detail.definition.teaId === sourceTeaId ? sourceTeaId : undefined;
   const exitHref = realmExitHref(entry, validSourceTeaId, origin);
 
@@ -160,14 +173,14 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     } finally { setBusy(false); }
   }
 
-  async function advance() {
-    if (!detail || !scene || busy) return;
+  async function advance(): Promise<boolean> {
+    if (!detail || !scene || busy) return false;
     const next = detail.definition.sceneOrder[sceneIndex + 1];
-    if (!next) return;
+    if (!next) return false;
     if (detail.progress.completedScenes.includes(scene.id)) {
       setScreen(next);
       tone(soundOn, 560 + sceneIndex * 30);
-      return;
+      return true;
     }
     setBusy(true); setError("");
     try {
@@ -178,8 +191,10 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
       setDetail({ ...detail, progress: response.progress });
       setScreen(replay ? next : response.progress.currentScene);
       tone(soundOn, 560 + sceneIndex * 30);
+      return true;
     } catch (cause) {
       setError((cause as Error).message);
+      return false;
     } finally { setBusy(false); }
   }
 
@@ -208,23 +223,30 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     } finally { setBusy(false); }
   }
 
-  function handleMistPointer(event: ReactPointerEvent<HTMLDivElement>) {
-    if (!pointerRef.current) return;
-    const distance = Math.abs(event.clientX - pointerRef.current.x) + Math.abs(event.clientY - pointerRef.current.y);
-    pointerRef.current = { x: event.clientX, y: event.clientY };
+  function handleMistMovement(distance: number, direction: 1 | -1) {
+    setMistDirection(direction);
     setMistScore((value) => Math.min(100, value + distance / 3));
   }
 
-  function handleCraftMove(event: ReactPointerEvent<HTMLDivElement>) {
-    if (!pointerRef.current || craftIndex >= craftSteps.length) return;
-    const distance = Math.hypot(event.clientX - pointerRef.current.x, event.clientY - pointerRef.current.y);
-    pointerRef.current = { x: event.clientX, y: event.clientY };
+  function handleCraftDistance(distance: number) {
+    if (craftIndex >= craftSteps.length) return;
     const next = craftDistance + distance;
     if (next >= 105) {
       setCraftIndex((value) => Math.min(craftSteps.length, value + 1));
       setCraftDistance(0);
       tone(soundOn, 430 + craftIndex * 50);
     } else setCraftDistance(next);
+  }
+
+  function chooseBud(id: string) {
+    if (id === "bud-leaf") {
+      setBudChosen(true);
+      setWrongBud("");
+      tone(soundOn, 590);
+      return;
+    }
+    setWrongBud("这一枚也在长大。再找找“一芽一叶”。");
+    tone(soundOn, 220);
   }
 
   function showPreviousScene() {
@@ -248,14 +270,16 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     const collected = completion?.specimen;
     return (
       <section className="realm-complete-screen">
-        {specimen ? <img className="realm-specimen-large" src={mediaUrl(specimen.url)} alt="白毫数字标本" /> : null}
-        <p className="eyebrow">已收进茶护照</p>
-        <h1>白毫</h1>
-        <p>{collected?.description || "一枚来自《雾里一芽》的数字标本。"}</p>
-        <div className="realm-complete-actions">
-          <Link className="button primary" href="/passport">查看茶护照</Link>
-          <Link className="button" href={exitHref}>{entry === "tea" ? "返回茶详情" : "回到茶境"}</Link>
-        </div>
+        <motion.div className="realm-complete-stage" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}>
+          {specimen ? <motion.div className="realm-specimen-wrap realm-specimen-large-wrap" variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}><img className="realm-specimen-large" src={mediaUrl(specimen.url)} alt="白毫数字标本" /><span className="realm-specimen-shine" aria-hidden="true" /></motion.div> : null}
+          <motion.p className="eyebrow" variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>已收进茶护照</motion.p>
+          <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>白毫</motion.h1>
+          <motion.p variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>{collected?.description || "一枚来自《雾里一芽》的数字标本。"}</motion.p>
+          <motion.div className="realm-complete-actions" variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>
+            <Link className="button primary" href="/passport">查看茶护照</Link>
+            <Link className="button" href={exitHref}>{entry === "tea" ? "返回茶详情" : "回到茶境"}</Link>
+          </motion.div>
+        </motion.div>
       </section>
     );
   }
@@ -263,16 +287,17 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   if (!started) {
     return (
       <section className="realm-cover">
-        {mountain ? <img src={mediaUrl(mountain.url)} alt="风格化黔南山雾氛围" /> : null}
+        {mountain ? <motion.img src={mediaUrl(mountain.url)} alt="风格化黔南山雾氛围" initial={{ scale: 1.06 }} animate={{ scale: 1 }} transition={{ duration: 12, ease: "easeOut" }} /> : null}
         <div className="realm-cover-shade" />
+        <RealmAtmosphere />
         <Link className="realm-close" href={exitHref} aria-label={entry === "tea" ? "退出茶境并返回茶详情" : "退出茶境并返回茶境首页"}><X size={21} /></Link>
-        <div className="realm-cover-copy">
+        <motion.div className="realm-cover-copy" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
           <p className="realm-kicker">茶境 01 · {detail.definition.regionLabel}</p>
           <h1>{detail.definition.title}</h1>
           <p>{detail.personalization.introCopy}</p>
           <p className="realm-cover-note">需要时会询问方向权限，也可以一直用拖拽。</p>
           <button className="button primary block" disabled={busy} onClick={() => void enter()}>{busy ? "正在入雾…" : replay ? "重新进入" : "进入茶境"}</button>
-        </div>
+        </motion.div>
       </section>
     );
   }
@@ -281,9 +306,10 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     <MotionConfig reducedMotion={mode === "reducedMotion" ? "always" : "user"}>
       <section className={`realm-experience ${skipAnimations ? "skip-animations" : ""}`}>
         <div className="realm-scene-bg">
-          {mountain ? <img src={mediaUrl(sceneIndex >= 3 && workshop ? workshop.url : mountain.url)} alt="" /> : null}
+          {background ? <motion.img key={background.assetId} src={mediaUrl(background.url)} alt="" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: skipAnimations ? 1 : [1, 1.04] }} transition={skipAnimations ? { duration: 0 } : { opacity: { duration: 0.7 }, scale: { duration: 18, repeat: Infinity, repeatType: "reverse" } }} /> : null}
           <div className="realm-scene-tint" />
         </div>
+        <RealmAtmosphere />
 
         <header className="realm-controls">
           <Link href={exitHref} aria-label={entry === "tea" ? "退出茶境并返回茶详情" : "退出茶境并返回茶境首页"}><X size={18} /></Link>
@@ -296,96 +322,26 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
         </header>
 
         <AnimatePresence mode="wait">
-          <motion.div className="realm-scene" key={screen} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: skipAnimations ? 0 : .55 }}>
+          <motion.div className="realm-scene" key={screen} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: skipAnimations ? 0 : .35 }}>
             <div className="realm-scene-copy">
               <p className="realm-kicker">{scene?.eyebrow}</p>
               <h1>{scene?.title}</h1>
               <p>{scene?.instruction}</p>
             </div>
 
-            {screen === "liquor-entry" ? (
-              <div className="realm-ripple-wrap">
-                <motion.div className="realm-ripple" animate={skipAnimations ? {} : { scale: [1, 1.14, 1], opacity: [.7, .28, .7] }} transition={{ repeat: Infinity, duration: 2.8 }} />
-                <button className="realm-center-action" disabled={busy} onClick={() => void advance()}>轻触茶汤</button>
-              </div>
-            ) : null}
+            {screen === "liquor-entry" ? <LiquorEntryVisual liquorUrl={liquor ? mediaUrl(liquor.url) : undefined} rippleUrl={ripple ? mediaUrl(ripple.url) : undefined} busy={busy} skipAnimations={skipAnimations || mode === "reducedMotion"} onAdvance={advance} /> : null}
 
-            {screen === "mist-mountain" ? (
-              <div className="realm-interaction mist-interaction" role="group" tabIndex={0} aria-label="拨开雾层"
-                onPointerDown={(event) => {
-                  if ((event.target as HTMLElement).closest("button")) return;
-                  pointerRef.current = { x: event.clientX, y: event.clientY };
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                }}
-                onPointerMove={handleMistPointer} onPointerUp={() => { pointerRef.current = null; }}
-                onKeyDown={(event) => { if (event.key.startsWith("Arrow") || event.key === "Enter") setMistScore((value) => Math.min(100, value + 25)); }}>
-                {mist ? <motion.img className="realm-mist" src={mediaUrl(mist.url)} alt="可拨开的雾层" animate={{ x: mistScore * 1.4, opacity: Math.max(.06, 1 - mistScore / 90) }} /> : null}
-                <div className="realm-meter"><span style={{ width: `${mistScore}%` }} /></div>
-                <small>{mode === "orientation" ? "轻轻倾斜手机" : "左右拖动拨开雾"}</small>
-                {mistScore >= 70 ? <button className="button primary" disabled={busy} onClick={() => void advance()}>山出现了</button> : null}
-              </div>
-            ) : null}
+            {screen === "mist-mountain" ? <MistMountainVisual mistUrl={mist ? mediaUrl(mist.url) : undefined} score={mistScore} direction={mistDirection} mode={mode} busy={busy} onMove={handleMistMovement} onKeyboard={() => setMistScore((value) => Math.min(100, value + 25))} onAdvance={advance} /> : null}
 
-            {screen === "pick-bud" ? (
-              <div className="realm-buds" aria-label="选择一芽一叶">
-                {[
-                  ["single", "只有一枚芽"], ["bud-leaf", "一芽一叶"], ["open", "两片已展开的叶"], ["stem", "带长梗的叶"],
-                ].map(([id, label]) => (
-                  <button key={id} className={`realm-bud ${budChosen && id === "bud-leaf" ? "chosen" : ""}`} onClick={() => {
-                    if (id === "bud-leaf") { setBudChosen(true); setWrongBud(""); tone(soundOn, 590); }
-                    else setWrongBud("这一枚也在长大。再找找“一芽一叶”。");
-                  }}><span aria-hidden="true" className="bud-icon"><BudIcon id={id} /></span>{label}</button>
-                ))}
-                <p className="realm-feedback" aria-live="polite">{budChosen ? "1 / 53,000+ · 这一片叶子很轻，人的劳动很重。" : wrongBud}</p>
-                {budChosen ? <button className="button primary" disabled={busy} onClick={() => void advance()}>把它带去锅边</button> : null}
-              </div>
-            ) : null}
+            {screen === "pick-bud" ? <BudPickerVisual assetUrls={budAssetUrls} chosen={budChosen} feedback={wrongBud} busy={busy} onChoose={chooseBud} onAdvance={advance} /> : null}
 
-            {screen === "wok-craft" ? (
-              <div className="realm-craft">
-                <div className="realm-wok" role="button" tabIndex={0} aria-label="制茶手势区域"
-                  onPointerDown={(event) => { pointerRef.current = { x: event.clientX, y: event.clientY }; event.currentTarget.setPointerCapture(event.pointerId); }}
-                  onPointerMove={handleCraftMove} onPointerUp={() => { pointerRef.current = null; }}
-                  onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setCraftIndex((value) => Math.min(craftSteps.length, value + 1)); }}>
-                  <motion.span className="craft-leaves" animate={{ rotate: craftIndex * 65, x: [0, 18, -12, 0] }} transition={{ duration: skipAnimations ? 0 : .8 }}><Leaf size={31} weight="duotone" /><Plant size={34} weight="duotone" /><Leaf size={27} weight="duotone" /></motion.span>
-                  {craftIndex < craftSteps.length ? <strong>{craftSteps[craftIndex].gesture}</strong> : <strong>四手已经做完</strong>}
-                </div>
-                <div className="realm-craft-list">
-                  {craftSteps.map((step, index) => <div className={index < craftIndex ? "done" : index === craftIndex ? "active" : ""} key={step.name}><span>{index + 1}</span><p><strong>{index < craftIndex ? step.name : index === craftIndex ? step.gesture : "···"}</strong>{index < craftIndex ? <small>{step.hint}</small> : null}</p></div>)}
-                </div>
-                {craftIndex >= craftSteps.length ? <button className="button primary" disabled={busy} onClick={() => void advance()}>去做最后的判断</button> : null}
-              </div>
-            ) : null}
+            {screen === "wok-craft" ? <WokCraftVisual craftIndex={craftIndex} animated={!skipAnimations && mode !== "reducedMotion"} busy={busy} onDistance={handleCraftDistance} onKeyboardStep={() => setCraftIndex((value) => Math.min(craftSteps.length, value + 1))} onAdvance={advance} /> : null}
 
-            {screen === "human-judgment" ? (
-              <div className="realm-judgment" role="group" aria-label="判断何时停手">
-                <motion.div className="realm-leaf-mass" animate={{ rotate: maturity * 7, scale: 1 + maturity * .025 }}><Grains size={80} weight="duotone" /></motion.div>
-                <div className="realm-meter"><span style={{ width: `${Math.min(100, maturity * 28)}%` }} /></div>
-                <p>{maturity < 3 ? "再摸一次叶片的状态，停手的时刻由你来定。" : "青气渐退，叶子收紧。手感会告诉你什么时候停。"}</p>
-                <button className="button" onClick={() => { setMaturity((value) => Math.min(4, value + 1)); tone(soundOn, 470 + maturity * 25); }}>再试一手</button>
-                <button className="button primary" onClick={() => maturity >= 3 ? void advance() : setNotice("还有一点青气，别急，再试一手。")}>现在停</button>
-              </div>
-            ) : null}
+            {screen === "human-judgment" ? <HumanJudgmentVisual maturity={maturity} onTry={() => { setMaturity((value) => Math.min(4, value + 1)); tone(soundOn, 470 + maturity * 25); }} onStop={() => maturity >= 3 ? void advance() : setNotice("还有一点青气，别急，再试一手。")} /> : null}
 
-            {screen === "real-tea-reveal" ? (
-              <div className="realm-real-reveal">
-                <div className={`realm-real-frame ${realRevealed ? "revealed" : ""}`}>
-                  <div className="realm-stylized-leaves"><Sparkle size={24} /><Plant size={68} weight="duotone" /><Leaf size={48} weight="duotone" /></div>
-                  {dryTea ? <img src={mediaUrl(dryTea.url)} alt="论文 Figure 7A 中的都匀毛尖五级干茶对照" /> : null}
-                </div>
-                <p>{detail.personalization.userWords ? `你说“${detail.personalization.userWords}”。这一口的路，从雾里的一芽开始。` : "杯里轻盈的鲜，来自嫩叶、火候，也来自人在关键时刻的判断。"}</p>
-                <small className="realm-credit">实物参考：Xia et al. (2026), Food Chemistry: X, Fig. 7A, CC BY 4.0。论文样本与商品批次无关。</small>
-                {!realRevealed ? <button className="button primary" onClick={() => void revealRealTea()}>回到真实干茶</button> : <button className="button primary" disabled={busy} onClick={() => void advance()}>收下这一芽</button>}
-              </div>
-            ) : null}
+            {screen === "real-tea-reveal" ? <RealTeaRevealVisual dryTeaUrl={dryTea ? mediaUrl(dryTea.url) : undefined} revealed={realRevealed} userWords={detail.personalization.userWords} busy={busy} onReveal={() => void revealRealTea()} onAdvance={advance} /> : null}
 
-            {screen === "passport-specimen" ? (
-              <div className="realm-collect">
-                {specimen ? <motion.img src={mediaUrl(specimen.url)} alt="白毫数字标本" animate={{ y: [0, -8, 0] }} transition={{ duration: skipAnimations ? 0 : 2.5, repeat: Infinity }} /> : null}
-                <p>收下白毫，茶护照多一枚标本，黔南也会亮起来。</p>
-                <button className="button primary block" disabled={busy} onClick={() => void collect()}>{busy ? "正在收藏…" : "收进茶护照"}</button>
-              </div>
-            ) : null}
+            {screen === "passport-specimen" ? <SpecimenCollectVisual specimenUrl={specimen ? mediaUrl(specimen.url) : undefined} skipAnimations={skipAnimations || mode === "reducedMotion"} busy={busy} onCollect={() => void collect()} /> : null}
 
             {notice ? <p className="realm-notice" aria-live="polite">{notice}</p> : null}
             {error ? <div className="error realm-retry"><span>{error}</span><button className="button" onClick={() => { setError(""); }}>在这一幕再试一次</button></div> : null}

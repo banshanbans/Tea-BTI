@@ -229,6 +229,15 @@ class RealmSpecimenResponse(ApiModel):
     collected_at: datetime
 
 
+class RealmOutcomeResponse(ApiModel):
+    code: Literal["early", "balanced", "late"]
+    title: str
+    summary: str
+    stop_window: Literal["early", "balanced", "late"]
+    updated_at: datetime
+    disclaimer: str
+
+
 class PassportEntryResponse(ApiModel):
     tea: TeaSummaryResponse
     saved: bool
@@ -240,6 +249,7 @@ class PassportEntryResponse(ApiModel):
     normalized_tags: list[str]
     first_drunk_at: datetime | None
     realm_completed_at: datetime | None = None
+    realm_outcome: RealmOutcomeResponse | None = None
     specimens: list[RealmSpecimenResponse] = Field(default_factory=list)
     updated_at: datetime
 
@@ -295,6 +305,48 @@ class RealmProgressResponse(ApiModel):
     used_taste_words: bool = False
 
 
+class RealmGestureResult(ApiModel):
+    input_mode: Literal["orientation", "pointer", "multitouch", "keyboard", "assisted", "reducedMotion"]
+    score: int = Field(ge=0, le=100)
+    attempts: int = Field(ge=1, le=20)
+
+
+class RealmPickBudResult(ApiModel):
+    kind: Literal["pick-bud"]
+    selected_bud: Literal["bud-leaf"]
+    wrong_selections: list[Literal["bud-single", "bud-open", "bud-stem"]] = Field(default_factory=list, max_length=20)
+    teacher_shown: bool = False
+    input_mode: Literal["pointer", "keyboard", "reducedMotion"]
+
+
+class RealmWokCraftResult(ApiModel):
+    kind: Literal["wok-craft"]
+    steam_mode: Literal["microphone", "wipe", "keyboard", "reducedMotion"]
+    gestures: dict[Literal["killGreen", "rolling", "balling", "pekoe"], RealmGestureResult]
+
+
+class RealmHumanJudgmentResult(ApiModel):
+    kind: Literal["human-judgment"]
+    maturity_level: int = Field(ge=0, le=5)
+    stop_window: Literal["early", "balanced", "late"]
+
+
+RealmSceneResult = RealmPickBudResult | RealmWokCraftResult | RealmHumanJudgmentResult
+
+
+class RealmRunResponse(ApiModel):
+    run_id: str
+    replay: bool
+    current_scene: str
+    completed_scenes: list[str]
+    scene_results: dict[str, Any]
+    interaction_mode: Literal["orientation", "pointer", "reducedMotion"] | None = None
+    total_elapsed_ms: int
+    started_at: datetime
+    updated_at: datetime
+    completed_at: datetime | None = None
+
+
 class RealmPersonalizationResponse(ApiModel):
     source: Literal["taste", "default"]
     intro_copy: str
@@ -312,6 +364,7 @@ class RealmSummaryResponse(ApiModel):
     progress: RealmProgressResponse
     specimen: RealmSpecimenResponse | None = None
     hero_asset: RealmAssetResponse
+    outcome: RealmOutcomeResponse | None = None
 
 
 class RealmListResponse(ApiModel):
@@ -323,18 +376,25 @@ class RealmDetailResponse(ApiModel):
     definition: RealmDefinitionResponse
     progress: RealmProgressResponse
     personalization: RealmPersonalizationResponse
+    run: RealmRunResponse | None = None
+    outcome: RealmOutcomeResponse | None = None
 
 
 class RealmStartRequest(ApiModel):
     client_event_id: str = Field(min_length=1, max_length=80)
     interaction_mode: Literal["orientation", "pointer", "reducedMotion"]
-    fallback_reason: Literal["permission_denied", "unsupported", "desktop", "reduced_motion", "sensor_error"] | None = None
+    fallback_reason: Literal[
+        "permission_denied", "unsupported", "desktop", "reduced_motion", "sensor_error", "sensor_timeout",
+        "microphone_denied", "microphone_unsupported", "microphone_error", "microphone_timeout", "multitouch_unsupported",
+    ] | None = None
     replay: bool = False
 
 
 class RealmProgressUpdate(ApiModel):
     client_event_id: str = Field(min_length=1, max_length=80)
+    run_id: str = Field(min_length=1, max_length=80)
     completed_scene: str
+    scene_result: RealmSceneResult | None = None
     elapsed_ms: int = Field(default=0, ge=0, le=600000)
 
 
@@ -350,10 +410,12 @@ class RealmEventRequest(ApiModel):
 class RealmMutationResponse(ApiModel):
     accepted: bool
     progress: RealmProgressResponse
+    run: RealmRunResponse | None = None
 
 
 class RealmCompleteRequest(ApiModel):
     client_event_id: str = Field(min_length=1, max_length=80)
+    run_id: str = Field(min_length=1, max_length=80)
     total_elapsed_ms: int = Field(default=0, ge=0, le=3600000)
     interaction_mode: Literal["orientation", "pointer", "reducedMotion"]
 
@@ -362,6 +424,9 @@ class RealmCompleteResponse(ApiModel):
     accepted: bool
     progress: RealmProgressResponse
     specimen: RealmSpecimenResponse
+    specimen_awarded: bool
+    outcome: RealmOutcomeResponse
+    run: RealmRunResponse
     passport_entry: PassportEntryResponse
 
 

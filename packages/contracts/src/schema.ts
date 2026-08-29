@@ -707,6 +707,7 @@ export interface components {
             firstDrunkAt: string | null;
             /** Realmcompletedat */
             realmCompletedAt?: string | null;
+            realmOutcome?: components["schemas"]["RealmOutcomeResponse"] | null;
             /** Specimens */
             specimens?: components["schemas"]["RealmSpecimenResponse"][];
             /**
@@ -938,6 +939,8 @@ export interface components {
         RealmCompleteRequest: {
             /** Clienteventid */
             clientEventId: string;
+            /** Runid */
+            runId: string;
             /**
              * Totalelapsedms
              * @default 0
@@ -955,6 +958,10 @@ export interface components {
             accepted: boolean;
             progress: components["schemas"]["RealmProgressResponse"];
             specimen: components["schemas"]["RealmSpecimenResponse"];
+            /** Specimenawarded */
+            specimenAwarded: boolean;
+            outcome: components["schemas"]["RealmOutcomeResponse"];
+            run: components["schemas"]["RealmRunResponse"];
             passportEntry: components["schemas"]["PassportEntryResponse"];
         };
         /** RealmDefinitionResponse */
@@ -989,6 +996,8 @@ export interface components {
             definition: components["schemas"]["RealmDefinitionResponse"];
             progress: components["schemas"]["RealmProgressResponse"];
             personalization: components["schemas"]["RealmPersonalizationResponse"];
+            run?: components["schemas"]["RealmRunResponse"] | null;
+            outcome?: components["schemas"]["RealmOutcomeResponse"] | null;
         };
         /** RealmEventRequest */
         RealmEventRequest: {
@@ -1024,6 +1033,33 @@ export interface components {
             /** Supports */
             supports: string[];
         };
+        /** RealmGestureResult */
+        RealmGestureResult: {
+            /**
+             * Inputmode
+             * @enum {string}
+             */
+            inputMode: "orientation" | "pointer" | "multitouch" | "keyboard" | "assisted" | "reducedMotion";
+            /** Score */
+            score: number;
+            /** Attempts */
+            attempts: number;
+        };
+        /** RealmHumanJudgmentResult */
+        RealmHumanJudgmentResult: {
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "human-judgment";
+            /** Maturitylevel */
+            maturityLevel: number;
+            /**
+             * Stopwindow
+             * @enum {string}
+             */
+            stopWindow: "early" | "balanced" | "late";
+        };
         /** RealmListResponse */
         RealmListResponse: {
             /** Items */
@@ -1036,6 +1072,31 @@ export interface components {
             /** Accepted */
             accepted: boolean;
             progress: components["schemas"]["RealmProgressResponse"];
+            run?: components["schemas"]["RealmRunResponse"] | null;
+        };
+        /** RealmOutcomeResponse */
+        RealmOutcomeResponse: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "early" | "balanced" | "late";
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /**
+             * Stopwindow
+             * @enum {string}
+             */
+            stopWindow: "early" | "balanced" | "late";
+            /**
+             * Updatedat
+             * Format: date-time
+             */
+            updatedAt: string;
+            /** Disclaimer */
+            disclaimer: string;
         };
         /** RealmPersonalizationResponse */
         RealmPersonalizationResponse: {
@@ -1050,6 +1111,31 @@ export interface components {
             userWords?: string | null;
             /** Normalizedtags */
             normalizedTags?: string[];
+        };
+        /** RealmPickBudResult */
+        RealmPickBudResult: {
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "pick-bud";
+            /**
+             * Selectedbud
+             * @constant
+             */
+            selectedBud: "bud-leaf";
+            /** Wrongselections */
+            wrongSelections?: ("bud-single" | "bud-open" | "bud-stem")[];
+            /**
+             * Teachershown
+             * @default false
+             */
+            teacherShown: boolean;
+            /**
+             * Inputmode
+             * @enum {string}
+             */
+            inputMode: "pointer" | "keyboard" | "reducedMotion";
         };
         /** RealmProgressResponse */
         RealmProgressResponse: {
@@ -1088,13 +1174,48 @@ export interface components {
         RealmProgressUpdate: {
             /** Clienteventid */
             clientEventId: string;
+            /** Runid */
+            runId: string;
             /** Completedscene */
             completedScene: string;
+            /** Sceneresult */
+            sceneResult?: components["schemas"]["RealmPickBudResult"] | components["schemas"]["RealmWokCraftResult"] | components["schemas"]["RealmHumanJudgmentResult"] | null;
             /**
              * Elapsedms
              * @default 0
              */
             elapsedMs: number;
+        };
+        /** RealmRunResponse */
+        RealmRunResponse: {
+            /** Runid */
+            runId: string;
+            /** Replay */
+            replay: boolean;
+            /** Currentscene */
+            currentScene: string;
+            /** Completedscenes */
+            completedScenes: string[];
+            /** Sceneresults */
+            sceneResults: {
+                [key: string]: unknown;
+            };
+            /** Interactionmode */
+            interactionMode?: ("orientation" | "pointer" | "reducedMotion") | null;
+            /** Totalelapsedms */
+            totalElapsedMs: number;
+            /**
+             * Startedat
+             * Format: date-time
+             */
+            startedAt: string;
+            /**
+             * Updatedat
+             * Format: date-time
+             */
+            updatedAt: string;
+            /** Completedat */
+            completedAt?: string | null;
         };
         /** RealmSceneResponse */
         RealmSceneResponse: {
@@ -1140,7 +1261,7 @@ export interface components {
              */
             interactionMode: "orientation" | "pointer" | "reducedMotion";
             /** Fallbackreason */
-            fallbackReason?: ("permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error") | null;
+            fallbackReason?: ("permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error" | "sensor_timeout" | "microphone_denied" | "microphone_unsupported" | "microphone_error" | "microphone_timeout" | "multitouch_unsupported") | null;
             /**
              * Replay
              * @default false
@@ -1164,6 +1285,24 @@ export interface components {
             progress: components["schemas"]["RealmProgressResponse"];
             specimen?: components["schemas"]["RealmSpecimenResponse"] | null;
             heroAsset: components["schemas"]["RealmAssetResponse"];
+            outcome?: components["schemas"]["RealmOutcomeResponse"] | null;
+        };
+        /** RealmWokCraftResult */
+        RealmWokCraftResult: {
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "wok-craft";
+            /**
+             * Steammode
+             * @enum {string}
+             */
+            steamMode: "microphone" | "wipe" | "keyboard" | "reducedMotion";
+            /** Gestures */
+            gestures: {
+                [key: string]: components["schemas"]["RealmGestureResult"];
+            };
         };
         /** RecommendationResponse */
         RecommendationResponse: {

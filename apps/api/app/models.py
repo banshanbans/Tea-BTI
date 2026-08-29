@@ -178,6 +178,10 @@ class RealmProgress(Base):
     total_elapsed_ms: Mapped[int] = mapped_column(Integer, default=0)
     replay_count: Mapped[int] = mapped_column(Integer, default=0)
     used_taste_words: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Raw orientation, microphone and touch samples never leave the browser. These
+    # JSON documents only keep the controlled, coarse-grained run summary.
+    run_state: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    latest_outcome: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

@@ -26,7 +26,7 @@ from .profile import (
     ProfileError, create_profile_share, private_profile_response, public_profile_response,
     record_profile_event, require_public_share, revoke_profile_share, update_profile,
 )
-from .realm import RealmError, advance_realm, complete_realm, get_realm_detail, list_realms, record_realm_event, start_realm
+from .realm_v2 import RealmError, advance_realm, complete_realm, get_realm_detail, list_realms, record_realm_event, start_realm
 from .schemas import (
     AnonymousSessionResponse, BootstrapResponse, CapabilitiesResponse, DrinkFeedbackRequest,
     DrinkFeedbackResponse, FeedResponse, PassportEntryResponse, PassportResponse, PassportUpdate,
@@ -347,7 +347,9 @@ def realm_progress(realm_id: str, payload: RealmProgressUpdate, user: CurrentUse
         return advance_realm(
             db, user.id, realm_id,
             client_event_id=payload.client_event_id,
+            run_id=payload.run_id,
             completed_scene=payload.completed_scene,
+            scene_result=payload.scene_result.model_dump(by_alias=True) if payload.scene_result else None,
             elapsed_ms=payload.elapsed_ms,
         )
     except RealmError as exc:
@@ -376,6 +378,7 @@ def realm_complete(realm_id: str, payload: RealmCompleteRequest, user: CurrentUs
         return complete_realm(
             db, user.id, realm_id,
             client_event_id=payload.client_event_id,
+            run_id=payload.run_id,
             total_elapsed_ms=payload.total_elapsed_ms,
             interaction_mode=payload.interaction_mode,
         )

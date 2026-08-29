@@ -3877,6 +3877,16 @@
             ],
             "title": "Realmcompletedat"
           },
+          "realmOutcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmOutcomeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "specimens": {
             "items": {
               "$ref": "#/components/schemas/RealmSpecimenResponse"
@@ -4625,6 +4635,12 @@
             "minLength": 1,
             "title": "Clienteventid"
           },
+          "runId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Runid"
+          },
           "totalElapsedMs": {
             "type": "integer",
             "maximum": 3600000.0,
@@ -4645,6 +4661,7 @@
         "type": "object",
         "required": [
           "clientEventId",
+          "runId",
           "interactionMode"
         ],
         "title": "RealmCompleteRequest"
@@ -4661,6 +4678,16 @@
           "specimen": {
             "$ref": "#/components/schemas/RealmSpecimenResponse"
           },
+          "specimenAwarded": {
+            "type": "boolean",
+            "title": "Specimenawarded"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/RealmOutcomeResponse"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RealmRunResponse"
+          },
           "passportEntry": {
             "$ref": "#/components/schemas/PassportEntryResponse"
           }
@@ -4670,6 +4697,9 @@
           "accepted",
           "progress",
           "specimen",
+          "specimenAwarded",
+          "outcome",
+          "run",
           "passportEntry"
         ],
         "title": "RealmCompleteResponse"
@@ -4762,6 +4792,26 @@
           },
           "personalization": {
             "$ref": "#/components/schemas/RealmPersonalizationResponse"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmRunResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmOutcomeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -4895,6 +4945,72 @@
         ],
         "title": "RealmEvidenceResponse"
       },
+      "RealmGestureResult": {
+        "properties": {
+          "inputMode": {
+            "type": "string",
+            "enum": [
+              "orientation",
+              "pointer",
+              "multitouch",
+              "keyboard",
+              "assisted",
+              "reducedMotion"
+            ],
+            "title": "Inputmode"
+          },
+          "score": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "attempts": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Attempts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inputMode",
+          "score",
+          "attempts"
+        ],
+        "title": "RealmGestureResult"
+      },
+      "RealmHumanJudgmentResult": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "human-judgment",
+            "title": "Kind"
+          },
+          "maturityLevel": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Maturitylevel"
+          },
+          "stopWindow": {
+            "type": "string",
+            "enum": [
+              "early",
+              "balanced",
+              "late"
+            ],
+            "title": "Stopwindow"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "maturityLevel",
+          "stopWindow"
+        ],
+        "title": "RealmHumanJudgmentResult"
+      },
       "RealmListResponse": {
         "properties": {
           "items": {
@@ -4927,6 +5043,16 @@
           },
           "progress": {
             "$ref": "#/components/schemas/RealmProgressResponse"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmRunResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -4935,6 +5061,55 @@
           "progress"
         ],
         "title": "RealmMutationResponse"
+      },
+      "RealmOutcomeResponse": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "early",
+              "balanced",
+              "late"
+            ],
+            "title": "Code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "stopWindow": {
+            "type": "string",
+            "enum": [
+              "early",
+              "balanced",
+              "late"
+            ],
+            "title": "Stopwindow"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "summary",
+          "stopWindow",
+          "updatedAt",
+          "disclaimer"
+        ],
+        "title": "RealmOutcomeResponse"
       },
       "RealmPersonalizationResponse": {
         "properties": {
@@ -4975,6 +5150,54 @@
           "introCopy"
         ],
         "title": "RealmPersonalizationResponse"
+      },
+      "RealmPickBudResult": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "pick-bud",
+            "title": "Kind"
+          },
+          "selectedBud": {
+            "type": "string",
+            "const": "bud-leaf",
+            "title": "Selectedbud"
+          },
+          "wrongSelections": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "bud-single",
+                "bud-open",
+                "bud-stem"
+              ]
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Wrongselections"
+          },
+          "teacherShown": {
+            "type": "boolean",
+            "title": "Teachershown",
+            "default": false
+          },
+          "inputMode": {
+            "type": "string",
+            "enum": [
+              "pointer",
+              "keyboard",
+              "reducedMotion"
+            ],
+            "title": "Inputmode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "selectedBud",
+          "inputMode"
+        ],
+        "title": "RealmPickBudResult"
       },
       "RealmProgressResponse": {
         "properties": {
@@ -5092,9 +5315,32 @@
             "minLength": 1,
             "title": "Clienteventid"
           },
+          "runId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Runid"
+          },
           "completedScene": {
             "type": "string",
             "title": "Completedscene"
+          },
+          "sceneResult": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmPickBudResult"
+              },
+              {
+                "$ref": "#/components/schemas/RealmWokCraftResult"
+              },
+              {
+                "$ref": "#/components/schemas/RealmHumanJudgmentResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sceneresult"
           },
           "elapsedMs": {
             "type": "integer",
@@ -5107,9 +5353,92 @@
         "type": "object",
         "required": [
           "clientEventId",
+          "runId",
           "completedScene"
         ],
         "title": "RealmProgressUpdate"
+      },
+      "RealmRunResponse": {
+        "properties": {
+          "runId": {
+            "type": "string",
+            "title": "Runid"
+          },
+          "replay": {
+            "type": "boolean",
+            "title": "Replay"
+          },
+          "currentScene": {
+            "type": "string",
+            "title": "Currentscene"
+          },
+          "completedScenes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Completedscenes"
+          },
+          "sceneResults": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Sceneresults"
+          },
+          "interactionMode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "orientation",
+                  "pointer",
+                  "reducedMotion"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interactionmode"
+          },
+          "totalElapsedMs": {
+            "type": "integer",
+            "title": "Totalelapsedms"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Startedat"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "completedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "runId",
+          "replay",
+          "currentScene",
+          "completedScenes",
+          "sceneResults",
+          "totalElapsedMs",
+          "startedAt",
+          "updatedAt"
+        ],
+        "title": "RealmRunResponse"
       },
       "RealmSceneResponse": {
         "properties": {
@@ -5221,7 +5550,13 @@
                   "unsupported",
                   "desktop",
                   "reduced_motion",
-                  "sensor_error"
+                  "sensor_error",
+                  "sensor_timeout",
+                  "microphone_denied",
+                  "microphone_unsupported",
+                  "microphone_error",
+                  "microphone_timeout",
+                  "multitouch_unsupported"
                 ]
               },
               {
@@ -5284,6 +5619,16 @@
           },
           "heroAsset": {
             "$ref": "#/components/schemas/RealmAssetResponse"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmOutcomeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -5298,6 +5643,47 @@
           "heroAsset"
         ],
         "title": "RealmSummaryResponse"
+      },
+      "RealmWokCraftResult": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "wok-craft",
+            "title": "Kind"
+          },
+          "steamMode": {
+            "type": "string",
+            "enum": [
+              "microphone",
+              "wipe",
+              "keyboard",
+              "reducedMotion"
+            ],
+            "title": "Steammode"
+          },
+          "gestures": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/RealmGestureResult"
+            },
+            "propertyNames": {
+              "enum": [
+                "killGreen",
+                "rolling",
+                "balling",
+                "pekoe"
+              ]
+            },
+            "type": "object",
+            "title": "Gestures"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "steamMode",
+          "gestures"
+        ],
+        "title": "RealmWokCraftResult"
       },
       "RecommendationResponse": {
         "properties": {

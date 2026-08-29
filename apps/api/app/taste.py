@@ -152,6 +152,7 @@ def passport_response(entry: PassportEntry, db: Session | None = None) -> dict:
         "normalizedTags": entry.normalized_tags or [],
         "firstDrunkAt": entry.first_drunk_at,
         "realmCompletedAt": progress.completed_at if progress else None,
+        "realmOutcome": progress.latest_outcome if progress else None,
         "specimens": specimen_items,
         "updatedAt": entry.updated_at,
     }

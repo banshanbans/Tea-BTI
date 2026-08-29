@@ -85,6 +85,8 @@ describe("ProfileView", () => {
     expect(container.querySelectorAll(".profile-signature-tea")).toHaveLength(1);
     expect(screen.getByText(/像雨后打开的窗/)).toBeInTheDocument();
     expect(screen.getAllByText("1", { selector: ".profile-passport-trace strong" })).toHaveLength(3);
+    expect(screen.getByRole("link", { name: /我的收藏/ })).toHaveAttribute("href", "/saved");
+    expect(screen.getByRole("link", { name: /我的收藏/ })).toHaveTextContent("0 款茶");
     expect(screen.getByRole("link", { name: /去刷茶/ })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "编辑茶主页" })).toHaveAttribute("href", "/profile/edit");
   });

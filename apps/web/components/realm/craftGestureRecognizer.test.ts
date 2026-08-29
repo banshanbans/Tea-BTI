@@ -12,8 +12,8 @@ import {
 const point = (x: number, y: number, time: number) => ({ x, y, time });
 
 describe("Tea Realm craft gesture recognizers", () => {
-  it("accepts four deliberate tilt alternations and rejects one-way motion", () => {
-    expect(recognizeTiltAlternations([7, -8, 9, -7, 8]).matched).toBe(true);
+  it("accepts three deliberate tilt alternations and rejects one-way motion", () => {
+    expect(recognizeTiltAlternations([7, -8, 9, -7]).matched).toBe(true);
     expect(recognizeTiltAlternations([7, 9, 10, 12]).matched).toBe(false);
   });
 

@@ -378,6 +378,12 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
     setVoicePhase("finishing");
     setStatus("正在收好最后一句…");
     try {
+      if (mode === "brew" && stage !== "complete") {
+        await authenticated(`/voice/sessions/${session.voiceSessionId}/context`, {
+          method: "PATCH", ...jsonBody({ brewStage: "complete", infusionNumber }),
+        });
+        setStage("complete");
+      }
       try { recognitionRef.current?.stop(); } catch {}
       await rtcRef.current?.stopCaptureAndDrain();
       rtcRef.current = null;
@@ -451,8 +457,8 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
       {active ? <div className="voice-composer"><textarea disabled={connectionIssue} className="text-input" value={text} onChange={(event) => setText(event.target.value)} placeholder="也可以写下这一口…" /><button className="button" aria-label="发送文字" disabled={busy || connectionIssue} onClick={() => void submitText()}><PaperPlaneTilt size={20} weight="fill" /></button></div> : null}
       {error ? <p className="error">{error}</p> : null}
       {active && !isMock && connectionIssue ? <button className="button block" disabled={busy} onClick={() => void reconnect()}>重新连接实时语音</button> : null}
-      <div className="voice-primary-action">{!active ? <button disabled={busy} className="button primary block" onClick={startFromUserGesture}><Microphone size={19} />{voicePhase === "requesting_permission" ? "正在申请权限…" : "打开麦克风"}</button> : <button disabled={busy} className="button warm block" onClick={() => void stop()}><StopCircle size={19} />{voicePhase === "finishing" ? "正在收好最后一句…" : mode === "brew" ? (stage === "complete" ? "结束并记下这一泡" : "结束本次陪泡") : "结束并保存"}</button>}</div>
-      {mode === "brew" && active && stage !== "complete" ? <p className="voice-save-hint">走到“完成”，这次泡茶才会记进护照。</p> : null}
+      <div className="voice-primary-action">{!active ? <button disabled={busy} className="button primary block" onClick={startFromUserGesture}><Microphone size={19} />{voicePhase === "requesting_permission" ? "正在申请权限…" : "打开麦克风"}</button> : <button disabled={busy} className="button warm block" onClick={() => void stop()}><StopCircle size={19} />{voicePhase === "finishing" ? "正在收好最后一句…" : mode === "brew" ? "完成泡茶并进入品饮" : "结束并保存"}</button>}</div>
+      {mode === "brew" && active ? <p className="voice-save-hint">点击后会记下这一泡，并直接进入品饮。</p> : null}
     </section>
   );
 }

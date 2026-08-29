@@ -404,7 +404,10 @@ class RealmEventRequest(ApiModel):
     scene_id: str | None = None
     elapsed_ms: int | None = Field(default=None, ge=0, le=600000)
     interaction_mode: Literal["orientation", "pointer", "reducedMotion"] | None = None
-    fallback_reason: Literal["permission_denied", "unsupported", "desktop", "reduced_motion", "sensor_error"] | None = None
+    fallback_reason: Literal[
+        "permission_denied", "unsupported", "desktop", "reduced_motion", "sensor_error", "sensor_timeout",
+        "microphone_denied", "microphone_unsupported", "microphone_error", "microphone_timeout", "multitouch_unsupported",
+    ] | None = None
 
 
 class RealmMutationResponse(ApiModel):

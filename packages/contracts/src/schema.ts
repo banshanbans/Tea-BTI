@@ -1015,7 +1015,7 @@ export interface components {
             /** Interactionmode */
             interactionMode?: ("orientation" | "pointer" | "reducedMotion") | null;
             /** Fallbackreason */
-            fallbackReason?: ("permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error") | null;
+            fallbackReason?: ("permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error" | "sensor_timeout" | "microphone_denied" | "microphone_unsupported" | "microphone_error" | "microphone_timeout" | "multitouch_unsupported") | null;
         };
         /** RealmEvidenceResponse */
         RealmEvidenceResponse: {

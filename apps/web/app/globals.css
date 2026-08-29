@@ -175,6 +175,12 @@ a { color: inherit; text-decoration: none; }
 .profile-passport-trace strong { font-family: var(--serif); font-size: 24px; }
 .profile-passport-trace small { color: var(--muted); font-size: 10px; }
 .profile-passport-trace > svg { color: var(--muted); }
+.profile-saved-trace { min-width: 0; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid rgba(49,92,66,.13); border-radius: 18px; background: rgba(239,236,218,.48); }
+.profile-saved-trace > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; color: var(--leaf); background: rgba(255,255,255,.7); }
+.profile-saved-trace p { display: grid; gap: 2px; margin: 0; }
+.profile-saved-trace small, .profile-saved-trace em { color: var(--muted); font-size: 10px; font-style: normal; }
+.profile-saved-trace strong { font-family: var(--serif); font-size: 20px; }
+.profile-saved-trace > svg { color: var(--muted); }
 .profile-continue { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 42px; padding-top: 24px; border-top: 1px solid var(--line); }
 .profile-continue p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .profile-continue a { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; color: var(--leaf); font-size: 12px; font-weight: 800; }
@@ -798,6 +804,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 /* Passport and Realm landing */
 .passport-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.saved-tea-heading { display: grid; grid-template-columns: 44px 42px minmax(0,1fr); gap: 10px; align-items: center; }
+.saved-tea-heading > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; color: var(--leaf); background: var(--mist); }
+.saved-tea-heading h1, .saved-tea-heading p { margin: 0; }
+.saved-tea-card { display: grid; grid-template-columns: 94px minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 0 16px 0 0; overflow: hidden; }
+.saved-tea-card img { width: 94px; height: 118px; object-fit: cover; }
+.saved-tea-card h3, .saved-tea-card p { margin: 3px 0; }
+.saved-tea-card > svg { color: var(--muted); }
 .passport-badges { display: flex; gap: 7px; margin: 18px 0; overflow-x: auto; }
 .passport-entry { border-radius: 26px 26px 9px 26px; box-shadow: 0 14px 34px rgba(38,55,42,.06); }
 .passport-entry .seed-card { grid-template-columns: 94px 1fr; }

@@ -12,6 +12,7 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
 }) {
   const [state, setState] = useState<SteamState>(reducedMotion ? "fallback" : "idle");
   const [mode, setMode] = useState<SteamMode | null>(null);
+  const [calibrating, setCalibrating] = useState(false);
   const stateRef = useRef<SteamState>(state);
   stateRef.current = state;
   const resourcesRef = useRef<{ stream?: MediaStream; context?: AudioContext; frame?: number; timeout?: number }>({});
@@ -29,6 +30,7 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
 
   const fallback = useCallback((reason: Parameters<typeof onFallback>[0]) => {
     cleanup();
+    setCalibrating(false);
     setState("fallback");
     fallbackRef.current(reason);
   }, [cleanup]);
@@ -40,6 +42,7 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
       return;
     }
     setState("listening");
+    setCalibrating(true);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -49,13 +52,15 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
         return;
       }
       const context = new AudioContextClass();
+      if (context.state === "suspended") await context.resume();
       const analyser = context.createAnalyser();
       analyser.fftSize = 512;
       context.createMediaStreamSource(stream).connect(analyser);
       const values = new Uint8Array(analyser.fftSize);
-      const baselineUntil = performance.now() + 400;
-      let baselineTotal = 0;
-      let baselineSamples = 0;
+      const baselineUntil = performance.now() + 600;
+      const baselineValues: number[] = [];
+      let baseline = 0;
+      let calibrated = false;
       let aboveSince = 0;
       resourcesRef.current = { stream, context };
       const sample = () => {
@@ -63,12 +68,17 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
         const rms = Math.sqrt(values.reduce((sum, value) => sum + ((value - 128) / 128) ** 2, 0) / values.length);
         const now = performance.now();
         if (now < baselineUntil) {
-          baselineTotal += rms; baselineSamples += 1;
+          baselineValues.push(rms);
         } else {
-          const baseline = baselineTotal / Math.max(1, baselineSamples);
-          const threshold = Math.max(0.06, baseline * 2.2);
+          if (!calibrated) {
+            const sorted = [...baselineValues].sort((left, right) => left - right);
+            baseline = sorted[Math.floor(sorted.length * 0.25)] || 0;
+            calibrated = true;
+            setCalibrating(false);
+          }
+          const threshold = Math.max(0.025, baseline + 0.018, baseline * 1.55);
           aboveSince = rms >= threshold ? (aboveSince || now) : 0;
-          if (aboveSince && now - aboveSince >= 250) {
+          if (aboveSince && now - aboveSince >= 180) {
             cleanup(); setMode("microphone"); setState("cleared"); return;
           }
         }
@@ -83,10 +93,10 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
   }, [active, cleanup, fallback, state]);
 
   const clearWith = useCallback((nextMode: SteamMode) => {
-    cleanup(); setMode(nextMode); setState("cleared");
+    cleanup(); setCalibrating(false); setMode(nextMode); setState("cleared");
   }, [cleanup]);
   const chooseWipe = useCallback(() => {
-    cleanup(); setState("fallback");
+    cleanup(); setCalibrating(false); setState("fallback");
   }, [cleanup]);
 
   useEffect(() => {
@@ -100,5 +110,5 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
     return () => { document.removeEventListener("visibilitychange", visibility); cleanup(); };
   }, [cleanup, fallback]);
 
-  return { state, mode, start, chooseWipe, wipe: () => clearWith("wipe"), keyboard: () => clearWith(reducedMotion ? "reducedMotion" : "keyboard"), cleanup };
+  return { state, mode, calibrating, start, chooseWipe, wipe: () => clearWith("wipe"), keyboard: () => clearWith(reducedMotion ? "reducedMotion" : "keyboard"), cleanup };
 }

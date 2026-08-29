@@ -92,6 +92,19 @@ def test_preview_event_does_not_start_a_realm_run(client, auth):
     assert detail["run"] is None
 
 
+def test_runtime_fallback_reasons_are_accepted(client, auth):
+    for index, reason in enumerate(["sensor_timeout", "microphone_timeout", "microphone_denied", "multitouch_unsupported"]):
+        response = client.post(f"/api/v1/realms/{REALM_ID}/events", headers=auth, json={
+            "clientEventId": f"realm-runtime-fallback-{index}",
+            "eventType": "realm_interaction_fallback_used",
+            "sceneId": "wok-craft",
+            "interactionMode": "pointer",
+            "fallbackReason": reason,
+        })
+        assert response.status_code == 200
+        assert response.json()["accepted"] is True
+
+
 def test_realm_personalization_uses_confirmed_taste_words(client, auth):
     client.post("/api/v1/taste/normalize", headers=auth, json={
         "teaId": "duyun-maojian", "text": "像雨后的青草，尾巴有一点甜", "infusionNumber": 2,

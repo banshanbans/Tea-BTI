@@ -78,13 +78,18 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
     const track = tracksRef.current.get(event.pointerId);
     if (!track) return;
     const rect = event.currentTarget.getBoundingClientRect();
-    track.push({ x: event.clientX - rect.left, y: event.clientY - rect.top, time: performance.now() });
+    const native = event.nativeEvent;
+    const samples = typeof native.getCoalescedEvents === "function" ? native.getCoalescedEvents() : [native];
+    for (const sample of samples) track.push({ x: sample.clientX - rect.left, y: sample.clientY - rect.top, time: performance.now() });
   }, []);
 
   const pointerUp = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const track = tracksRef.current.get(event.pointerId);
     if (!track || !current) return;
     const rect = event.currentTarget.getBoundingClientRect();
+    const finalPoint = { x: event.clientX - rect.left, y: event.clientY - rect.top, time: performance.now() };
+    const lastPoint = track.at(-1);
+    if (!lastPoint || lastPoint.x !== finalPoint.x || lastPoint.y !== finalPoint.y) track.push(finalPoint);
     tracksRef.current.delete(event.pointerId);
     finishedTracksRef.current.push(track);
     if (current === "killGreen") {
@@ -92,7 +97,7 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
       if (!result.matched) { fail(); return; }
       const pushes = forwardPushes + 1;
       setForwardPushes(pushes);
-      if (pushes >= 3) complete("pointer", result.score, Math.max(1, attempts.killGreen + 1));
+      if (pushes >= 2) complete("pointer", result.score, Math.max(1, attempts.killGreen + 1));
       return;
     }
     if (current === "rolling") {
@@ -116,14 +121,18 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
     }
   }, [attempts.killGreen, complete, current, fail, forwardPushes]);
 
-  const assist = useCallback(() => complete("assisted", 50, Math.max(3, current ? attempts[current] : 3)), [attempts, complete, current]);
+  const pointerCancel = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    tracksRef.current.delete(event.pointerId);
+  }, []);
+
+  const assist = useCallback(() => complete("assisted", 50, Math.max(2, current ? attempts[current] : 2)), [attempts, complete, current]);
   const keyboard = useCallback(() => complete(reducedMotion ? "reducedMotion" : "keyboard", 60, 1), [complete, reducedMotion]);
-  const canAssist = Boolean(current && attempts[current] >= 3);
+  const canAssist = Boolean(current && attempts[current] >= 2);
   const reset = useCallback(() => {
     setIndex(0); setAttempts({ killGreen: 0, rolling: 0, balling: 0, pekoe: 0 });
     setResults({}); setForwardPushes(0); tracksRef.current.clear(); finishedTracksRef.current = []; tiltSamplesRef.current = [];
   }, []);
 
-  return useMemo(() => ({ index, current, attempts, results, canAssist, pointerDown, pointerMove, pointerUp, assist, keyboard, reset }),
-    [attempts, assist, canAssist, current, index, keyboard, pointerDown, pointerMove, pointerUp, reset, results]);
+  return useMemo(() => ({ index, current, attempts, results, forwardPushes, canAssist, pointerDown, pointerMove, pointerUp, pointerCancel, assist, keyboard, reset }),
+    [attempts, assist, canAssist, current, forwardPushes, index, keyboard, pointerCancel, pointerDown, pointerMove, pointerUp, reset, results]);
 }

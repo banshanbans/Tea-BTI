@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, PencilSimple, ShareNetwork } from "@phosphor-icons/react";
+import { ArrowRight, BookmarkSimple, PencilSimple, ShareNetwork } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 import { authenticated, jsonBody, mediaUrl } from "@/lib/api";
@@ -68,6 +68,7 @@ export function ProfileView() {
   if (!profile) return <div className="empty">{COMMON_COPY.loadingProfile}</div>;
 
   const tastedCount = passport.filter((item) => item.tasted).length;
+  const savedCount = passport.filter((item) => item.saved).length;
   const specimenCount = passport.reduce((count, item) => count + (item.specimens || []).length, 0);
 
   return (
@@ -107,6 +108,12 @@ export function ProfileView() {
           <h3>我说过</h3>
           {profile.settings.publicQuote && selectedQuote ? <blockquote>“{profile.settings.publicQuote}”<footer>—— {selectedQuote.tea.name}</footer></blockquote> : <p>说过并保存的那句话，会在这里等你。</p>}
         </section>
+
+        <Link className="profile-saved-trace" href="/saved">
+          <span><BookmarkSimple size={22} weight="fill" /></span>
+          <p><small>随时回来找</small><strong>我的收藏</strong><em>{savedCount} 款茶</em></p>
+          <ArrowRight size={18} />
+        </Link>
 
         <Link className="profile-passport-trace" href="/passport">
           <h3>茶护照</h3>

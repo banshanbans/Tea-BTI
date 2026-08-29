@@ -4888,7 +4888,13 @@
                   "unsupported",
                   "desktop",
                   "reduced_motion",
-                  "sensor_error"
+                  "sensor_error",
+                  "sensor_timeout",
+                  "microphone_denied",
+                  "microphone_unsupported",
+                  "microphone_error",
+                  "microphone_timeout",
+                  "multitouch_unsupported"
                 ]
               },
               {

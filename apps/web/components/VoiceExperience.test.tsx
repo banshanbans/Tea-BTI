@@ -209,10 +209,15 @@ describe("VoiceExperience", () => {
     vi.mocked(authenticated).mockImplementation(async (path: string, init?: RequestInit) => {
       if (path === "/voice/sessions") return realSession as never;
       if (path === "/voice/sessions/voice-drain/start") return { ...realSession, status: "active" } as never;
+      if (path === "/voice/sessions/voice-drain/context") {
+        order.push("complete");
+        expect(init?.body).toBe(JSON.stringify({ brewStage: "complete", infusionNumber: 2 }));
+        return { ...realSession, status: "active" } as never;
+      }
       if (path === "/voice/sessions/voice-drain/stop") {
         order.push("stop");
         expect(init?.body).toBe(JSON.stringify({ infusionNumber: 2 }));
-        return { status: "completed", experienceCompleted: false, journey: { teaId: "duyun-maojian", brewed: false, tasted: false, realmId: null, realmCompleted: false, nextStep: "passport" }, tasteResult: null } as never;
+        return { status: "completed", experienceCompleted: true, journey: { teaId: "duyun-maojian", brewed: true, tasted: false, realmId: "duyun-maojian-mist-bud", realmCompleted: false, nextStep: "taste" }, tasteResult: null } as never;
       }
       throw new Error(`Unexpected path: ${path}`);
     });
@@ -223,12 +228,13 @@ describe("VoiceExperience", () => {
     fireEvent.click(screen.getByRole("button", { name: "暂停聆听" }));
     await screen.findByText("已暂停，点击继续");
     fireEvent.click(screen.getByRole("button", { name: "下一泡" }));
-    fireEvent.click(screen.getByRole("button", { name: "结束本次陪泡" }));
+    fireEvent.click(screen.getByRole("button", { name: "完成泡茶并进入品饮" }));
     expect(await screen.findByRole("button", { name: "正在收好最后一句…" })).toBeDisabled();
     finishDrain();
-    await screen.findByText("还差最后一步。");
+    await screen.findByText("这一泡，记下了。");
+    expect(screen.getByRole("link", { name: /接着说出这一口/ })).toHaveAttribute("href", "/taste/duyun-maojian?origin=swipe");
     expect(rtcMocks.pauseCapture).toHaveBeenCalledTimes(1);
-    expect(order).toEqual(["drain", "stop"]);
+    expect(order).toEqual(["complete", "drain", "stop"]);
   });
 
   it("rejoins an active real session with a fresh token after a fatal RTC error", async () => {

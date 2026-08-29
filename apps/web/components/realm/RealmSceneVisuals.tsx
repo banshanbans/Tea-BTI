@@ -214,19 +214,19 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
     <div className="realm-craft">
       <div className="realm-wok" ref={physics.wokRef} data-craft={craftIndex} data-physics-active={animated ? "true" : "false"} role="button" tabIndex={0} aria-label="制茶手势区域"
         onPointerDown={steam.state === "cleared" ? pointerDown : undefined} onPointerMove={steam.state === "cleared" ? pointerMove : undefined}
-        onPointerUp={steam.state === "cleared" ? pointerUp : undefined} onPointerCancel={steam.state === "cleared" ? pointerUp : undefined}
+        onPointerUp={steam.state === "cleared" ? pointerUp : undefined} onPointerCancel={steam.state === "cleared" ? (event) => { physics.onPointerUp(); craft.pointerCancel(event); } : undefined}
         onKeyDown={(event) => { if ((event.key === "Enter" || event.key === " ") && steam.state === "cleared") craft.keyboard(); }}>
         {steam.state !== "cleared" ? <div className="realm-steam" aria-hidden="true"><i /><i /><i /><i /><i /></div> : null}
         <div className="realm-tea-leaves" aria-hidden="true">
           {Array.from({ length: 14 }, (_, index) => <span key={index} className="realm-leaf-particle" ref={(element) => { physics.leafElementsRef.current[index] = element; }}><Leaf size={leafSizes[index % leafSizes.length]} weight="duotone" /></span>)}
         </div>
-        {steam.state === "cleared" ? <strong>{craftDone ? "四手已经做完" : craftSteps[craftIndex].gesture}</strong> : <strong>{steam.state === "listening" ? "对着手机轻轻吹气" : "先把蒸汽散开"}</strong>}
+        {steam.state === "cleared" ? <strong>{craftDone ? "四手已经做完" : craftSteps[craftIndex].gesture}</strong> : <strong>{steam.state === "listening" ? (steam.calibrating ? "先保持安静半秒" : "对着手机轻轻吹气") : "先把蒸汽散开"}</strong>}
       </div>
       {steam.state === "idle" ? <div className="realm-steam-actions"><button className="button primary" onClick={() => void steam.start()}>吹开蒸汽</button><button className="button" onClick={steam.chooseWipe}>改用手指擦开</button><small>只在本机检测音量变化，不录音、不上传。</small></div> : null}
-      {steam.state === "listening" ? <p className="realm-feedback" role="status">正在听风声，8 秒后会自动提供触控方式…</p> : null}
+      {steam.state === "listening" ? <p className="realm-feedback" role="status">{steam.calibrating ? "正在校准环境音，提示变化后再吹气…" : "现在轻轻吹气；8 秒无信号会提供触控方式。"}</p> : null}
       {steam.state === "fallback" ? <div className="realm-steam-wipe" tabIndex={0} role="button" aria-label="左右擦开蒸汽"
-        onPointerDown={(event) => { wipeRef.current = { x: event.clientX, distance: 0 }; event.currentTarget.setPointerCapture?.(event.pointerId); }}
-        onPointerMove={(event) => { const wipe = wipeRef.current; if (!wipe) return; wipe.distance += Math.abs(event.clientX - wipe.x); wipe.x = event.clientX; if (wipe.distance >= 90) { wipeRef.current = null; steam.wipe(); } }}
+        onPointerDown={(event) => { event.preventDefault(); wipeRef.current = { x: event.clientX, distance: 0 }; event.currentTarget.setPointerCapture?.(event.pointerId); }}
+        onPointerMove={(event) => { const wipe = wipeRef.current; if (!wipe) return; event.preventDefault(); wipe.distance += Math.abs(event.clientX - wipe.x); wipe.x = event.clientX; if (wipe.distance >= 70) { wipeRef.current = null; steam.wipe(); } }}
         onPointerUp={() => { wipeRef.current = null; }} onPointerCancel={() => { wipeRef.current = null; }}
         onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") steam.keyboard(); }}>左右擦动，把蒸汽拨开</div> : null}
       <div className="realm-craft-progress" aria-label={`制茶进度 ${craftIndex} / ${craftSteps.length}`}><span style={{ width: `${craftIndex / craftSteps.length * 100}%` }} /></div>
@@ -234,7 +234,7 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
         {craftSteps.map((step, index) => <div className={index < craftIndex ? "done" : index === craftIndex ? "active" : ""} key={step.name}><span>{index < craftIndex ? <Check size={12} weight="bold" /> : index + 1}</span><p><strong>{index < craftIndex ? step.name : index === craftIndex ? step.gesture : "···"}</strong>{index < craftIndex ? <small>{step.hint}</small> : null}</p></div>)}
       </div>
       {!craftDone && craft.canAssist ? <button className="button" onClick={craft.assist}>使用简化动作完成</button> : null}
-      {!craftDone && steam.state === "cleared" ? <p className="realm-feedback" aria-live="polite">{craft.attempts[craft.current!] ? `再试一次，已经尝试 ${craft.attempts[craft.current!]} 次。` : mode === "orientation" && craft.current === "killGreen" ? "左右倾斜手机，让鲜叶在锅里往返。" : craftSteps[craftIndex].hint}</p> : null}
+      {!craftDone && steam.state === "cleared" ? <p className="realm-feedback" aria-live="polite">{craft.current === "killGreen" && mode !== "orientation" && craft.forwardPushes ? `向前推，已完成 ${craft.forwardPushes} / 2。` : craft.attempts[craft.current!] ? `这次还没识别，再放慢一点（${craft.attempts[craft.current!]} 次）。` : mode === "orientation" && craft.current === "killGreen" ? "左右倾斜手机，让鲜叶在锅里往返。" : craftSteps[craftIndex].hint}</p> : null}
       {craftDone ? <motion.button className="button primary" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} disabled={busy} onClick={finish}>去做最后的判断</motion.button> : null}
     </div>
   );

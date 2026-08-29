@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tea-bti.local/schemas/tea-visual-manifest.schema.json",
+  "title": "Tea-BTI Tea Visual Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "visual_grammar_version",
+    "generated_at",
+    "review_viewport",
+    "teas",
+    "review_exports"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 2 },
+    "visual_grammar_version": { "const": "0.1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "review_viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "const": 390 },
+        "height": { "const": 844 }
+      }
+    },
+    "teas": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/tea" }
+    },
+    "review_exports": {
+      "type": "array",
+      "minItems": 8,
+      "items": { "$ref": "#/$defs/review_export" }
+    }
+  },
+  "$defs": {
+    "evidence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "url", "supports"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri" },
+        "supports": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "overlay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bottom_percent",
+        "left_percent",
+        "width_percent",
+        "height_percent",
+        "opacity",
+        "atmosphere_opacity"
+      ],
+      "properties": {
+        "bottom_percent": { "type": "number" },
+        "left_percent": { "type": "number" },
+        "width_percent": { "type": "number", "exclusiveMinimum": 0 },
+        "height_percent": { "type": "number", "exclusiveMinimum": 0 },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "atmosphere_opacity": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "visual_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_anchor_asset_id",
+        "anchor_types",
+        "structure_color",
+        "structure_color_basis",
+        "abstract_form",
+        "abstract_form_basis",
+        "atmosphere_cue",
+        "atmosphere_is_metaphor",
+        "overlay"
+      ],
+      "properties": {
+        "primary_anchor_asset_id": { "type": "string", "minLength": 1 },
+        "anchor_types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["tea_liquor", "infusion", "wet_leaf", "dry_leaf", "brewing_action"]
+          }
+        },
+        "structure_color": { "type": "string", "pattern": "^#[0-9A-F]{6}$" },
+        "structure_color_basis": { "type": "string", "minLength": 1 },
+        "abstract_form": {
+          "enum": ["ridge_line", "layered_horizontal", "rounded_low_mass"]
+        },
+        "abstract_form_basis": { "type": "string", "minLength": 1 },
+        "atmosphere_cue": {
+          "enum": ["morning_mist", "spring_afternoon", "dusk_table"]
+        },
+        "atmosphere_is_metaphor": { "const": true },
+        "overlay": { "$ref": "#/$defs/overlay" }
+      }
+    },
+    "crop_strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aspect_ratio", "object_position"],
+      "properties": {
+        "aspect_ratio": { "const": "4:5" },
+        "object_position": { "type": "string", "pattern": "^[0-9]{1,3}% [0-9]{1,3}%$" }
+      }
+    },
+    "card_copy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headline", "body", "tags", "scene"],
+      "properties": {
+        "headline": { "type": "string", "minLength": 1 },
+        "body": { "type": "string", "minLength": 1 },
+        "tags": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "scene": { "type": "string", "minLength": 1 }
+      }
+    },
+    "derivative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "path", "width", "height", "sha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "role": { "const": "passport_thumbnail" },
+        "path": { "type": "string", "minLength": 1 },
+        "width": { "const": 480 },
+        "height": { "const": 600 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "variant",
+        "source_kind",
+        "authenticity_state",
+        "rights_state",
+        "rights_note",
+        "master_path",
+        "media_path",
+        "master_width",
+        "master_height",
+        "media_width",
+        "media_height",
+        "crop_strategy",
+        "blind_safe",
+        "identity_risk",
+        "prompt_id",
+        "sha256",
+        "card_copy",
+        "preview_path",
+        "derivatives"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "role": { "const": "blind_base" },
+        "variant": { "enum": ["a", "b"] },
+        "source_kind": { "const": "ai_generated" },
+        "authenticity_state": { "const": "synthetic_demo" },
+        "rights_state": { "const": "demo_only" },
+        "rights_note": { "type": "string", "minLength": 1 },
+        "master_path": { "type": "string", "minLength": 1 },
+        "media_path": { "type": "string", "minLength": 1 },
+        "master_width": { "type": "integer", "minimum": 1 },
+        "master_height": { "type": "integer", "minimum": 1 },
+        "media_width": { "const": 1200 },
+        "media_height": { "const": 1500 },
+        "crop_strategy": { "$ref": "#/$defs/crop_strategy" },
+        "blind_safe": { "const": true },
+        "identity_risk": { "enum": ["low", "medium", "high"] },
+        "prompt_id": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "card_copy": { "$ref": "#/$defs/card_copy" },
+        "preview_path": { "type": "string", "minLength": 1 },
+        "derivatives": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/derivative" }
+        }
+      }
+    },
+    "realm_asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "source_kind",
+        "authenticity_state",
+        "rights_state",
+        "rights_note",
+        "credit",
+        "evidence_ref_ids",
+        "master_path",
+        "media_path",
+        "master_width",
+        "master_height",
+        "media_width",
+        "media_height",
+        "sha256"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "role": {
+          "enum": [
+            "mist_overlay",
+            "mountain_background",
+            "workshop_background",
+            "dry_tea_reveal",
+            "specimen_card"
+          ]
+        },
+        "source_kind": {
+          "enum": ["ai_generated", "open_access_figure", "self_shot", "licensed_photo"]
+        },
+        "authenticity_state": { "enum": ["synthetic_demo", "documentary", "reference"] },
+        "rights_state": { "enum": ["owned", "licensed", "open_license", "demo_only", "unknown"] },
+        "rights_note": { "type": "string", "minLength": 1 },
+        "credit": { "type": "string", "minLength": 1 },
+        "evidence_ref_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "master_path": { "type": "string", "minLength": 1 },
+        "media_path": { "type": "string", "minLength": 1 },
+        "master_width": { "type": "integer", "minimum": 1 },
+        "master_height": { "type": "integer", "minimum": 1 },
+        "media_width": { "type": "integer", "minimum": 1 },
+        "media_height": { "type": "integer", "minimum": 1 },
+        "prompt_id": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "tea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tea_id", "name", "region", "evidence_refs", "visual_profile", "assets", "realm_assets"],
+      "properties": {
+        "tea_id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "region": { "type": "string", "minLength": 1 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidence_ref" }
+        },
+        "visual_profile": { "$ref": "#/$defs/visual_profile" },
+        "assets": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/asset" }
+        },
+        "realm_assets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/realm_asset" }
+        }
+      }
+    },
+    "review_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "state", "path", "width", "height", "sha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "state": { "enum": ["blind", "reveal", "detail"] },
+        "asset_id": { "type": "string" },
+        "tea_id": { "type": "string" },
+        "path": { "type": "string", "minLength": 1 },
+        "width": { "const": 390 },
+        "height": { "const": 844 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      },
+      "anyOf": [
+        { "required": ["asset_id"] },
+        { "required": ["tea_id"] }
+      ]
+    }
+  }
+}

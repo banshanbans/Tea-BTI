@@ -1,0 +1,5988 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tea-BTI API",
+    "description": "Tea-BTI 前端、后端与 AI 语音首版契约。",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/sessions/anonymous": {
+      "post": {
+        "summary": "Create Anonymous Session",
+        "operationId": "create_anonymous_session_api_v1_sessions_anonymous_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnonymousSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/capabilities": {
+      "get": {
+        "summary": "Get Capabilities",
+        "operationId": "get_capabilities_api_v1_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilitiesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bootstrap": {
+      "get": {
+        "summary": "Bootstrap",
+        "operationId": "bootstrap_api_v1_bootstrap_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BootstrapResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/seed": {
+      "post": {
+        "summary": "Onboarding Seed",
+        "operationId": "onboarding_seed_api_v1_onboarding_seed_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeedBatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/feed": {
+      "get": {
+        "summary": "Feed",
+        "operationId": "feed_api_v1_feed_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 6,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/swipes": {
+      "post": {
+        "summary": "Swipe",
+        "operationId": "swipe_api_v1_swipes_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwipeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SwipeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/teas/{tea_id}": {
+      "get": {
+        "summary": "Tea Detail",
+        "operationId": "tea_detail_api_v1_teas__tea_id__get",
+        "parameters": [
+          {
+            "name": "tea_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tea Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeaDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/realms": {
+      "get": {
+        "summary": "Realms",
+        "operationId": "realms_api_v1_realms_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/realms/{realm_id}": {
+      "get": {
+        "summary": "Realm Detail",
+        "operationId": "realm_detail_api_v1_realms__realm_id__get",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Realm Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/realms/{realm_id}/start": {
+      "post": {
+        "summary": "Realm Start",
+        "operationId": "realm_start_api_v1_realms__realm_id__start_post",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Realm Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmStartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmMutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/realms/{realm_id}/progress": {
+      "patch": {
+        "summary": "Realm Progress",
+        "operationId": "realm_progress_api_v1_realms__realm_id__progress_patch",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Realm Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmProgressUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmMutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/realms/{realm_id}/events": {
+      "post": {
+        "summary": "Realm Event",
+        "operationId": "realm_event_api_v1_realms__realm_id__events_post",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Realm Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmMutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/realms/{realm_id}/complete": {
+      "post": {
+        "summary": "Realm Complete",
+        "operationId": "realm_complete_api_v1_realms__realm_id__complete_post",
+        "parameters": [
+          {
+            "name": "realm_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Realm Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmCompleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/drink-feedback": {
+      "post": {
+        "summary": "Drink Feedback",
+        "operationId": "drink_feedback_api_v1_drink_feedback_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DrinkFeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrinkFeedbackResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/taste/normalize": {
+      "post": {
+        "summary": "Taste Normalize",
+        "operationId": "taste_normalize_api_v1_taste_normalize_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TasteNormalizeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TasteNormalizeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/me/passport": {
+      "get": {
+        "summary": "Passport",
+        "operationId": "passport_api_v1_me_passport_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/me/passport/{tea_id}": {
+      "put": {
+        "summary": "Update Passport",
+        "operationId": "update_passport_api_v1_me_passport__tea_id__put",
+        "parameters": [
+          {
+            "name": "tea_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tea Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PassportUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportEntryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/me/tea-bti": {
+      "get": {
+        "summary": "Get Tea Bti",
+        "operationId": "get_tea_bti_api_v1_me_tea_bti_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeaBtiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/me/profile": {
+      "get": {
+        "summary": "Get Tea Profile",
+        "operationId": "get_tea_profile_api_v1_me_profile_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeaProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "put": {
+        "summary": "Put Tea Profile",
+        "operationId": "put_tea_profile_api_v1_me_profile_put",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeaProfileUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeaProfileMutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/me/profile/share": {
+      "post": {
+        "summary": "Post Profile Share",
+        "operationId": "post_profile_share_api_v1_me_profile_share_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileShareRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileShareMutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Profile Share",
+        "operationId": "delete_profile_share_api_v1_me_profile_share_delete",
+        "parameters": [
+          {
+            "name": "X-Client-Event-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "title": "X-Client-Event-Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileShareMutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/me/profile/events": {
+      "post": {
+        "summary": "Post Profile Event",
+        "operationId": "post_profile_event_api_v1_me_profile_events_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateProfileEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileEventResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/public/profiles/{public_id}": {
+      "get": {
+        "summary": "Get Public Profile",
+        "operationId": "get_public_profile_api_v1_public_profiles__public_id__get",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Public Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTeaProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/public/profiles/{public_id}/events": {
+      "post": {
+        "summary": "Post Public Profile Event",
+        "operationId": "post_public_profile_event_api_v1_public_profiles__public_id__events_post",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Public Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicProfileEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileEventResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions": {
+      "post": {
+        "summary": "Create Voice Session",
+        "operationId": "create_voice_session_api_v1_voice_sessions_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceSessionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions/{session_id}/start": {
+      "post": {
+        "summary": "Start Voice Session",
+        "operationId": "start_voice_session_api_v1_voice_sessions__session_id__start_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions/{session_id}/context": {
+      "patch": {
+        "summary": "Update Voice Context",
+        "operationId": "update_voice_context_api_v1_voice_sessions__session_id__context_patch",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceContextUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions/{session_id}/turns": {
+      "post": {
+        "summary": "Append Voice Turns",
+        "operationId": "append_voice_turns_api_v1_voice_sessions__session_id__turns_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceTurnsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceTurnsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions/{session_id}/stop": {
+      "post": {
+        "summary": "Stop Voice Session",
+        "operationId": "stop_voice_session_api_v1_voice_sessions__session_id__stop_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceStopRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceStopResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnonymousSessionResponse": {
+        "properties": {
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "accessToken": {
+            "type": "string",
+            "title": "Accesstoken"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "userId",
+          "accessToken",
+          "createdAt"
+        ],
+        "title": "AnonymousSessionResponse"
+      },
+      "BlindCardResponse": {
+        "properties": {
+          "cardId": {
+            "type": "string",
+            "title": "Cardid"
+          },
+          "headline": {
+            "type": "string",
+            "title": "Headline"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "scene": {
+            "type": "string",
+            "title": "Scene"
+          },
+          "visual": {
+            "$ref": "#/components/schemas/VisualResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cardId",
+          "headline",
+          "body",
+          "tags",
+          "scene",
+          "visual"
+        ],
+        "title": "BlindCardResponse"
+      },
+      "BootstrapResponse": {
+        "properties": {
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "mbti": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MbtiCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "onboardingCompleted": {
+            "type": "boolean",
+            "title": "Onboardingcompleted"
+          },
+          "swipeCount": {
+            "type": "integer",
+            "title": "Swipecount"
+          },
+          "recommendationReady": {
+            "type": "boolean",
+            "title": "Recommendationready"
+          },
+          "tasteProfile": {
+            "$ref": "#/components/schemas/TasteProfileResponse"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/CapabilitiesResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "userId",
+          "mbti",
+          "onboardingCompleted",
+          "swipeCount",
+          "recommendationReady",
+          "tasteProfile",
+          "capabilities"
+        ],
+        "title": "BootstrapResponse"
+      },
+      "BrewingGuideResponse": {
+        "properties": {
+          "vessel": {
+            "type": "string",
+            "title": "Vessel"
+          },
+          "temperatureRange": {
+            "type": "string",
+            "title": "Temperaturerange"
+          },
+          "steepTime": {
+            "type": "string",
+            "title": "Steeptime"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vessel",
+          "temperatureRange",
+          "steepTime",
+          "notes"
+        ],
+        "title": "BrewingGuideResponse"
+      },
+      "CapabilitiesResponse": {
+        "properties": {
+          "voice": {
+            "type": "string",
+            "enum": [
+              "real",
+              "mock",
+              "unavailable"
+            ],
+            "title": "Voice"
+          },
+          "tasteNormalization": {
+            "type": "string",
+            "enum": [
+              "real",
+              "mock"
+            ],
+            "title": "Tastenormalization"
+          },
+          "missingConfig": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missingconfig"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voice",
+          "tasteNormalization"
+        ],
+        "title": "CapabilitiesResponse"
+      },
+      "DrinkFeedbackRequest": {
+        "properties": {
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "like",
+              "neutral",
+              "dislike"
+            ],
+            "title": "Result"
+          },
+          "userWords": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userwords"
+          },
+          "infusionNumber": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Infusionnumber"
+          }
+        },
+        "type": "object",
+        "required": [
+          "teaId",
+          "result"
+        ],
+        "title": "DrinkFeedbackRequest"
+      },
+      "DrinkFeedbackResponse": {
+        "properties": {
+          "tasteProfile": {
+            "$ref": "#/components/schemas/TasteProfileResponse"
+          },
+          "passportEntry": {
+            "$ref": "#/components/schemas/PassportEntryResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tasteProfile",
+          "passportEntry"
+        ],
+        "title": "DrinkFeedbackResponse"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "requestId": {
+            "type": "string",
+            "title": "Requestid"
+          },
+          "retryable": {
+            "type": "boolean",
+            "title": "Retryable",
+            "default": false
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "requestId"
+        ],
+        "title": "ErrorBody"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse"
+      },
+      "FeedResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BlindCardResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "title": "FeedResponse"
+      },
+      "MbtiCode": {
+        "type": "string",
+        "enum": [
+          "INFP",
+          "INFJ",
+          "ISFP",
+          "ISFJ",
+          "ENFP",
+          "ENFJ",
+          "ESFP",
+          "ESFJ",
+          "INTP",
+          "INTJ",
+          "ISTP",
+          "ISTJ",
+          "ENTP",
+          "ENTJ",
+          "ESTP",
+          "ESTJ"
+        ],
+        "title": "MbtiCode"
+      },
+      "PassportEntryResponse": {
+        "properties": {
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "saved": {
+            "type": "boolean",
+            "title": "Saved"
+          },
+          "brewed": {
+            "type": "boolean",
+            "title": "Brewed"
+          },
+          "tasted": {
+            "type": "boolean",
+            "title": "Tasted"
+          },
+          "realmUnlocked": {
+            "type": "boolean",
+            "title": "Realmunlocked"
+          },
+          "favoriteInfusion": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favoriteinfusion"
+          },
+          "userDescription": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userdescription"
+          },
+          "normalizedTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Normalizedtags"
+          },
+          "firstDrunkAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firstdrunkat"
+          },
+          "realmCompletedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realmcompletedat"
+          },
+          "specimens": {
+            "items": {
+              "$ref": "#/components/schemas/RealmSpecimenResponse"
+            },
+            "type": "array",
+            "title": "Specimens"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tea",
+          "saved",
+          "brewed",
+          "tasted",
+          "realmUnlocked",
+          "favoriteInfusion",
+          "userDescription",
+          "normalizedTags",
+          "firstDrunkAt",
+          "updatedAt"
+        ],
+        "title": "PassportEntryResponse"
+      },
+      "PassportResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PassportEntryResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "PassportResponse"
+      },
+      "PassportUpdate": {
+        "properties": {
+          "saved": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saved"
+          },
+          "brewed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brewed"
+          },
+          "tasted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tasted"
+          },
+          "favoriteInfusion": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favoriteinfusion"
+          },
+          "userDescription": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userdescription"
+          },
+          "normalizedTags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalizedtags"
+          }
+        },
+        "type": "object",
+        "title": "PassportUpdate"
+      },
+      "PrivateProfileEventRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "eventType": {
+            "type": "string",
+            "const": "tea_profile_viewed",
+            "title": "Eventtype"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "eventType"
+        ],
+        "title": "PrivateProfileEventRequest"
+      },
+      "ProfileBlockId": {
+        "type": "string",
+        "enum": [
+          "IDENTITY",
+          "MY_TEA",
+          "MY_WORDS",
+          "TEA_PASSPORT"
+        ],
+        "title": "ProfileBlockId"
+      },
+      "ProfileBlockResponse": {
+        "properties": {
+          "blockId": {
+            "$ref": "#/components/schemas/ProfileBlockId"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "title": "Ispublic"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "title": "Iscomplete"
+          }
+        },
+        "type": "object",
+        "required": [
+          "blockId",
+          "title",
+          "isPublic",
+          "isComplete"
+        ],
+        "title": "ProfileBlockResponse"
+      },
+      "ProfileEventResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted"
+        ],
+        "title": "ProfileEventResponse"
+      },
+      "ProfileQuoteCandidateResponse": {
+        "properties": {
+          "feedbackId": {
+            "type": "string",
+            "title": "Feedbackid"
+          },
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "normalizedTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Normalizedtags"
+          },
+          "infusionNumber": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Infusionnumber"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feedbackId",
+          "tea",
+          "text",
+          "normalizedTags"
+        ],
+        "title": "ProfileQuoteCandidateResponse"
+      },
+      "ProfileShareMutationResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "share": {
+            "$ref": "#/components/schemas/ProfileShareStateResponse"
+          },
+          "publicProfile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicTeaProfileResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "share"
+        ],
+        "title": "ProfileShareMutationResponse"
+      },
+      "ProfileShareRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId"
+        ],
+        "title": "ProfileShareRequest"
+      },
+      "ProfileShareStateResponse": {
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "publicId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publicid"
+          },
+          "publicPath": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publicpath"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "revokedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revokedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active"
+        ],
+        "title": "ProfileShareStateResponse"
+      },
+      "ProfileTeaCandidateResponse": {
+        "properties": {
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "evidenceReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidencereasons"
+          },
+          "evidenceScore": {
+            "type": "number",
+            "title": "Evidencescore"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tea",
+          "evidenceReasons",
+          "evidenceScore"
+        ],
+        "title": "ProfileTeaCandidateResponse"
+      },
+      "PublicProfileEventRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "public_profile_opened",
+              "profile_cta_started"
+            ],
+            "title": "Eventtype"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "eventType"
+        ],
+        "title": "PublicProfileEventRequest"
+      },
+      "PublicProfileIdentityResponse": {
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "title": "Displayname"
+          },
+          "bio": {
+            "type": "string",
+            "title": "Bio"
+          },
+          "teaBti": {
+            "$ref": "#/components/schemas/TeaBtiResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "displayName",
+          "bio",
+          "teaBti"
+        ],
+        "title": "PublicProfileIdentityResponse"
+      },
+      "PublicProfilePassportItemResponse": {
+        "properties": {
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "saved": {
+            "type": "boolean",
+            "title": "Saved"
+          },
+          "brewed": {
+            "type": "boolean",
+            "title": "Brewed"
+          },
+          "tasted": {
+            "type": "boolean",
+            "title": "Tasted"
+          },
+          "realmUnlocked": {
+            "type": "boolean",
+            "title": "Realmunlocked"
+          },
+          "specimens": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProfileSpecimenResponse"
+            },
+            "type": "array",
+            "title": "Specimens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tea",
+          "saved",
+          "brewed",
+          "tasted",
+          "realmUnlocked",
+          "specimens"
+        ],
+        "title": "PublicProfilePassportItemResponse"
+      },
+      "PublicProfilePassportResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicProfilePassportItemResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "PublicProfilePassportResponse"
+      },
+      "PublicProfileSpecimenResponse": {
+        "properties": {
+          "specimenId": {
+            "type": "string",
+            "title": "Specimenid"
+          },
+          "realmId": {
+            "type": "string",
+            "title": "Realmid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/RealmAssetResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "specimenId",
+          "realmId",
+          "name",
+          "description",
+          "asset"
+        ],
+        "title": "PublicProfileSpecimenResponse"
+      },
+      "PublicProfileWordsResponse": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "normalizedTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Normalizedtags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "tea",
+          "normalizedTags"
+        ],
+        "title": "PublicProfileWordsResponse"
+      },
+      "PublicTeaProfileResponse": {
+        "properties": {
+          "publicId": {
+            "type": "string",
+            "title": "Publicid"
+          },
+          "publicBlockIds": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileBlockId"
+            },
+            "type": "array",
+            "title": "Publicblockids"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/PublicProfileIdentityResponse"
+          },
+          "myTea": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaSummaryResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "myWords": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProfileWordsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "teaPassport": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicProfilePassportResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "publicId",
+          "publicBlockIds",
+          "identity",
+          "updatedAt"
+        ],
+        "title": "PublicTeaProfileResponse"
+      },
+      "RealmAssetResponse": {
+        "properties": {
+          "assetId": {
+            "type": "string",
+            "title": "Assetid"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "sourceKind": {
+            "type": "string",
+            "enum": [
+              "ai_generated",
+              "open_access_figure",
+              "self_shot",
+              "licensed_photo"
+            ],
+            "title": "Sourcekind"
+          },
+          "authenticityState": {
+            "type": "string",
+            "enum": [
+              "synthetic_demo",
+              "documentary",
+              "reference"
+            ],
+            "title": "Authenticitystate"
+          },
+          "rightsState": {
+            "type": "string",
+            "enum": [
+              "owned",
+              "licensed",
+              "open_license",
+              "demo_only",
+              "unknown"
+            ],
+            "title": "Rightsstate"
+          },
+          "rightsNote": {
+            "type": "string",
+            "title": "Rightsnote"
+          },
+          "credit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit"
+          },
+          "evidenceRefIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidencerefids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assetId",
+          "role",
+          "url",
+          "sourceKind",
+          "authenticityState",
+          "rightsState",
+          "rightsNote"
+        ],
+        "title": "RealmAssetResponse"
+      },
+      "RealmCompleteRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "totalElapsedMs": {
+            "type": "integer",
+            "maximum": 3600000.0,
+            "minimum": 0.0,
+            "title": "Totalelapsedms",
+            "default": 0
+          },
+          "interactionMode": {
+            "type": "string",
+            "enum": [
+              "orientation",
+              "pointer",
+              "reducedMotion"
+            ],
+            "title": "Interactionmode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "interactionMode"
+        ],
+        "title": "RealmCompleteRequest"
+      },
+      "RealmCompleteResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/RealmProgressResponse"
+          },
+          "specimen": {
+            "$ref": "#/components/schemas/RealmSpecimenResponse"
+          },
+          "passportEntry": {
+            "$ref": "#/components/schemas/PassportEntryResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "progress",
+          "specimen",
+          "passportEntry"
+        ],
+        "title": "RealmCompleteResponse"
+      },
+      "RealmDefinitionResponse": {
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "title": "Realmid"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subtitle": {
+            "type": "string",
+            "title": "Subtitle"
+          },
+          "regionId": {
+            "type": "string",
+            "title": "Regionid"
+          },
+          "regionLabel": {
+            "type": "string",
+            "title": "Regionlabel"
+          },
+          "sceneOrder": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sceneorder"
+          },
+          "scenes": {
+            "items": {
+              "$ref": "#/components/schemas/RealmSceneResponse"
+            },
+            "type": "array",
+            "title": "Scenes"
+          },
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/RealmAssetResponse"
+            },
+            "type": "array",
+            "title": "Assets"
+          },
+          "specimen": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Specimen"
+          },
+          "evidenceRefs": {
+            "items": {
+              "$ref": "#/components/schemas/RealmEvidenceResponse"
+            },
+            "type": "array",
+            "title": "Evidencerefs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "realmId",
+          "teaId",
+          "title",
+          "subtitle",
+          "regionId",
+          "regionLabel",
+          "sceneOrder",
+          "scenes",
+          "assets",
+          "specimen",
+          "evidenceRefs"
+        ],
+        "title": "RealmDefinitionResponse"
+      },
+      "RealmDetailResponse": {
+        "properties": {
+          "definition": {
+            "$ref": "#/components/schemas/RealmDefinitionResponse"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/RealmProgressResponse"
+          },
+          "personalization": {
+            "$ref": "#/components/schemas/RealmPersonalizationResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "definition",
+          "progress",
+          "personalization"
+        ],
+        "title": "RealmDetailResponse"
+      },
+      "RealmEventRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "realm_preview_opened",
+              "realm_interaction_fallback_used",
+              "realm_real_asset_revealed"
+            ],
+            "title": "Eventtype"
+          },
+          "sceneId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sceneid"
+          },
+          "elapsedMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 600000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsedms"
+          },
+          "interactionMode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "orientation",
+                  "pointer",
+                  "reducedMotion"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interactionmode"
+          },
+          "fallbackReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "permission_denied",
+                  "unsupported",
+                  "desktop",
+                  "reduced_motion",
+                  "sensor_error"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallbackreason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "eventType"
+        ],
+        "title": "RealmEventRequest"
+      },
+      "RealmEvidenceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "debt"
+            ],
+            "title": "Status"
+          },
+          "supports": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supports"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "url",
+          "status",
+          "supports"
+        ],
+        "title": "RealmEvidenceResponse"
+      },
+      "RealmListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RealmSummaryResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "litRegionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Litregionids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "litRegionIds"
+        ],
+        "title": "RealmListResponse"
+      },
+      "RealmMutationResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/RealmProgressResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "progress"
+        ],
+        "title": "RealmMutationResponse"
+      },
+      "RealmPersonalizationResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "taste",
+              "default"
+            ],
+            "title": "Source"
+          },
+          "introCopy": {
+            "type": "string",
+            "title": "Introcopy"
+          },
+          "userWords": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userwords"
+          },
+          "normalizedTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Normalizedtags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "introCopy"
+        ],
+        "title": "RealmPersonalizationResponse"
+      },
+      "RealmProgressResponse": {
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "title": "Realmid"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "in_progress",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "currentScene": {
+            "type": "string",
+            "title": "Currentscene"
+          },
+          "completedScenes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Completedscenes"
+          },
+          "interactionMode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "orientation",
+                  "pointer",
+                  "reducedMotion"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interactionmode"
+          },
+          "totalElapsedMs": {
+            "type": "integer",
+            "title": "Totalelapsedms"
+          },
+          "replayCount": {
+            "type": "integer",
+            "title": "Replaycount"
+          },
+          "startedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startedat"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          },
+          "completedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completedat"
+          },
+          "usedTasteWords": {
+            "type": "boolean",
+            "title": "Usedtastewords",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "realmId",
+          "teaId",
+          "status",
+          "currentScene",
+          "completedScenes",
+          "totalElapsedMs",
+          "replayCount"
+        ],
+        "title": "RealmProgressResponse"
+      },
+      "RealmProgressUpdate": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "completedScene": {
+            "type": "string",
+            "title": "Completedscene"
+          },
+          "elapsedMs": {
+            "type": "integer",
+            "maximum": 600000.0,
+            "minimum": 0.0,
+            "title": "Elapsedms",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "completedScene"
+        ],
+        "title": "RealmProgressUpdate"
+      },
+      "RealmSceneResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "eyebrow": {
+            "type": "string",
+            "title": "Eyebrow"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "instruction": {
+            "type": "string",
+            "title": "Instruction"
+          },
+          "completionCopy": {
+            "type": "string",
+            "title": "Completioncopy"
+          },
+          "interaction": {
+            "type": "string",
+            "title": "Interaction"
+          },
+          "assetIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assetids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "eyebrow",
+          "title",
+          "instruction",
+          "completionCopy",
+          "interaction",
+          "assetIds"
+        ],
+        "title": "RealmSceneResponse"
+      },
+      "RealmSpecimenResponse": {
+        "properties": {
+          "specimenId": {
+            "type": "string",
+            "title": "Specimenid"
+          },
+          "realmId": {
+            "type": "string",
+            "title": "Realmid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/RealmAssetResponse"
+          },
+          "collectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Collectedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "specimenId",
+          "realmId",
+          "name",
+          "description",
+          "asset",
+          "collectedAt"
+        ],
+        "title": "RealmSpecimenResponse"
+      },
+      "RealmStartRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "interactionMode": {
+            "type": "string",
+            "enum": [
+              "orientation",
+              "pointer",
+              "reducedMotion"
+            ],
+            "title": "Interactionmode"
+          },
+          "fallbackReason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "permission_denied",
+                  "unsupported",
+                  "desktop",
+                  "reduced_motion",
+                  "sensor_error"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallbackreason"
+          },
+          "replay": {
+            "type": "boolean",
+            "title": "Replay",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "interactionMode"
+        ],
+        "title": "RealmStartRequest"
+      },
+      "RealmSummaryResponse": {
+        "properties": {
+          "realmId": {
+            "type": "string",
+            "title": "Realmid"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subtitle": {
+            "type": "string",
+            "title": "Subtitle"
+          },
+          "regionId": {
+            "type": "string",
+            "title": "Regionid"
+          },
+          "regionLabel": {
+            "type": "string",
+            "title": "Regionlabel"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/RealmProgressResponse"
+          },
+          "specimen": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealmSpecimenResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "heroAsset": {
+            "$ref": "#/components/schemas/RealmAssetResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "realmId",
+          "teaId",
+          "title",
+          "subtitle",
+          "regionId",
+          "regionLabel",
+          "progress",
+          "heroAsset"
+        ],
+        "title": "RealmSummaryResponse"
+      },
+      "RecommendationResponse": {
+        "properties": {
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "rankLabel": {
+            "type": "string",
+            "title": "Ranklabel",
+            "default": "当前推荐 #1"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tea",
+          "reasons"
+        ],
+        "title": "RecommendationResponse"
+      },
+      "RtcJoinConfig": {
+        "properties": {
+          "appId": {
+            "type": "string",
+            "title": "Appid"
+          },
+          "roomId": {
+            "type": "string",
+            "title": "Roomid"
+          },
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "agentUserId": {
+            "type": "string",
+            "title": "Agentuserid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "appId",
+          "roomId",
+          "userId",
+          "token",
+          "agentUserId"
+        ],
+        "title": "RtcJoinConfig"
+      },
+      "SeedBatchResponse": {
+        "properties": {
+          "mbti": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MbtiCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SeedTeaResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mbti",
+          "items"
+        ],
+        "title": "SeedBatchResponse"
+      },
+      "SeedRequest": {
+        "properties": {
+          "mbti": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MbtiCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "SeedRequest"
+      },
+      "SeedTeaResponse": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "mirror",
+              "surprise",
+              "contrast"
+            ],
+            "title": "Role"
+          },
+          "roleLabel": {
+            "type": "string",
+            "title": "Rolelabel"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "visual": {
+            "$ref": "#/components/schemas/VisualResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "roleLabel",
+          "explanation",
+          "teaId",
+          "name",
+          "region",
+          "tags",
+          "visual"
+        ],
+        "title": "SeedTeaResponse"
+      },
+      "SwipeRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "cardId": {
+            "type": "string",
+            "title": "Cardid"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "like",
+              "skip",
+              "save"
+            ],
+            "title": "Action"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "cardId",
+          "action"
+        ],
+        "title": "SwipeRequest"
+      },
+      "SwipeResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "tasteProfile": {
+            "$ref": "#/components/schemas/TasteProfileResponse"
+          },
+          "reveal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaSummaryResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recommendation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecommendationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recommendationReady": {
+            "type": "boolean",
+            "title": "Recommendationready"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "tasteProfile",
+          "recommendationReady"
+        ],
+        "title": "SwipeResponse"
+      },
+      "TasteNormalizeRequest": {
+        "properties": {
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "infusionNumber": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Infusionnumber"
+          }
+        },
+        "type": "object",
+        "required": [
+          "teaId",
+          "text"
+        ],
+        "title": "TasteNormalizeRequest"
+      },
+      "TasteNormalizeResponse": {
+        "properties": {
+          "userWords": {
+            "type": "string",
+            "title": "Userwords"
+          },
+          "normalizedTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Normalizedtags"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "providerMode": {
+            "type": "string",
+            "enum": [
+              "ark_text",
+              "server_mock"
+            ],
+            "title": "Providermode"
+          },
+          "tasteProfile": {
+            "$ref": "#/components/schemas/TasteProfileResponse"
+          },
+          "passportEntry": {
+            "$ref": "#/components/schemas/PassportEntryResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "userWords",
+          "normalizedTags",
+          "explanation",
+          "providerMode",
+          "tasteProfile",
+          "passportEntry"
+        ],
+        "title": "TasteNormalizeResponse"
+      },
+      "TasteProfileResponse": {
+        "properties": {
+          "vector": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Vector"
+          },
+          "sampleCount": {
+            "type": "integer",
+            "title": "Samplecount"
+          },
+          "confidenceState": {
+            "type": "string",
+            "enum": [
+              "forming",
+              "early",
+              "stable"
+            ],
+            "title": "Confidencestate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vector",
+          "sampleCount",
+          "confidenceState"
+        ],
+        "title": "TasteProfileResponse"
+      },
+      "TeaBtiResponse": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "forming",
+              "early",
+              "stable"
+            ],
+            "title": "State"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "personaName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personaname"
+          },
+          "axes": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Axes"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "code",
+          "personaName",
+          "axes",
+          "evidence"
+        ],
+        "title": "TeaBtiResponse"
+      },
+      "TeaDetailResponse": {
+        "properties": {
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "teaType": {
+            "type": "string",
+            "title": "Teatype"
+          },
+          "professionalTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Professionaltags"
+          },
+          "translation": {
+            "type": "string",
+            "title": "Translation"
+          },
+          "visual": {
+            "$ref": "#/components/schemas/VisualResponse"
+          },
+          "officialDescription": {
+            "type": "string",
+            "title": "Officialdescription"
+          },
+          "process": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Process"
+          },
+          "brewingGuide": {
+            "$ref": "#/components/schemas/BrewingGuideResponse"
+          },
+          "evidenceRefIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidencerefids"
+          },
+          "realmId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realmid"
+          },
+          "journey": {
+            "$ref": "#/components/schemas/TeaJourneyResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "teaId",
+          "name",
+          "region",
+          "teaType",
+          "professionalTags",
+          "translation",
+          "visual",
+          "officialDescription",
+          "process",
+          "brewingGuide",
+          "evidenceRefIds",
+          "journey"
+        ],
+        "title": "TeaDetailResponse"
+      },
+      "TeaJourneyResponse": {
+        "properties": {
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "brewed": {
+            "type": "boolean",
+            "title": "Brewed"
+          },
+          "tasted": {
+            "type": "boolean",
+            "title": "Tasted"
+          },
+          "realmId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realmid"
+          },
+          "realmCompleted": {
+            "type": "boolean",
+            "title": "Realmcompleted"
+          },
+          "nextStep": {
+            "type": "string",
+            "enum": [
+              "brew",
+              "taste",
+              "realm",
+              "passport"
+            ],
+            "title": "Nextstep"
+          }
+        },
+        "type": "object",
+        "required": [
+          "teaId",
+          "brewed",
+          "tasted",
+          "realmCompleted",
+          "nextStep"
+        ],
+        "title": "TeaJourneyResponse"
+      },
+      "TeaProfileMutationResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/TeaProfileResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "profile"
+        ],
+        "title": "TeaProfileMutationResponse"
+      },
+      "TeaProfileResponse": {
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/TeaProfileSettingsResponse"
+          },
+          "blocks": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileBlockResponse"
+            },
+            "type": "array",
+            "title": "Blocks"
+          },
+          "teaBti": {
+            "$ref": "#/components/schemas/TeaBtiResponse"
+          },
+          "selectedTea": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaSummaryResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "teaCandidates": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileTeaCandidateResponse"
+            },
+            "type": "array",
+            "title": "Teacandidates"
+          },
+          "quoteCandidates": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileQuoteCandidateResponse"
+            },
+            "type": "array",
+            "title": "Quotecandidates"
+          },
+          "passport": {
+            "$ref": "#/components/schemas/PassportResponse"
+          },
+          "share": {
+            "$ref": "#/components/schemas/ProfileShareStateResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "settings",
+          "blocks",
+          "teaBti",
+          "teaCandidates",
+          "quoteCandidates",
+          "passport",
+          "share"
+        ],
+        "title": "TeaProfileResponse"
+      },
+      "TeaProfileSettingsResponse": {
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "title": "Displayname"
+          },
+          "bio": {
+            "type": "string",
+            "title": "Bio"
+          },
+          "selectedTeaId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedteaid"
+          },
+          "sourceFeedbackId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourcefeedbackid"
+          },
+          "publicQuote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publicquote"
+          },
+          "publicBlockIds": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileBlockId"
+            },
+            "type": "array",
+            "title": "Publicblockids"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "displayName",
+          "bio",
+          "publicBlockIds",
+          "updatedAt"
+        ],
+        "title": "TeaProfileSettingsResponse"
+      },
+      "TeaProfileUpdate": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "displayName": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 2,
+            "title": "Displayname"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Bio",
+            "default": ""
+          },
+          "selectedTeaId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedteaid"
+          },
+          "sourceFeedbackId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourcefeedbackid"
+          },
+          "publicQuote": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publicquote"
+          },
+          "publicBlockIds": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileBlockId"
+            },
+            "type": "array",
+            "title": "Publicblockids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "displayName"
+        ],
+        "title": "TeaProfileUpdate"
+      },
+      "TeaSummaryResponse": {
+        "properties": {
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "teaType": {
+            "type": "string",
+            "title": "Teatype"
+          },
+          "professionalTags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Professionaltags"
+          },
+          "translation": {
+            "type": "string",
+            "title": "Translation"
+          },
+          "visual": {
+            "$ref": "#/components/schemas/VisualResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "teaId",
+          "name",
+          "region",
+          "teaType",
+          "professionalTags",
+          "translation",
+          "visual"
+        ],
+        "title": "TeaSummaryResponse"
+      },
+      "VisualResponse": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "objectPosition": {
+            "type": "string",
+            "title": "Objectposition"
+          },
+          "structureColor": {
+            "type": "string",
+            "title": "Structurecolor"
+          },
+          "abstractForm": {
+            "type": "string",
+            "title": "Abstractform"
+          },
+          "atmosphereCue": {
+            "type": "string",
+            "title": "Atmospherecue"
+          },
+          "overlay": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Overlay"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "objectPosition",
+          "structureColor",
+          "abstractForm",
+          "atmosphereCue",
+          "overlay"
+        ],
+        "title": "VisualResponse"
+      },
+      "VoiceContextUpdate": {
+        "properties": {
+          "brewStage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "prepare",
+                  "warm_vessel",
+                  "add_leaves",
+                  "pour",
+                  "steep",
+                  "decant",
+                  "taste",
+                  "complete"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brewstage"
+          },
+          "infusionNumber": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Infusionnumber"
+          }
+        },
+        "type": "object",
+        "title": "VoiceContextUpdate"
+      },
+      "VoiceSessionCreate": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "brew",
+              "taste"
+            ],
+            "title": "Mode"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode",
+          "teaId"
+        ],
+        "title": "VoiceSessionCreate"
+      },
+      "VoiceSessionResponse": {
+        "properties": {
+          "voiceSessionId": {
+            "type": "string",
+            "title": "Voicesessionid"
+          },
+          "providerMode": {
+            "type": "string",
+            "enum": [
+              "volcengine_rtc",
+              "browser_mock"
+            ],
+            "title": "Providermode"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "prepared",
+              "active",
+              "stopping",
+              "completed",
+              "failed",
+              "expired"
+            ],
+            "title": "Status"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          },
+          "welcomeMessage": {
+            "type": "string",
+            "title": "Welcomemessage"
+          },
+          "rtc": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RtcJoinConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "voiceSessionId",
+          "providerMode",
+          "status",
+          "expiresAt",
+          "welcomeMessage"
+        ],
+        "title": "VoiceSessionResponse"
+      },
+      "VoiceStopRequest": {
+        "properties": {
+          "saveUserText": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saveusertext"
+          },
+          "infusionNumber": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Infusionnumber"
+          }
+        },
+        "type": "object",
+        "title": "VoiceStopRequest"
+      },
+      "VoiceStopResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "completed",
+            "title": "Status"
+          },
+          "experienceCompleted": {
+            "type": "boolean",
+            "title": "Experiencecompleted"
+          },
+          "journey": {
+            "$ref": "#/components/schemas/TeaJourneyResponse"
+          },
+          "tasteResult": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TasteNormalizeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "experienceCompleted",
+          "journey"
+        ],
+        "title": "VoiceStopResponse"
+      },
+      "VoiceTurnInput": {
+        "properties": {
+          "clientTurnId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clientturnid"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text"
+          },
+          "startedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startedat"
+          },
+          "endedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientTurnId",
+          "role",
+          "text"
+        ],
+        "title": "VoiceTurnInput"
+      },
+      "VoiceTurnsRequest": {
+        "properties": {
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/VoiceTurnInput"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Turns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "turns"
+        ],
+        "title": "VoiceTurnsRequest"
+      },
+      "VoiceTurnsResponse": {
+        "properties": {
+          "acceptedCount": {
+            "type": "integer",
+            "title": "Acceptedcount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "acceptedCount"
+        ],
+        "title": "VoiceTurnsResponse"
+      }
+    }
+  }
+}

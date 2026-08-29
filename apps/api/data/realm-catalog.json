@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "realms": [
+    {
+      "id": "duyun-maojian-mist-bud",
+      "teaId": "duyun-maojian",
+      "title": "雾里一芽",
+      "subtitle": "雾 → 山 → 芽 → 锅 → 白毫 → 杯中这一口",
+      "regionId": "qiannan",
+      "regionLabel": "贵州 · 黔南",
+      "defaultIntro": "想看看都匀毛尖的清鲜和嫩香，是怎么走进杯子里的吗？",
+      "tasteIntroTemplate": "你说它像「{userWords}」。想看看这一口，是怎么走进杯子里的吗？",
+      "specimen": {
+        "id": "duyun-maojian-pekoe",
+        "name": "白毫",
+        "description": "都匀毛尖卷曲茶条上显露的细密茸毫。",
+        "assetId": "realm-duyun-pekoe-specimen"
+      },
+      "evidenceRefs": [
+        {
+          "id": "db52-t-433-2018",
+          "label": "DB52/T 433—2018 都匀毛尖茶",
+          "url": "https://nynct.guizhou.gov.cn/xwzx/wjzz/201810/W020181023579577827383.pdf",
+          "status": "verified",
+          "supports": ["都匀毛尖产品特征", "原料与感官边界"]
+        },
+        {
+          "id": "db52-t-995-2015",
+          "label": "DB52/T 995—2015 都匀毛尖茶加工技术规程",
+          "url": "https://sy.nynct.guizhou.gov.cn/standard_10007_ny/201912/P020191206391398245903.pdf",
+          "status": "verified",
+          "supports": ["一芽一叶", "杀青、揉捻、做形、提毫"]
+        },
+        {
+          "id": "pmc13091367-fig7",
+          "label": "Xia et al. (2026), Food Chemistry: X, Figure 7",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/42006662/",
+          "status": "verified",
+          "supports": ["都匀毛尖不同等级干茶实物锚点"]
+        },
+        {
+          "id": "duyun-53000-plus",
+          "label": "MVP 记忆点：1 / 53,000+",
+          "url": "",
+          "status": "debt",
+          "supports": ["正式公开前必须补齐权威来源"]
+        }
+      ],
+      "scenes": [
+        {
+          "id": "liquor-entry",
+          "eyebrow": "Scene 0 · 从茶汤进入",
+          "title": "杯中起雾",
+          "instruction": "轻触茶汤，进入这片叶子来时的地方。",
+          "completionCopy": "这一口茶汤，慢慢变成了山间的雾。",
+          "interaction": "tap",
+          "assetIds": ["realm-duyun-mist"]
+        },
+        {
+          "id": "mist-mountain",
+          "eyebrow": "Scene 1 · 拨雾见山",
+          "title": "雾后是黔南的山",
+          "instruction": "倾斜手机，或左右拖动，把雾拨开。",
+          "completionCopy": "多雾的山地，让这一片叶子慢慢长出了自己的节奏。",
+          "interaction": "orientation_or_drag",
+          "assetIds": ["realm-duyun-mist", "realm-duyun-mountain"]
+        },
+        {
+          "id": "pick-bud",
+          "eyebrow": "Scene 2 · 摘下一芽",
+          "title": "哪一片，会成为毛尖？",
+          "instruction": "选中一芽一叶，向上提进竹篓。",
+          "completionCopy": "就是它。一芽一叶。",
+          "interaction": "select_and_lift",
+          "assetIds": ["realm-duyun-mountain"]
+        },
+        {
+          "id": "wok-craft",
+          "eyebrow": "Scene 3 · 一口锅",
+          "title": "让鲜叶慢慢成为茶",
+          "instruction": "依次翻动、推揉、画圆，再让白毫显出来。",
+          "completionCopy": "杀青、揉捻、搓团、提毫——术语，是动作完成后的名字。",
+          "interaction": "gesture_sequence",
+          "assetIds": ["realm-duyun-workshop"]
+        },
+        {
+          "id": "human-judgment",
+          "eyebrow": "Scene 4 · 人的经验",
+          "title": "什么时候该停？",
+          "instruction": "再感受几下叶片的变化，然后由你决定。",
+          "completionCopy": "真正的手艺，没有一条固定倒计时。",
+          "interaction": "judgment",
+          "assetIds": ["realm-duyun-workshop"]
+        },
+        {
+          "id": "real-tea-reveal",
+          "eyebrow": "Scene 5 · 回到真实",
+          "title": "这就是都匀毛尖",
+          "instruction": "让风格化叶片停下来，看看真实干茶。",
+          "completionCopy": "这就是你刚刚做出来的样子，也是杯中那一口的来处。",
+          "interaction": "reveal",
+          "assetIds": ["realm-duyun-dry-tea"]
+        },
+        {
+          "id": "passport-specimen",
+          "eyebrow": "Scene 6 · 收进茶护照",
+          "title": "留下一枚白毫标本",
+          "instruction": "收下它，点亮黔南。",
+          "completionCopy": "喝过的茶，会慢慢长成你的世界。",
+          "interaction": "collect",
+          "assetIds": ["realm-duyun-pekoe-specimen"]
+        }
+      ]
+    }
+  ]
+}

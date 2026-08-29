@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "generation_route": "openai_builtin_imagegen",
+  "assets": [
+    {
+      "prompt_id": "prompt-duyun-maojian-mist-cup-v1",
+      "asset_id": "duyun-maojian-mist-cup",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: photorealistic-natural. Asset type: text-free media base for a mobile tea discovery card, vertical 4:5. Scene/backdrop: warm ivory minimal surface with quiet editorial restraint. Subject: a matte warm-white porcelain cup in the lower half, containing clear pale yellow-green tea liquor; the cup rim and a trace of natural steam are the truthful visual anchor. Composition/framing: close editorial still life, cup in the lower-middle, generous clean negative space across the upper half for UI. Lighting/mood: soft diffused morning daylight, fresh, calm, young, understated. Materials/textures: believable ceramic micro-texture, realistic tea reflections, natural tonal variation, no heavy retouching. Constraints: image only, no typography, no logo, no packaging, no branded teaware, no recognizable complete dry tea leaves, no location landmark, no person, no flowers, no fruit, no chestnuts, no torn paper, no collage, no zine micro-text, no poster layout, no watermark."
+    },
+    {
+      "prompt_id": "prompt-duyun-maojian-pour-ripple-v1",
+      "asset_id": "duyun-maojian-pour-ripple",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: photorealistic-natural. Asset type: text-free media base for a mobile tea discovery card, vertical 4:5. Scene/backdrop: minimal warm-white tea table. Subject: from a slightly elevated close viewpoint, one clean stream of water pours from a small unbranded kettle spout into clear pale yellow-green tea liquor, creating gentle concentric ripples; show only the cup or gaiwan, partial spout and liquid, with no recognizable complete leaf shape. Composition/framing: distinctly different from a centered still life; action held in the lower half, clean UI negative space at the top and upper-left. Lighting/mood: soft natural morning light, calm and precise. Materials/textures: realistic water, ceramic and reflections. Constraints: image only, no typography, no logo, no packaging, no branded teaware, no identifiable dry tea form, no location landmark, no person, no flowers, no fruit, no chestnuts, no torn paper, no collage, no zine micro-text, no poster layout, no watermark."
+    },
+    {
+      "prompt_id": "prompt-meitan-cuiya-spring-pour-v1",
+      "asset_id": "meitan-cuiya-spring-pour",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: photorealistic-natural. Asset type: text-free media base for a mobile tea discovery card, vertical 4:5. Scene/backdrop: minimal warm-ivory tabletop. Subject: a clear stream of water enters an unbranded transparent or simple tea cup as luminous tender-green tea liquor forms; at most a few softly defocused wet-leaf fragments, never a complete flat dry-leaf identity. Composition/framing: subject in the lower-middle, generous upper negative space for UI. Lighting/mood: gentle spring-afternoon natural light, clear, calm and fresh. Materials/textures: believable glass, water and tabletop, restrained editorial realism. Constraints: image only, no typography, no logo, no packaging, no branded teaware, no landmark, no person, no flowers, no fruit, no chestnuts, no torn paper, no collage, no zine micro-text, no poster layout, no watermark."
+    },
+    {
+      "prompt_id": "prompt-meitan-cuiya-clear-infusion-v1",
+      "asset_id": "meitan-cuiya-clear-infusion",
+      "attempt_limit": 2,
+      "attempt_count": 2,
+      "correction_prompt": "Fix only the visible wet tea leaves: reduce them to softly out-of-focus, non-identifiable fragments. Preserve the cup, pale green tea liquor, composition, lighting, negative space, materials and every other element.",
+      "prompt": "Use case: photorealistic-natural. Asset type: text-free media base for a mobile tea discovery card, vertical 4:5. Scene/backdrop: restrained warm-white and pale spring-green natural environment with no decorative props. Subject: a clear cup of luminous tender-green tea viewed from a gentle overhead angle; soft water surface and a few defocused wet-leaf fragments create quiet horizontal depth without revealing a specific tea identity. Composition/framing: cup in the lower half, clean negative space at the top and upper-right, clearly different from the pouring variant. Lighting/mood: natural spring-afternoon light, clear and quiet. Materials/textures: realistic liquid, glass and soft surface detail, not over-polished. Constraints: image only, no typography, no logo, no packaging, no branded teaware, no landmark, no person, no flowers, no fruit, no chestnuts, no torn paper, no collage, no zine micro-text, no poster layout, no watermark."
+    },
+    {
+      "prompt_id": "prompt-zunyi-hong-amber-table-v1",
+      "asset_id": "zunyi-hong-amber-table",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: photorealistic-natural. Asset type: text-free media base for a mobile tea discovery card, vertical 4:5. Scene/backdrop: restrained deep warm wood table. Subject: an unbranded thin-walled tea cup in the lower half containing clear red-bright amber tea liquor with natural highlights and a trace of steam. Composition/framing: calm editorial still life, subject lower-middle, generous upper negative space for UI. Lighting/mood: soft evening side light, warm, youthful and quiet, not a traditional tea advertisement. Materials/textures: realistic glass or ceramic, natural wood grain and tea reflections. Constraints: image only, no typography, no logo, no packaging, no branded teaware, no recognizable dry tea leaves, no landmark, no person, no flowers, no fruit, no honey, no chestnuts, no torn paper, no collage, no zine micro-text, no poster layout, no watermark."
+    },
+    {
+      "prompt_id": "prompt-zunyi-hong-red-bright-cup-v1",
+      "asset_id": "zunyi-hong-red-bright-cup",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: photorealistic-natural. Asset type: text-free media base for a mobile tea discovery card, vertical 4:5. Scene/backdrop: quiet warm gray-brown environment fading naturally darker. Subject: close side-above view of a warm-white ceramic cup holding transparent red-bright tea liquor, with rounded reflected light and a trace of steam. Composition/framing: cup low and slightly off-center, generous negative space on the opposite side and across the top; clearly different from the wood-table still life. Lighting/mood: soft natural evening light, warm and composed. Materials/textures: believable ceramic and tea, not over-polished. Constraints: image only, no typography, no logo, no packaging, no branded teaware, no identifiable dry tea, no landmark, no person, no flowers, no fruit, no honey, no chestnuts, no torn paper, no collage, no zine micro-text, no poster layout, no watermark."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-mountain-v1",
+      "asset_id": "realm-duyun-mountain",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: stylized-concept. Portrait Tea Realm environment with a serene misty southern Guizhou highland atmosphere, not a specific real location; layered mountains, tea-field rhythm and a distant workshop silhouette in a tactile paper-editorial style. Vertical 9:16, no text, logos, people or recognizable landmarks. Non-factual atmosphere asset only."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-workshop-v1",
+      "asset_id": "realm-duyun-workshop",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: stylized-concept. Portrait, empty handcraft workshop atmosphere with a large unused wok in the lower center, warm timber interior and a misty doorway. Vertical 9:16, no worker, tea leaves, text, logo or factual equipment claim. Non-factual atmosphere asset only."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-mist-v1",
+      "asset_id": "realm-duyun-mist",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: transparent foreground overlay. Draggable soft fog wisps with paper-like diffusion and actual alpha transparency. Vertical 9:16, no scenery, objects, text or logo. Non-factual interaction layer only."
+    },
+    {
+      "prompt_id": "prompt-realm-duyun-pekoe-specimen-v1",
+      "asset_id": "realm-duyun-pekoe-specimen",
+      "attempt_limit": 2,
+      "attempt_count": 1,
+      "prompt": "Use case: stylized-concept. Digital museum specimen card for pekoe, ivory archival paper, an abstract curled tea-leaf gesture and delicate white-fiber traces. Portrait 4:5, no text or logo. A symbolic collectible, not a documentary tea-shape reference."
+    }
+  ]
+}

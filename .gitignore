@@ -1,0 +1,21 @@
+.DS_Store
+**/.DS_Store
+.env
+.data/
+*.db
+.cache/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.tsbuildinfo
+apps/web/.next/
+apps/web/node_modules/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+
+# generated / scratch (added)
+temp/
+tea-realm-extract/

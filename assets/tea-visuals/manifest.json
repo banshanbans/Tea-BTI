@@ -1,0 +1,479 @@
+{
+  "$schema": "./manifest.schema.json",
+  "schema_version": 2,
+  "visual_grammar_version": "0.1",
+  "generated_at": "2026-08-28T20:45:00+08:00",
+  "review_viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "teas": [
+    {
+      "tea_id": "duyun-maojian",
+      "name": "都匀毛尖",
+      "region": "贵州 · 黔南",
+      "evidence_refs": [
+        {
+          "id": "db52-t-433-2018",
+          "label": "DB52/T 433—2018 都匀毛尖茶省级地方标准",
+          "url": "https://nynct.guizhou.gov.cn/xwzx/wjzz/201810/t20181023_25593500.html",
+          "supports": ["嫩香与栗香", "鲜爽回甘", "嫩黄绿明亮汤色"]
+        },
+        {
+          "id": "food-chemistry-x-2026-figure-7",
+          "label": "Food Chemistry: X 35 (2026) 103843, Figure 7A",
+          "url": "https://doi.org/10.1016/j.fochx.2026.103843",
+          "supports": ["都匀毛尖五个等级的干茶纪实对照"]
+        }
+      ],
+      "visual_profile": {
+        "primary_anchor_asset_id": "duyun-maojian-mist-cup",
+        "anchor_types": ["tea_liquor", "infusion"],
+        "structure_color": "#B7CF72",
+        "structure_color_basis": "取自嫩黄绿明亮汤色，并提高少量明度用于移动端结构层。",
+        "abstract_form": "ridge_line",
+        "abstract_form_basis": "以黔南山地的方向感连接轻、清、鲜的主要感受；不承担具体产地复原。",
+        "atmosphere_cue": "morning_mist",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 28,
+          "left_percent": -8,
+          "width_percent": 116,
+          "height_percent": 24,
+          "opacity": 0.38,
+          "atmosphere_opacity": 0.22
+        }
+      },
+      "assets": [
+        {
+          "id": "duyun-maojian-mist-cup",
+          "role": "blind_base",
+          "variant": "a",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 为 Hackathon 原型生成；不代表真实商品、批次或纪实产地，生产前必须替换或重新核验。",
+          "master_path": "assets/tea-visuals/masters/duyun-maojian-mist-cup.png",
+          "media_path": "assets/tea-visuals/media/duyun-maojian-mist-cup.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1200,
+          "media_height": 1500,
+          "crop_strategy": {
+            "aspect_ratio": "4:5",
+            "object_position": "50% 58%"
+          },
+          "blind_safe": true,
+          "identity_risk": "low",
+          "prompt_id": "prompt-duyun-maojian-mist-cup-v1",
+          "sha256": "30101b125f1b548a99960d4fcbfac59ba0ad718f2de5c79972888a4c0236eca7",
+          "card_copy": {
+            "headline": "清一点。",
+            "body": "像刚冒出来的嫩叶，尾巴还会留一点甜。",
+            "tags": ["轻盈", "清鲜", "回甘"],
+            "scene": "适合刚睡醒的周末上午"
+          },
+          "preview_path": "assets/tea-visuals/previews/duyun-maojian-mist-cup-blind.png",
+          "derivatives": [
+            {
+              "id": "duyun-maojian-passport-thumbnail",
+              "role": "passport_thumbnail",
+              "path": "assets/tea-visuals/thumbnails/duyun-maojian-passport.webp",
+              "width": 480,
+              "height": 600,
+              "sha256": "376f740b3ceb8bd6fda607cd60f61d0bfd1f910eb31cf8a5738ce645d801899d"
+            }
+          ]
+        },
+        {
+          "id": "duyun-maojian-pour-ripple",
+          "role": "blind_base",
+          "variant": "b",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 为 Hackathon 原型生成；不代表真实商品、批次或纪实产地，生产前必须替换或重新核验。",
+          "master_path": "assets/tea-visuals/masters/duyun-maojian-pour-ripple.png",
+          "media_path": "assets/tea-visuals/media/duyun-maojian-pour-ripple.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1200,
+          "media_height": 1500,
+          "crop_strategy": {
+            "aspect_ratio": "4:5",
+            "object_position": "55% 55%"
+          },
+          "blind_safe": true,
+          "identity_risk": "medium",
+          "prompt_id": "prompt-duyun-maojian-pour-ripple-v1",
+          "sha256": "e2fe273210e52bc545ba03bb65c1e7749726773d94a08204042670d6b79938e7",
+          "card_copy": {
+            "headline": "先嫩，后甜。",
+            "body": "入口很轻，咽下去以后，甜意才慢慢回来。",
+            "tags": ["嫩香", "鲜爽", "回甘"],
+            "scene": "适合把早晨放慢一点的时候"
+          },
+          "preview_path": "assets/tea-visuals/previews/duyun-maojian-pour-ripple-blind.png",
+          "derivatives": []
+        }
+      ],
+      "realm_assets": [
+        {
+          "id": "realm-duyun-mist",
+          "role": "mist_overlay",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 生成，仅作为可拖拽雾层，不承担产地或茶叶事实证明。",
+          "credit": "OpenAI ImageGen 生成的非事实性 Demo 氛围素材",
+          "evidence_ref_ids": [],
+          "master_path": "assets/tea-visuals/masters/realm/duyun-mist-v1.png",
+          "media_path": "assets/tea-visuals/media/realm/duyun-mist.webp",
+          "master_width": 941,
+          "master_height": 1672,
+          "media_width": 941,
+          "media_height": 1672,
+          "prompt_id": "prompt-realm-duyun-mist-v1",
+          "sha256": "344ca1564edd5daf194c68582afa6a55a60bd4b2e2f895944f6132285fb36976"
+        },
+        {
+          "id": "realm-duyun-mountain",
+          "role": "mountain_background",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 生成的风格化黔南山地氛围，不是具体茶山的纪实还原。",
+          "credit": "OpenAI ImageGen 生成的非事实性 Demo 氛围素材",
+          "evidence_ref_ids": [],
+          "master_path": "assets/tea-visuals/masters/realm/duyun-mountain-v1.png",
+          "media_path": "assets/tea-visuals/media/realm/duyun-mountain.webp",
+          "master_width": 941,
+          "master_height": 1672,
+          "media_width": 941,
+          "media_height": 1672,
+          "prompt_id": "prompt-realm-duyun-mountain-v1",
+          "sha256": "ff0070748acd6e4b018da168a2c18941933320a40080b81b1422961d631815b2"
+        },
+        {
+          "id": "realm-duyun-workshop",
+          "role": "workshop_background",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 生成的抽象工坊氛围，不声称复原都匀毛尖的真实车间、锅温或设备。",
+          "credit": "OpenAI ImageGen 生成的非事实性 Demo 氛围素材",
+          "evidence_ref_ids": [],
+          "master_path": "assets/tea-visuals/masters/realm/duyun-workshop-v1.png",
+          "media_path": "assets/tea-visuals/media/realm/duyun-workshop.webp",
+          "master_width": 941,
+          "master_height": 1672,
+          "media_width": 941,
+          "media_height": 1672,
+          "prompt_id": "prompt-realm-duyun-workshop-v1",
+          "sha256": "0c4df1e171b808ffda8c2d1e20a18c9050fd8cb43912797c574cb2f808d41244"
+        },
+        {
+          "id": "realm-duyun-dry-tea",
+          "role": "dry_tea_reveal",
+          "source_kind": "open_access_figure",
+          "authenticity_state": "documentary",
+          "rights_state": "open_license",
+          "rights_note": "Figure 7A 干茶行裁剪，论文按 CC BY 4.0 开放；Demo 可用，正式商业发布前仍应替换为品牌自有或明确商用授权摄影。",
+          "credit": "Xia, W.-W. et al. (2026), Food Chemistry: X 35, 103843, Figure 7A, CC BY 4.0；裁剪为干茶行。",
+          "evidence_ref_ids": ["food-chemistry-x-2026-figure-7"],
+          "master_path": "assets/tea-visuals/masters/realm/duyun-dry-tea-figure7.jpg",
+          "media_path": "assets/tea-visuals/media/realm/duyun-dry-tea-figure7.webp",
+          "master_width": 476,
+          "master_height": 130,
+          "media_width": 476,
+          "media_height": 130,
+          "sha256": "77f937b11696eeac6b402ec977f81c9a357f081b1343de4eb8f37dc0b2474451"
+        },
+        {
+          "id": "realm-duyun-pekoe-specimen",
+          "role": "specimen_card",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 生成的数字标本卡，为抽象收藏物，不作为真实干茶形态证明。",
+          "credit": "OpenAI ImageGen 生成的非事实性 Demo 氛围素材",
+          "evidence_ref_ids": [],
+          "master_path": "assets/tea-visuals/masters/realm/duyun-pekoe-specimen-v1.png",
+          "media_path": "assets/tea-visuals/media/realm/duyun-pekoe-specimen.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1122,
+          "media_height": 1402,
+          "prompt_id": "prompt-realm-duyun-pekoe-specimen-v1",
+          "sha256": "b226dd6712223eacb16e1cfc66a4cb9a4c512176ada226c6c7cf0bc483a1e8a6"
+        }
+      ]
+    },
+    {
+      "tea_id": "meitan-cuiya",
+      "name": "湄潭翠芽",
+      "region": "贵州 · 遵义 · 湄潭",
+      "evidence_refs": [
+        {
+          "id": "guizhou-agri-meitan-cuiya-2025",
+          "label": "贵州省农业农村厅：湄潭翠芽",
+          "url": "https://nynct.guizhou.gov.cn/syqt/tsny/202512/t20251202_89008101.html",
+          "supports": ["清香或嫩香或栗香持久", "滋味鲜爽", "嫩绿明亮汤色"]
+        }
+      ],
+      "visual_profile": {
+        "primary_anchor_asset_id": "meitan-cuiya-spring-pour",
+        "anchor_types": ["infusion", "tea_liquor", "wet_leaf"],
+        "structure_color": "#72A85C",
+        "structure_color_basis": "来自黄绿润外形与嫩绿明亮汤色的中明度春绿。",
+        "abstract_form": "layered_horizontal",
+        "abstract_form_basis": "由扁平直的外形与生长层次提炼为稀疏横向节奏。",
+        "atmosphere_cue": "spring_afternoon",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 24,
+          "left_percent": 8,
+          "width_percent": 84,
+          "height_percent": 22,
+          "opacity": 0.3,
+          "atmosphere_opacity": 0.18
+        }
+      },
+      "assets": [
+        {
+          "id": "meitan-cuiya-spring-pour",
+          "role": "blind_base",
+          "variant": "a",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 为 Hackathon 原型生成；不代表真实商品、批次或纪实产地，生产前必须替换或重新核验。",
+          "master_path": "assets/tea-visuals/masters/meitan-cuiya-spring-pour.png",
+          "media_path": "assets/tea-visuals/media/meitan-cuiya-spring-pour.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1200,
+          "media_height": 1500,
+          "crop_strategy": {
+            "aspect_ratio": "4:5",
+            "object_position": "50% 58%"
+          },
+          "blind_safe": true,
+          "identity_risk": "medium",
+          "prompt_id": "prompt-meitan-cuiya-spring-pour-v1",
+          "sha256": "5b29b3bd832b696d78349c5d4eff5a66b076fb73830f1342471c540dc6f2485e",
+          "card_copy": {
+            "headline": "鲜得很安静。",
+            "body": "像刚摊开的嫩叶，清香停得比想象久。",
+            "tags": ["清香", "鲜爽", "柔和"],
+            "scene": "适合春日下午留一点空白"
+          },
+          "preview_path": "assets/tea-visuals/previews/meitan-cuiya-spring-pour-blind.png",
+          "derivatives": []
+        },
+        {
+          "id": "meitan-cuiya-clear-infusion",
+          "role": "blind_base",
+          "variant": "b",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 为 Hackathon 原型生成；不代表真实商品、批次或纪实产地，生产前必须替换或重新核验。",
+          "master_path": "assets/tea-visuals/masters/meitan-cuiya-clear-infusion.png",
+          "media_path": "assets/tea-visuals/media/meitan-cuiya-clear-infusion.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1200,
+          "media_height": 1500,
+          "crop_strategy": {
+            "aspect_ratio": "4:5",
+            "object_position": "48% 55%"
+          },
+          "blind_safe": true,
+          "identity_risk": "medium",
+          "prompt_id": "prompt-meitan-cuiya-clear-infusion-v1",
+          "sha256": "f20ca5c156ec9b72e7898b7c49b9a8d9907e1de518275b6c7055af662c32a95e",
+          "card_copy": {
+            "headline": "一口亮起来。",
+            "body": "先是嫩绿的清，后面才慢慢多一点香。",
+            "tags": ["嫩香", "鲜醇", "清亮"],
+            "scene": "适合下午刚刚醒过来的时候"
+          },
+          "preview_path": "assets/tea-visuals/previews/meitan-cuiya-clear-infusion-blind.png",
+          "derivatives": []
+        }
+      ],
+      "realm_assets": []
+    },
+    {
+      "tea_id": "zunyi-hong",
+      "name": "遵义红",
+      "region": "贵州 · 遵义",
+      "evidence_refs": [
+        {
+          "id": "guizhou-sasac-zunyi-hong-2021",
+          "label": "贵州省国资委：遵义红产品品质特点",
+          "url": "https://gzw.guizhou.gov.cn/xwzx/qyzc/202105/t20210511_68054280.html",
+          "supports": ["汤色红亮", "甜香高且持久", "滋味鲜爽醇厚"]
+        }
+      ],
+      "visual_profile": {
+        "primary_anchor_asset_id": "zunyi-hong-amber-table",
+        "anchor_types": ["tea_liquor"],
+        "structure_color": "#A35D42",
+        "structure_color_basis": "从红亮琥珀茶汤提炼暖红褐，用作低重心结构色。",
+        "abstract_form": "rounded_low_mass",
+        "abstract_form_basis": "以圆润低重心色块转译甜香与醇厚，不添加蜂蜜或水果符号。",
+        "atmosphere_cue": "dusk_table",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 12,
+          "left_percent": 4,
+          "width_percent": 92,
+          "height_percent": 38,
+          "opacity": 0.28,
+          "atmosphere_opacity": 0.24
+        }
+      },
+      "assets": [
+        {
+          "id": "zunyi-hong-amber-table",
+          "role": "blind_base",
+          "variant": "a",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 为 Hackathon 原型生成；不代表真实商品、批次或纪实产地，生产前必须替换或重新核验。",
+          "master_path": "assets/tea-visuals/masters/zunyi-hong-amber-table.png",
+          "media_path": "assets/tea-visuals/media/zunyi-hong-amber-table.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1200,
+          "media_height": 1500,
+          "crop_strategy": {
+            "aspect_ratio": "4:5",
+            "object_position": "50% 60%"
+          },
+          "blind_safe": true,
+          "identity_risk": "low",
+          "prompt_id": "prompt-zunyi-hong-amber-table-v1",
+          "sha256": "b2b3f84737c39f2da4e5273a302457d8d2926570591cea821376a5418b556ee9",
+          "card_copy": {
+            "headline": "甜香先到。",
+            "body": "有味道，但不厚重。下午想喝点东西的时候刚好。",
+            "tags": ["甜香", "鲜爽", "柔和"],
+            "scene": "适合天色慢慢暖下来的时候"
+          },
+          "preview_path": "assets/tea-visuals/previews/zunyi-hong-amber-table-blind.png",
+          "derivatives": []
+        },
+        {
+          "id": "zunyi-hong-red-bright-cup",
+          "role": "blind_base",
+          "variant": "b",
+          "source_kind": "ai_generated",
+          "authenticity_state": "synthetic_demo",
+          "rights_state": "demo_only",
+          "rights_note": "使用 OpenAI 内置 ImageGen 为 Hackathon 原型生成；不代表真实商品、批次或纪实产地，生产前必须替换或重新核验。",
+          "master_path": "assets/tea-visuals/masters/zunyi-hong-red-bright-cup.png",
+          "media_path": "assets/tea-visuals/media/zunyi-hong-red-bright-cup.webp",
+          "master_width": 1122,
+          "master_height": 1402,
+          "media_width": 1200,
+          "media_height": 1500,
+          "crop_strategy": {
+            "aspect_ratio": "4:5",
+            "object_position": "58% 55%"
+          },
+          "blind_safe": true,
+          "identity_risk": "low",
+          "prompt_id": "prompt-zunyi-hong-red-bright-cup-v1",
+          "sha256": "b9004dbaf5b29c222b2c72cd149ff1e17831107c2768b57fc08a1f697c1a9a69",
+          "card_copy": {
+            "headline": "更有存在感。",
+            "body": "稍微厚一点，甜香和暖意都会多停一会儿。",
+            "tags": ["甜香", "醇厚", "温润"],
+            "scene": "适合傍晚把节奏放慢的时候"
+          },
+          "preview_path": "assets/tea-visuals/previews/zunyi-hong-red-bright-cup-blind.png",
+          "derivatives": []
+        }
+      ],
+      "realm_assets": []
+    }
+  ],
+  "review_exports": [
+    {
+      "id": "preview-duyun-maojian-mist-cup-blind",
+      "state": "blind",
+      "asset_id": "duyun-maojian-mist-cup",
+      "path": "assets/tea-visuals/previews/duyun-maojian-mist-cup-blind.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "48d6f2528f34769789ba86e79757797d6b056b1a43cbba71e39374567e0735ca"
+    },
+    {
+      "id": "preview-duyun-maojian-pour-ripple-blind",
+      "state": "blind",
+      "asset_id": "duyun-maojian-pour-ripple",
+      "path": "assets/tea-visuals/previews/duyun-maojian-pour-ripple-blind.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "10e16a219ba6a3691dbdc763928111a20a8291c1c8f79a603d411ec18f37b560"
+    },
+    {
+      "id": "preview-meitan-cuiya-spring-pour-blind",
+      "state": "blind",
+      "asset_id": "meitan-cuiya-spring-pour",
+      "path": "assets/tea-visuals/previews/meitan-cuiya-spring-pour-blind.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "8a260dadbeb3743fbedb5e2a6a5088818e79c5bd0e8133e049fb5efbcb7f7d9e"
+    },
+    {
+      "id": "preview-meitan-cuiya-clear-infusion-blind",
+      "state": "blind",
+      "asset_id": "meitan-cuiya-clear-infusion",
+      "path": "assets/tea-visuals/previews/meitan-cuiya-clear-infusion-blind.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f4c9d1e2364538318671e1571543a309c9d13887cf391b14a373846a2f25e055"
+    },
+    {
+      "id": "preview-zunyi-hong-amber-table-blind",
+      "state": "blind",
+      "asset_id": "zunyi-hong-amber-table",
+      "path": "assets/tea-visuals/previews/zunyi-hong-amber-table-blind.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "1835b8046f1e7068b69b5e3506dddfce62fc9d46770bdee194c1305452aae0b7"
+    },
+    {
+      "id": "preview-zunyi-hong-red-bright-cup-blind",
+      "state": "blind",
+      "asset_id": "zunyi-hong-red-bright-cup",
+      "path": "assets/tea-visuals/previews/zunyi-hong-red-bright-cup-blind.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "04e6a8bdca45c16b87998bd99e671f99ae553d89b35f76c70286b08dcfed4fd6"
+    },
+    {
+      "id": "preview-duyun-maojian-reveal",
+      "state": "reveal",
+      "tea_id": "duyun-maojian",
+      "path": "assets/tea-visuals/previews/duyun-maojian-reveal.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "f014a0e2689a79dc722b94eee6182931830ca7e7850a4c9836088862b2500e02"
+    },
+    {
+      "id": "preview-duyun-maojian-detail",
+      "state": "detail",
+      "tea_id": "duyun-maojian",
+      "path": "assets/tea-visuals/previews/duyun-maojian-detail.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "8b2c614c5acf8dbc73c57bc233c4eec8c145d8a4124a210194b5f467718c97bf"
+    }
+  ]
+}

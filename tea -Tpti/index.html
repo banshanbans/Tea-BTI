@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#F7F3EA" />
+<title>刷茶 · 你不用先懂茶</title>
+<style>
+/* ============================================================
+   设计系统 Design Tokens
+   ============================================================ */
+:root{
+  /* 色彩 */
+  --bg:            #F7F3EA;   /* 暖白米白背景 */
+  --bg-deep:       #EFE9DC;   /* 更深一点的米色 */
+  --surface:       #FDFBF5;   /* 卡片表面 */
+  --surface-2:     #FFFFFF;
+  --ink:           #1F3D2B;   /* 深墨绿 主文字 */
+  --ink-soft:      #4A6552;   /* 次级墨绿 */
+  --ink-faint:     #8B9A8D;   /* 弱化文字 */
+  --leaf:          #6F9A4E;   /* 嫩叶绿 强调 */
+  --leaf-deep:     #557C3A;   /* 深叶绿 */
+  --leaf-mist:     #DCE8CF;   /* 浅叶绿 底 */
+  --amber:         #C99A5B;   /* 茶汤琥珀 */
+  --amber-deep:    #A87B3F;
+  --amber-mist:    #EFE0C4;   /* 浅琥珀 */
+  --line:          rgba(31,61,43,.10);
+  --line-soft:     rgba(31,61,43,.06);
+
+  /* 语义 */
+  --like:    #6F9A4E;
+  --like-bg: #EAF1DE;
+  --skip:    #B9A88A;
+  --skip-bg: #F0EAE0;
+
+  /* 字体 */
+  --serif: "Songti SC","Noto Serif SC","STSong","SimSun",serif;
+  --sans:  -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif;
+
+  /* 圆角 / 阴影 */
+  --r-lg: 26px;
+  --r-md: 18px;
+  --r-sm: 12px;
+  --shadow-card: 0 1px 2px rgba(31,61,43,.04), 0 8px 28px rgba(31,61,43,.07);
+  --shadow-float: 0 2px 6px rgba(31,61,43,.08), 0 16px 44px rgba(31,61,43,.14);
+
+  /* 布局 */
+  --phone-w: 430px;
+  --tab-h: 66px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+/* ============================================================
+   基础 Reset
+   ============================================================ */
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; }
+body{
+  font-family:var(--sans);
+  background:
+    radial-gradient(1200px 600px at 50% -200px, #FBF8F0 0%, #EFE9DC 100%);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overscroll-behavior:none;
+  user-select:none;
+}
+button{ font-family:inherit; border:none; background:none; color:inherit; cursor:pointer; }
+::-webkit-scrollbar{ width:0; height:0; }
+
+/* ============================================================
+   手机容器（桌面居中）
+   ============================================================ */
+#app{
+  position:relative;
+  width:100%;
+  max-width:var(--phone-w);
+  height:100dvh;
+  margin:0 auto;
+  background:var(--bg);
+  overflow:hidden;
+  box-shadow:0 0 0 1px var(--line-soft), 0 0 80px rgba(31,61,43,.08);
+}
+@media (min-width: 600px){
+  body{
+    background:
+      radial-gradient(900px 520px at 12% -120px, rgba(111,154,78,.16), transparent 60%),
+      radial-gradient(820px 480px at 88% 112%, rgba(201,154,91,.14), transparent 60%),
+      linear-gradient(180deg,#F2EDE1 0%, #E9E2D2 100%);
+  }
+  #app{ height:min(100dvh, 900px); margin-top:calc((100dvh - min(100dvh,900px))/2); border-radius:34px; box-shadow:0 0 0 1px var(--line-soft), 0 24px 90px rgba(31,61,43,.16); }
+}
+
+.stage{ min-height:100dvh; }
+
+/* ============================================================
+   通用屏幕
+   ============================================================ */
+.screen{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .38s ease, transform .38s cubic-bezier(.22,.8,.28,1);
+  transform:translateY(10px);
+  z-index:1;
+}
+.screen.active{ opacity:1; visibility:visible; pointer-events:auto; transform:none; z-index:2; }
+.screen-scroll{ overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+/* 顶部状态条占位 */
+.statusbar{ height:14px; flex:none; }
+
+/* ============================================================
+   通用组件
+   ============================================================ */
+.serif{ font-family:var(--serif); }
+.eyebrow{
+  font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--ink-faint); font-weight:600;
+}
+.pill{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:6px 12px; border-radius:999px;
+  font-size:12px; font-weight:600;
+  background:var(--surface); border:1px solid var(--line);
+  color:var(--ink-soft);
+}
+.tag{
+  display:inline-flex; align-items:center;
+  padding:7px 13px; border-radius:10px;
+  font-size:12.5px; font-weight:600; letter-spacing:.02em;
+  background:var(--leaf-mist); color:var(--leaf-deep);
+}
+.tag-amber{ background:var(--amber-mist); color:var(--amber-deep); }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  height:52px; padding:0 26px; border-radius:16px;
+  font-size:16px; font-weight:600; letter-spacing:.02em;
+  transition:transform .15s ease, background .2s ease, box-shadow .2s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-primary{
+  background:var(--ink); color:#F7F3EA;
+  box-shadow:0 10px 24px rgba(31,61,43,.22);
+}
+.btn-ghost{
+  background:transparent; color:var(--ink-soft);
+  border:1px solid var(--line);
+}
+.btn-leaf{ background:var(--leaf); color:#fff; box-shadow:0 10px 24px rgba(111,154,78,.28); }
+
+.iconbtn{
+  width:40px; height:40px; border-radius:12px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--surface); border:1px solid var(--line);
+  color:var(--ink-soft); font-size:17px;
+}
+
+/* ============================================================
+   Screen 1 · Launch
+   ============================================================ */
+.screen-launch{ background:linear-gradient(180deg,#F9F5EC 0%, var(--bg) 100%); }
+.launch-inner{
+  flex:1; display:flex; flex-direction:column;
+  padding:28px 30px calc(28px + var(--safe-b));
+  position:relative;
+}
+.launch-mist{
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
+  background:
+    radial-gradient(380px 300px at 85% 8%, rgba(111,154,78,.14) 0%, transparent 60%),
+    radial-gradient(320px 260px at 8% 30%, rgba(201,154,91,.13) 0%, transparent 60%);
+}
+.launch-logo{
+  display:flex; align-items:center; gap:11px; margin-top:6px;
+}
+.launch-logo .mark{
+  width:44px; height:44px; border-radius:14px;
+  background:linear-gradient(145deg,#6F9A4E,#557C3A);
+  display:grid; place-items:center; color:#fff;
+  box-shadow:0 8px 18px rgba(111,154,78,.3);
+}
+.launch-logo .mark svg{ width:24px; height:24px; }
+.launch-logo .word{
+  font-family:var(--serif); font-size:26px; font-weight:700;
+  letter-spacing:.04em;
+}
+.launch-logo .word small{ display:block; font-size:11px; color:var(--ink-faint); letter-spacing:.3em; font-family:var(--sans); font-weight:500; }
+
+.launch-hero{ margin-top:auto; padding-bottom:10px; }
+.launch-hero .eyebrow{ margin-bottom:18px; }
+.launch-hero h1{
+  font-family:var(--serif); font-weight:700;
+  font-size:44px; line-height:1.16; letter-spacing:.01em;
+  margin-bottom:18px;
+}
+.launch-hero h1 .em{ color:var(--leaf-deep); }
+.launch-hero .sub{
+  font-size:15.5px; color:var(--ink-soft); line-height:1.7;
+  margin-bottom:34px; max-width:320px;
+}
+.launch-hero .sub b{ color:var(--ink); font-weight:600; }
+
+.launch-actions{ display:flex; flex-direction:column; gap:12px; }
+.launch-hint{
+  margin-top:18px; text-align:center; font-size:12px; color:var(--ink-faint);
+  letter-spacing:.05em;
+}
+.launch-hint .dot{ display:inline-block; width:4px; height:4px; border-radius:50%; background:var(--leaf); margin:0 6px 1px 0; }
+
+/* ============================================================
+   Screen 2 · Blind Swipe
+   ============================================================ */
+.screen-swipe{ background:linear-gradient(180deg,#F9F5EC, var(--bg)); }
+.swipe-head{
+  flex:none; display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px 10px;
+}
+.swipe-head .title{ font-family:var(--serif); font-size:19px; font-weight:700; letter-spacing:.03em; }
+.swipe-head .counter{ font-size:13px; color:var(--ink-soft); font-weight:600; letter-spacing:.08em; }
+.swipe-head .counter b{ color:var(--ink); font-size:16px; font-weight:700; }
+.swipe-stage{
+  flex:1; position:relative; margin:0 16px;
+  min-height:0;
+}
+.card{
+  position:absolute; inset:0;
+  border-radius:var(--r-lg);
+  background:var(--surface);
+  box-shadow:var(--shadow-card);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  will-change:transform;
+  transition:transform .32s cubic-bezier(.2,.8,.25,1);
+  touch-action:none;
+}
+.card.behind{ transform:scale(.94) translateY(10px); opacity:.85; filter:saturate(.92); }
+.card.behind2{ transform:scale(.89) translateY(20px); opacity:.6; filter:saturate(.85); }
+
+/* 矮屏：卡片内容紧凑，避免溢出被裁剪 */
+@media (max-height: 720px){
+  .card-body{ padding:18px 20px 14px; }
+  .card-headline{ font-size:28px; margin-bottom:7px; }
+  .card-desc{ font-size:14px; margin-bottom:12px; }
+  .card-scene{ padding-top:10px; }
+  .swipe-actions{ padding-bottom:calc(10px + var(--tab-h) + var(--safe-b)); }
+}
+
+.card-art{
+  flex:1.15; position:relative; overflow:hidden;
+  min-height:0;
+}
+.card-body{
+  flex:1; padding:24px 24px 20px; display:flex; flex-direction:column; position:relative;
+}
+.card-body .card-index{ position:absolute; top:-34px; left:24px; }
+.card-scene{
+  margin-top:auto; padding-top:14px; border-top:1px dashed var(--line);
+  font-size:12.5px; color:var(--ink-faint); letter-spacing:.03em;
+  display:flex; align-items:center; gap:7px;
+}
+.card-scene::before{ content:"﹡"; color:var(--amber); font-size:14px; }
+
+.card-headline{
+  font-family:var(--serif); font-weight:700; font-size:34px; line-height:1.2;
+  margin-bottom:10px; letter-spacing:.01em;
+}
+.card-desc{ font-size:15px; color:var(--ink-soft); line-height:1.72; margin-bottom:18px; }
+.card-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+
+/* 卡片视觉艺术（纯 CSS/SVG 抽象，非商品图） */
+.art{ position:absolute; inset:0; }
+.art .blob{
+  position:absolute; border-radius:50%; filter:blur(2px);
+  background:linear-gradient(145deg, rgba(111,154,78,.5), rgba(111,154,78,.12));
+}
+.art-mist{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 20%, rgba(247,243,234,.7) 100%); }
+
+/* 底部操作 */
+.swipe-actions{
+  flex:none; display:flex; align-items:center; justify-content:center; gap:20px;
+  padding:14px 0 calc(18px + var(--tab-h) + var(--safe-b));
+}
+.act{
+  width:62px; height:62px; border-radius:50%;
+  display:grid; place-items:center; font-size:24px;
+  background:var(--surface); border:1px solid var(--line);
+  box-shadow:var(--shadow-card);
+  transition:transform .15s ease, background .2s;
+}
+.act:active{ transform:scale(.9); }
+.act-skip{ color:var(--skip); }
+.act-like{ background:var(--like); color:#fff; border-color:transparent; box-shadow:0 12px 26px rgba(111,154,78,.34); }
+.act-like svg, .act-skip svg{ width:26px; height:26px; }
+
+/* 顶部说明 */
+.swipe-help{
+  position:absolute; right:16px; top:16px; z-index:5;
+}
+.help-pop{
+  position:absolute; right:0; top:50px; width:230px;
+  background:var(--ink); color:#F7F3EA;
+  border-radius:14px; padding:13px 15px; font-size:12.5px; line-height:1.6;
+  opacity:0; visibility:hidden; transform:translateY(-6px);
+  transition:.25s ease;
+  box-shadow:var(--shadow-float);
+}
+.help-pop::after{ content:""; position:absolute; top:-6px; right:16px; width:12px; height:12px; background:var(--ink); transform:rotate(45deg); }
+.help-pop.show{ opacity:1; visibility:visible; transform:none; }
+
+/* ============================================================
+   Reveal 覆盖层
+   ============================================================ */
+.overlay{
+  position:absolute; inset:0; z-index:40;
+  display:flex; align-items:flex-end;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .3s ease;
+}
+.overlay.show{ opacity:1; visibility:visible; pointer-events:auto; }
+.overlay .scrim{ position:absolute; inset:0; background:rgba(31,61,43,.28); backdrop-filter:blur(3px); }
+.overlay .sheet{
+  position:relative; width:100%;
+  background:var(--bg);
+  border-radius:30px 30px 0 0;
+  padding:12px 24px calc(24px + var(--safe-b));
+  transform:translateY(100%);
+  transition:transform .42s cubic-bezier(.22,.9,.3,1);
+  max-height:92%;
+  overflow-y:auto;
+}
+.overlay.show .sheet{ transform:none; }
+.grabber{ width:40px; height:4px; border-radius:2px; background:var(--line); margin:0 auto 18px; }
+
+.reveal-eyebrow{ margin-bottom:6px; }
+.reveal-name{
+  font-family:var(--serif); font-weight:700; font-size:36px; letter-spacing:.02em;
+  margin-bottom:6px;
+}
+.reveal-region{ font-size:14px; color:var(--ink-soft); margin-bottom:16px; letter-spacing:.05em; }
+.reveal-tags{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.reveal-translate{
+  background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  padding:16px; font-size:14px; color:var(--ink-soft); line-height:1.75;
+  margin-bottom:22px; position:relative;
+}
+.reveal-translate::before{ content:"译"; position:absolute; top:-9px; left:14px; background:var(--amber); color:#fff; font-size:10px; padding:2px 7px; border-radius:6px; letter-spacing:.1em; }
+.reveal-translate b{ color:var(--ink); }
+.reveal-actions{ display:flex; gap:12px; }
+.reveal-actions .btn{ flex:1; }
+
+/* ============================================================
+   Taste Summary 覆盖层（我开始有点懂你了）
+   ============================================================ */
+.summary-sheet{ text-align:left; }
+.summary-eyebrow{ margin-bottom:14px; color:var(--amber-deep); }
+.summary-title{ font-family:var(--serif); font-size:30px; font-weight:700; margin-bottom:22px; line-height:1.25; }
+.summary-block{ margin-bottom:20px; }
+.summary-block .lbl{ font-size:12.5px; color:var(--ink-faint); margin-bottom:10px; letter-spacing:.05em; }
+.summary-pillrow{ display:flex; flex-wrap:wrap; gap:8px; }
+.summary-pill{
+  padding:9px 14px; border-radius:11px; font-size:14px; font-weight:600;
+}
+.summary-pill.pos{ background:var(--like-bg); color:var(--leaf-deep); }
+.summary-pill.neg{ background:var(--skip-bg); color:var(--skip); text-decoration:line-through; text-decoration-color:rgba(185,168,138,.5); }
+.summary-reco{
+  margin-top:6px; background:linear-gradient(145deg,var(--leaf-mist),#E7F0DC);
+  border-radius:20px; padding:22px; position:relative; overflow:hidden;
+}
+.summary-reco .reco-lbl{ font-size:12px; letter-spacing:.15em; color:var(--leaf-deep); font-weight:700; margin-bottom:8px; }
+.summary-reco .reco-name{ font-family:var(--serif); font-size:28px; font-weight:700; margin-bottom:4px; }
+.summary-reco .reco-region{ font-size:13px; color:var(--ink-soft); }
+.summary-actions{ display:flex; gap:12px; margin-top:24px; }
+.summary-actions .btn{ flex:1; }
+
+/* ============================================================
+   详情 / 泡茶 / 品茶 / 通用页头
+   ============================================================ */
+.pagehead{
+  flex:none; padding:14px 22px 12px;
+  display:flex; align-items:center; gap:12px;
+}
+.pagehead .back{ width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--surface); border:1px solid var(--line); font-size:18px; color:var(--ink-soft); flex:none; }
+.pagehead .ptitle{ font-family:var(--serif); font-size:17px; font-weight:700; letter-spacing:.02em; flex:1; }
+.pagehead .ptitle small{ display:block; font-family:var(--sans); font-size:11.5px; font-weight:500; color:var(--ink-faint); letter-spacing:.04em; }
+
+/* ============================================================
+   Screen 6 · Tea Detail
+   ============================================================ */
+.detail-hero{ padding:6px 22px 4px; }
+.detail-hero .eyebrow{ margin-bottom:8px; }
+.detail-hero h1{ font-family:var(--serif); font-size:38px; font-weight:700; margin-bottom:4px; }
+.detail-hero .region{ font-size:14px; color:var(--ink-soft); margin-bottom:14px; }
+.detail-hero .hero-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+
+.detail-visual{
+  margin:16px 22px 0; height:150px; border-radius:20px; overflow:hidden; position:relative;
+  background:linear-gradient(135deg,var(--leaf-mist),var(--amber-mist));
+  display:grid; place-items:center;
+}
+.detail-visual .leaf-emoji{ font-size:52px; filter:drop-shadow(0 6px 12px rgba(31,61,43,.2)); }
+
+.detail-actions{ padding:18px 22px 6px; display:flex; flex-direction:column; gap:12px; }
+.action-card{
+  display:flex; align-items:center; gap:16px; text-align:left;
+  background:var(--surface); border:1px solid var(--line); border-radius:20px;
+  padding:18px; width:100%;
+  transition:transform .15s ease, box-shadow .2s;
+}
+.action-card:active{ transform:scale(.98); }
+.action-card .ico{
+  width:52px; height:52px; border-radius:16px; flex:none;
+  display:grid; place-items:center; font-size:24px;
+}
+.action-card .ico.brew{ background:var(--amber-mist); }
+.action-card .ico.taste{ background:var(--leaf-mist); }
+.action-card .ico.realm{ background:#E4E9DC; }
+.action-card .atitle{ font-size:17px; font-weight:700; margin-bottom:3px; }
+.action-card .asub{ font-size:12.5px; color:var(--ink-faint); }
+.action-card .arrow{ margin-left:auto; color:var(--ink-faint); font-size:18px; }
+
+.detail-meta{ padding:8px 22px calc(26px + var(--tab-h) + var(--safe-b)); display:flex; flex-direction:column; gap:10px; }
+.meta-row{ display:flex; gap:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--line-soft); border-radius:16px; }
+.meta-row .k{ flex:none; width:64px; font-size:12.5px; color:var(--ink-faint); padding-top:1px; letter-spacing:.05em; }
+.meta-row .v{ font-size:13.5px; color:var(--ink-soft); line-height:1.7; }
+
+/* ============================================================
+   Screen 7 · Brew Mode
+   ============================================================ */
+.screen-brew{ background:#16231B; color:#EDF2E9; }
+.brew-head{ flex:none; padding:14px 20px 10px; display:flex; align-items:center; gap:12px; }
+.brew-head .back{ width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:rgba(255,255,255,.08); font-size:18px; }
+.brew-head .btitle{ font-size:15px; font-weight:600; flex:1; }
+.brew-head .btitle small{ display:block; font-size:11px; color:rgba(237,242,233,.5); font-weight:400; }
+.brew-mic{ width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,.08); display:grid; place-items:center; font-size:16px; }
+
+.brew-cam{
+  flex:1; margin:0 16px; border-radius:22px; overflow:hidden; position:relative;
+  background:
+    radial-gradient(600px 400px at 30% 20%, #2A3D30 0%, #1B2A20 55%, #121D16 100%);
+  display:grid; place-items:center;
+}
+.brew-cam::before{ content:""; position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 3px); }
+.cam-vignette{ position:absolute; inset:0; box-shadow:inset 0 0 90px rgba(0,0,0,.5); border-radius:22px; }
+.cam-teaware{ text-align:center; position:relative; z-index:2; }
+.cam-teaware .gaiwan{ font-size:88px; filter:drop-shadow(0 16px 30px rgba(0,0,0,.5)); animation:float 4s ease-in-out infinite; }
+@keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+
+.cam-tag{
+  position:absolute; z-index:3; display:flex; align-items:center; gap:6px;
+  padding:7px 12px; border-radius:10px; font-size:12px; font-weight:600;
+  background:rgba(20,28,22,.72); backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.12); letter-spacing:.02em;
+}
+.cam-tag .led{ width:7px; height:7px; border-radius:50%; background:#8FD17B; box-shadow:0 0 8px #8FD17B; animation:blink 1.6s ease-in-out infinite; }
+@keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+.cam-tag.tl{ top:16px; left:16px; }
+.cam-tag.br{ bottom:16px; right:16px; }
+
+.brew-steps{
+  flex:none; margin:16px 20px 8px; display:flex; justify-content:space-between; position:relative;
+}
+.brew-steps::before{ content:""; position:absolute; top:12px; left:8%; right:8%; height:2px; background:rgba(255,255,255,.12); }
+.step{ position:relative; z-index:2; text-align:center; flex:1; }
+.step .dot{ width:24px; height:24px; border-radius:50%; margin:0 auto 6px; display:grid; place-items:center; background:#2A3D30; border:2px solid rgba(255,255,255,.14); font-size:11px; transition:.25s; }
+.step span{ font-size:10.5px; color:rgba(237,242,233,.45); display:block; }
+.step.done .dot{ background:var(--leaf); border-color:var(--leaf); color:#fff; }
+.step.now .dot{ background:#fff; border-color:#fff; color:var(--ink); box-shadow:0 0 14px rgba(255,255,255,.5); }
+.step.now span{ color:#fff; }
+
+.brew-companion{
+  flex:none; margin:6px 16px 16px; background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:16px 18px;
+  backdrop-filter:blur(8px);
+}
+.companion-says{ display:flex; gap:12px; align-items:flex-start; }
+.companion-says .av{
+  width:34px; height:34px; border-radius:12px; flex:none; background:linear-gradient(145deg,var(--leaf),var(--leaf-deep));
+  display:grid; place-items:center; font-size:15px; color:#fff;
+}
+.companion-says .say{ font-size:14.5px; line-height:1.65; }
+.companion-says .why{
+  margin-top:10px; font-size:12.5px; color:var(--amber);
+  text-decoration:underline; text-underline-offset:3px; display:inline-flex; align-items:center; gap:5px;
+}
+.brew-foot{ flex:none; padding:0 20px calc(16px + var(--safe-b)); display:flex; gap:12px; }
+.brew-foot .btn{ flex:1; height:50px; }
+.btn-dark-ghost{ background:rgba(255,255,255,.08); color:#EDF2E9; border:1px solid rgba(255,255,255,.14); }
+
+/* ============================================================
+   Screen 8 · Taste Mode
+   ============================================================ */
+.screen-taste{ background:var(--bg); }
+.taste-head{ flex:none; padding:14px 22px 8px; display:flex; align-items:center; gap:12px; }
+.taste-head .back{ width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--surface); border:1px solid var(--line); font-size:18px; color:var(--ink-soft); }
+.taste-head .ttitle{ font-family:var(--serif); font-size:17px; font-weight:700; }
+.taste-head .ttitle small{ display:block; font-family:var(--sans); font-size:11.5px; font-weight:500; color:var(--ink-faint); }
+
+.taste-prompt{ padding:26px 26px 6px; }
+.taste-prompt h2{ font-family:var(--serif); font-size:34px; font-weight:700; line-height:1.2; margin-bottom:6px; }
+.taste-prompt .q{ font-size:15px; color:var(--ink-soft); }
+
+.taste-voice{
+  margin:22px 26px; padding:26px 20px; text-align:center;
+  background:var(--surface); border:1px solid var(--line); border-radius:26px;
+  box-shadow:var(--shadow-card);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.micbtn{
+  width:74px; height:74px; border-radius:50%; position:relative;
+  background:linear-gradient(145deg,var(--leaf),var(--leaf-deep));
+  display:grid; place-items:center; font-size:30px; color:#fff;
+  box-shadow:0 14px 30px rgba(111,154,78,.35);
+}
+.micbtn::before{ content:""; position:absolute; inset:-12px; border-radius:50%; border:2px solid rgba(111,154,78,.35); animation:pulse 2s ease-out infinite; }
+@keyframes pulse{ 0%{ transform:scale(.8); opacity:1;} 100%{ transform:scale(1.4); opacity:0;} }
+.taste-voice .hint{ font-size:12.5px; color:var(--ink-faint); }
+
+.taste-thread{ padding:0 22px calc(30px + var(--tab-h) + var(--safe-b)); display:flex; flex-direction:column; gap:14px; }
+.bubble{ max-width:84%; padding:14px 16px; border-radius:18px; font-size:14px; line-height:1.7; }
+.bubble.user{ align-self:flex-end; background:var(--ink); color:#F7F3EA; border-bottom-right-radius:6px; }
+.bubble.ai{ align-self:flex-start; background:var(--surface); border:1px solid var(--line); border-bottom-left-radius:6px; color:var(--ink-soft); }
+.bubble.ai b{ color:var(--ink); }
+.bubble .mini-tags{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+.bubble .mini-tags span{ padding:4px 10px; border-radius:8px; font-size:11.5px; font-weight:600; background:var(--leaf-mist); color:var(--leaf-deep); }
+
+.taste-rate{ padding:0 22px 20px; }
+.taste-rate .q{ font-size:14px; font-weight:600; margin-bottom:14px; }
+.rate-row{ display:flex; gap:10px; }
+.rate-btn{
+  flex:1; padding:16px 8px; border-radius:16px; text-align:center;
+  background:var(--surface); border:1px solid var(--line); font-size:13.5px; font-weight:600; color:var(--ink-soft);
+  transition:.18s; line-height:1.4;
+}
+.rate-btn:active{ transform:scale(.97); }
+.rate-btn.sel{ background:var(--like-bg); border-color:var(--leaf); color:var(--leaf-deep); }
+
+.taste-thanks{
+  text-align:center; padding:26px 30px; font-size:14px; color:var(--ink-soft); line-height:1.8;
+}
+
+/* ============================================================
+   Screen 9 · AI Companion Drawer
+   ============================================================ */
+.companion-sheet .sheet{ padding-bottom:calc(20px + var(--safe-b)); }
+.cm-head{ display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.cm-head .av{ width:44px; height:44px; border-radius:14px; background:linear-gradient(145deg,var(--leaf),var(--leaf-deep)); display:grid; place-items:center; color:#fff; font-size:18px; }
+.cm-head .nm{ font-family:var(--serif); font-size:19px; font-weight:700; }
+.cm-head .ctx{ font-size:12px; color:var(--ink-faint); margin-top:2px; }
+.cm-close{ margin-left:auto; }
+.cm-quick{ display:flex; flex-direction:column; gap:9px; margin:16px 0 18px; }
+.cm-quick button{
+  text-align:left; padding:13px 16px; border-radius:14px;
+  background:var(--surface); border:1px solid var(--line); font-size:13.5px; color:var(--ink-soft);
+  display:flex; align-items:center; gap:9px; transition:.15s;
+}
+.cm-quick button:active{ background:var(--leaf-mist); }
+.cm-quick button::before{ content:"↳"; color:var(--leaf); font-weight:700; }
+.cm-msg{ display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+.cm-history{
+  padding:14px 0 4px; border-top:1px solid var(--line-soft);
+  text-align:center; font-size:13px; color:var(--ink-faint); letter-spacing:.03em;
+}
+
+/* ============================================================
+   Screen 10 · Tea Realm 首页
+   ============================================================ */
+.screen-realm{ background:linear-gradient(180deg,#E9F0E0 0%, #F3F1E6 100%); }
+.realm-head{ padding:18px 22px 4px; }
+.realm-head .eyebrow{ margin-bottom:10px; }
+.realm-head h2{ font-family:var(--serif); font-size:26px; font-weight:700; line-height:1.35; }
+.realm-head h2 .em{ color:var(--leaf-deep); }
+
+.realm-world{
+  margin:16px 20px 0; border-radius:24px; overflow:hidden; position:relative;
+  height:320px; background:linear-gradient(180deg,#C7DFF0 0%, #DFEBD8 40%, #B9CE9C 72%, #9AB27C 100%);
+  box-shadow:var(--shadow-card);
+}
+.realm-world svg{ width:100%; height:100%; display:block; }
+
+.realm-unlocked{
+  margin:16px 20px; padding:16px; border-radius:20px;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-card);
+}
+.realm-unlocked .lbl{ font-size:11.5px; letter-spacing:.14em; color:var(--ink-faint); font-weight:700; margin-bottom:12px; }
+.realm-card{
+  display:flex; align-items:center; gap:14px; text-align:left; width:100%;
+}
+.realm-card .rc-ico{
+  width:52px; height:52px; border-radius:16px; flex:none; display:grid; place-items:center; font-size:24px;
+  background:linear-gradient(145deg,var(--leaf-mist),#D8E8C6);
+}
+.realm-card .rc-name{ font-family:var(--serif); font-size:18px; font-weight:700; margin-bottom:3px; }
+.realm-card .rc-sub{ font-size:12.5px; color:var(--ink-faint); }
+.realm-card .rc-go{
+  margin-left:auto; padding:9px 16px; border-radius:12px; font-size:13px; font-weight:600;
+  background:var(--ink); color:#F7F3EA;
+}
+.realm-locked{
+  margin:0 20px calc(24px + var(--tab-h) + var(--safe-b)); padding:18px;
+  border-radius:20px; border:1.5px dashed var(--line); text-align:center;
+  color:var(--ink-faint); font-size:13px; letter-spacing:.1em;
+}
+.realm-locked .q{ font-family:var(--serif); font-size:22px; letter-spacing:.2em; color:var(--ink-faint); margin-bottom:6px; }
+
+/* ============================================================
+   Screen 11 · Tea Realm 一叶成茶 章节
+   ============================================================ */
+.screen-chapter{ background:linear-gradient(180deg,#E9F0E0, #F7F3EA); }
+.chapter-stage{ flex:1; position:relative; display:grid; place-items:center; overflow:hidden; }
+.chapter-scene{
+  position:absolute; inset:0; border-radius:0;
+  background:linear-gradient(180deg,#C7DFF0 0%, #DFEBD8 42%, #B9CE9C 75%, #8FA974 100%);
+}
+.chapter-scene svg{ width:100%; height:100%; display:block; }
+.chapter-tap-hint{
+  position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+  font-size:12px; color:var(--ink-soft); background:rgba(255,255,255,.7);
+  padding:7px 14px; border-radius:999px; backdrop-filter:blur(4px); letter-spacing:.05em;
+  animation:bob 2.4s ease-in-out infinite;
+}
+@keyframes bob{ 0%,100%{ transform:translate(-50%,0);} 50%{ transform:translate(-50%,-6px);} }
+
+.chapter-dialog{
+  flex:none; margin:0 20px 14px; padding:18px 20px;
+  background:var(--surface); border-radius:20px; border:1px solid var(--line);
+  box-shadow:var(--shadow-card); position:relative;
+}
+.chapter-dialog .who{
+  position:absolute; top:-13px; left:18px; font-size:13px; padding:4px 11px; border-radius:8px;
+  background:var(--amber-mist); color:var(--amber-deep); font-weight:600; letter-spacing:.03em;
+}
+.chapter-dialog .dtxt{ font-size:14.5px; line-height:1.75; color:var(--ink-soft); }
+.chapter-dialog .dtxt b{ color:var(--ink); }
+.chapter-dialog .dhead{ font-family:var(--serif); font-size:20px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+
+.chapter-foot{
+  flex:none; padding:4px 20px calc(16px + var(--safe-b)); display:flex; gap:12px;
+}
+.chapter-foot .btn{ flex:1; height:50px; }
+.chapter-progress{
+  flex:none; display:flex; justify-content:center; gap:7px; padding:8px 0 4px;
+}
+.cp-dot{ width:7px; height:7px; border-radius:50%; background:var(--line); transition:.3s; }
+.cp-dot.on{ width:22px; border-radius:4px; background:var(--leaf); }
+
+/* ============================================================
+   Screen 12 · Realm Ending
+   ============================================================ */
+.screen-ending{ background:linear-gradient(180deg,#E9F0E0, #F7F3EA); justify-content:center; align-items:center; text-align:center; padding:30px; }
+.ending-leaf{ font-size:72px; display:inline-block; animation:fall 1.6s ease-in-out forwards; }
+@keyframes fall{ 0%{ transform:translateY(-30px) rotate(0) scale(.9); opacity:0;} 100%{ transform:translateY(0) rotate(8deg) scale(1); opacity:1;} }
+.ending-txt{ margin-top:22px; font-size:15px; color:var(--ink-soft); }
+.ending-txt h2{ font-family:var(--serif); font-size:30px; font-weight:700; color:var(--ink); margin:10px 0 6px; }
+.ending-txt .name{ font-family:var(--serif); font-size:26px; font-weight:700; margin:14px 0 26px; }
+.ending-actions{ display:flex; flex-direction:column; gap:12px; width:100%; max-width:300px; margin:0 auto; }
+.ending-actions .btn{ width:100%; }
+
+/* ============================================================
+   Screen 13 · 我的
+   ============================================================ */
+.screen-profile{ background:var(--bg); }
+.profile-head{ padding:20px 22px 6px; }
+.profile-head h2{ font-family:var(--serif); font-size:30px; font-weight:700; }
+
+.teabti-card{
+  margin:14px 20px 6px; border-radius:24px; overflow:hidden; position:relative;
+  background:linear-gradient(150deg,#22432F 0%, #1F3D2B 55%, #3A5B3E 100%);
+  color:#EDF2E9; padding:24px; box-shadow:var(--shadow-float);
+}
+.teabti-card::after{
+  content:"🌫"; position:absolute; right:-6px; bottom:-14px; font-size:110px; opacity:.12; transform:rotate(-12deg);
+}
+.teabti-card .t-lbl{ font-size:11px; letter-spacing:.22em; color:rgba(237,242,233,.55); font-weight:700; }
+.teabti-card .t-state{ display:inline-flex; align-items:center; gap:6px; margin-left:8px; font-size:11px; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.12); color:#EDF2E9; letter-spacing:.06em; }
+.teabti-card .t-state::before{ content:""; width:6px; height:6px; border-radius:50%; background:#8FD17B; animation:blink 2s infinite; }
+.teabti-card .t-name{ font-family:var(--serif); font-size:28px; font-weight:700; margin:18px 0 10px; }
+.teabti-card .t-desc{ font-size:13.5px; line-height:1.8; color:rgba(237,242,233,.78); margin-bottom:20px; position:relative; z-index:2; }
+.teabti-card .t-cta{ position:relative; z-index:2; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#EDF2E9; padding:9px 16px; border-radius:12px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16); }
+
+.profile-section{ padding:8px 20px 0; }
+.profile-section .sec-title{ font-size:13px; font-weight:700; letter-spacing:.1em; color:var(--ink-faint); margin:14px 0 12px; }
+.passport-mini{
+  display:flex; align-items:center; gap:14px; padding:16px; border-radius:18px;
+  background:var(--surface); border:1px solid var(--line); margin-bottom:12px; width:100%; text-align:left;
+  transition:.15s;
+}
+.passport-mini:active{ transform:scale(.98); }
+.passport-mini .pm-ico{ width:46px; height:46px; border-radius:14px; flex:none; display:grid; place-items:center; font-size:22px; background:var(--leaf-mist); }
+.passport-mini .pm-name{ font-size:15.5px; font-weight:700; margin-bottom:2px; }
+.passport-mini .pm-sub{ font-size:12px; color:var(--ink-faint); }
+.passport-mini .pm-badges{ display:flex; gap:5px; margin-top:6px; flex-wrap:wrap; }
+.passport-mini .pm-badges span{ font-size:10.5px; padding:3px 8px; border-radius:6px; background:var(--like-bg); color:var(--leaf-deep); font-weight:600; }
+.passport-mini .pm-arrow{ margin-left:auto; color:var(--ink-faint); }
+.profile-pad{ height:calc(var(--tab-h) + var(--safe-b) + 20px); }
+
+/* ============================================================
+   Screen 14 · Tea-BTI
+   ============================================================ */
+.screen-teabti{ background:linear-gradient(180deg,var(--bg), #F1ECDE); }
+.bti-head{ padding:18px 22px 4px; text-align:center; }
+.bti-head .eyebrow{ margin-bottom:8px; }
+.bti-head h2{ font-family:var(--serif); font-size:30px; font-weight:700; }
+.bti-state{ display:inline-flex; align-items:center; gap:7px; margin-top:10px; padding:6px 14px; border-radius:999px; background:var(--leaf-mist); color:var(--leaf-deep); font-size:12px; font-weight:600; }
+.bti-state::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--leaf); animation:blink 2s infinite; }
+
+.bti-persona{
+  margin:20px 22px 8px; padding:28px 24px; text-align:center;
+  background:linear-gradient(160deg,#22432F,#1F3D2B 60%,#35543A);
+  border-radius:26px; color:#EDF2E9; box-shadow:var(--shadow-float); position:relative; overflow:hidden;
+}
+.bti-persona::after{ content:"🌫"; position:absolute; left:-10px; top:-16px; font-size:120px; opacity:.12; }
+.bti-persona .p-emoji{ font-size:46px; display:block; margin-bottom:12px; }
+.bti-persona .p-name{ font-family:var(--serif); font-size:32px; font-weight:700; }
+.bti-persona .p-desc{ margin-top:14px; font-size:13.5px; line-height:1.85; color:rgba(237,242,233,.8); }
+
+.bti-axes{ margin:6px 22px 0; display:flex; flex-direction:column; gap:18px; }
+.axis{ }
+.axis .ax-labels{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:8px; }
+.axis .ax-labels .a-on{ color:var(--leaf-deep); font-weight:700; }
+.axis .ax-bar{ position:relative; height:8px; border-radius:4px; background:var(--bg-deep); }
+.axis .ax-bar .fill{ position:absolute; left:0; top:0; bottom:0; border-radius:4px; background:linear-gradient(90deg,var(--leaf-mist),var(--leaf)); transition:width .9s cubic-bezier(.22,.9,.3,1); }
+.axis .ax-bar .knob{ position:absolute; top:50%; width:20px; height:20px; border-radius:50%; background:#fff; border:3px solid var(--leaf); transform:translate(-50%,-50%); box-shadow:0 2px 8px rgba(31,61,43,.2); transition:left .9s cubic-bezier(.22,.9,.3,1); }
+.axis .ax-note{ font-size:11.5px; color:var(--ink-faint); margin-top:6px; }
+
+.bti-motto{ margin:24px 22px 0; text-align:center; }
+.bti-motto .m{ font-family:var(--serif); font-size:17px; color:var(--ink-soft); letter-spacing:.06em; }
+.bti-evidence{ margin:18px 22px 0; padding:18px; border-radius:18px; background:var(--surface); border:1px solid var(--line); }
+.bti-evidence .e-title{ font-size:12.5px; color:var(--ink-faint); margin-bottom:12px; }
+.bti-evidence .e-row{ display:flex; align-items:center; gap:10px; padding:7px 0; font-size:14px; color:var(--ink-soft); }
+.bti-evidence .e-row .e-ico{ font-size:16px; }
+.bti-evidence .e-row .skip-tag{ color:var(--skip); text-decoration:line-through; }
+.bti-actions{ padding:24px 22px calc(30px + var(--tab-h) + var(--safe-b)); display:flex; flex-direction:column; gap:12px; }
+.bti-actions .btn{ width:100%; }
+
+/* ============================================================
+   Screen 15 · Tea Passport
+   ============================================================ */
+.screen-passport{ background:linear-gradient(180deg,#F6F1E5, var(--bg)); }
+.pp-head{ padding:18px 22px 4px; }
+.pp-head .eyebrow{ margin-bottom:8px; }
+.pp-head h2{ font-family:var(--serif); font-size:30px; font-weight:700; }
+.pp-head .sub{ font-size:13.5px; color:var(--ink-soft); margin-top:6px; }
+
+.pp-entry{
+  margin:16px 20px 0; padding:20px; border-radius:22px;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-card);
+  position:relative; overflow:hidden;
+}
+.pp-entry::before{ content:""; position:absolute; right:-30px; top:-30px; width:110px; height:110px; border-radius:50%; background:var(--amber-mist); opacity:.5; }
+.pp-entry .pp-name{ font-family:var(--serif); font-size:22px; font-weight:700; margin-bottom:3px; }
+.pp-entry .pp-region{ font-size:12.5px; color:var(--ink-faint); letter-spacing:.06em; margin-bottom:12px; }
+.pp-entry .pp-badges{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.pp-entry .pp-badges span{ font-size:11px; padding:5px 11px; border-radius:999px; background:var(--like-bg); color:var(--leaf-deep); font-weight:600; }
+.pp-entry .pp-badges span.off{ background:var(--bg-deep); color:var(--ink-faint); }
+.pp-quote{
+  border-top:1px dashed var(--line); padding-top:14px; font-size:14px; line-height:1.7; color:var(--ink-soft);
+}
+.pp-quote .qlbl{ font-size:11px; color:var(--ink-faint); letter-spacing:.12em; margin-bottom:6px; font-weight:700; }
+.pp-quote .qtext::before{ content:"“"; color:var(--amber); }
+.pp-quote .qtext::after{ content:"”"; color:var(--amber); }
+.pp-stamp{
+  position:absolute; right:16px; top:16px; font-size:11px; font-weight:700; letter-spacing:.12em;
+  color:var(--amber-deep); border:2px solid var(--amber); padding:6px 10px; border-radius:8px;
+  transform:rotate(8deg); opacity:.85;
+}
+.pp-pad{ height:calc(var(--tab-h) + var(--safe-b) + 20px); }
+
+/* ============================================================
+   浮动 AI 茶伴按钮
+   ============================================================ */
+.float-companion{
+  position:absolute; right:18px; bottom:calc(var(--tab-h) + 18px + var(--safe-b));
+  z-index:20; display:flex; align-items:center; gap:8px;
+  padding:10px 16px 10px 10px; border-radius:999px;
+  background:var(--ink); color:#EDF2E9; box-shadow:var(--shadow-float);
+  font-size:13px; font-weight:600; letter-spacing:.02em;
+  transition:transform .15s, opacity .3s;
+}
+.float-companion:active{ transform:scale(.95); }
+.float-companion .fc-av{
+  width:30px; height:30px; border-radius:50%; background:linear-gradient(145deg,var(--leaf),var(--leaf-deep));
+  display:grid; place-items:center; font-size:13px;
+}
+.float-companion .fc-dot{ width:7px; height:7px; border-radius:50%; background:#8FD17B; box-shadow:0 0 8px #8FD17B; animation:blink 2s infinite; }
+
+/* ============================================================
+   底部导航
+   ============================================================ */
+.bottomnav{
+  position:absolute; left:0; right:0; bottom:0; z-index:30;
+  height:calc(var(--tab-h) + var(--safe-b));
+  padding-bottom:var(--safe-b);
+  background:rgba(253,251,245,.86); backdrop-filter:blur(14px);
+  border-top:1px solid var(--line-soft);
+  display:flex; align-items:stretch;
+}
+.nav-item{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  color:var(--ink-faint); font-size:10.5px; letter-spacing:.04em; position:relative;
+  transition:color .2s;
+}
+.nav-item .n-ico{ width:26px; height:26px; display:grid; place-items:center; font-size:21px; transition:transform .25s cubic-bezier(.3,1.4,.4,1); }
+.nav-item.active{ color:var(--leaf-deep); font-weight:700; }
+.nav-item.active .n-ico{ transform:translateY(-1px) scale(1.08); }
+.nav-item.active::before{ content:""; position:absolute; top:0; width:20px; height:3px; border-radius:0 0 3px 3px; background:var(--leaf); }
+
+/* ============================================================
+   工具类
+   ============================================================ */
+.hidden{ display:none !important; }
+.fade-in{ animation:fadeIn .5s ease both; }
+@keyframes fadeIn{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none;} }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="app">
+
+  <!-- ===================== Screen 1 · Launch ===================== -->
+  <section class="screen screen-launch active" data-screen="launch">
+    <div class="launch-mist"></div>
+    <div class="launch-inner">
+      <div class="launch-logo">
+        <div class="mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 2.5 6 3 6 6 0 2-1 3.5-3 4.5 2 1 3 2.5 3 4.5 0 3-3 3-6 3s-6 0-6-3c0-2 1-3.5 3-4.5C7 12.5 6 11 6 9c0-3 3-3.5 6-6Z" fill="currentColor"/></svg>
+        </div>
+        <div class="word">刷茶<small>SHUACHA</small></div>
+      </div>
+
+      <div class="launch-hero">
+        <div class="eyebrow">一个年轻人第一次进入原叶茶世界的界面</div>
+        <h1>你不用先懂茶。<br/>刷几下，<span class="em">茶先开始懂你。</span></h1>
+        <p class="sub">今天想喝什么？<b>别选，刷就行。</b><br/>不注册、不做测试，从一杯「感觉」开始。</p>
+        <div class="launch-actions">
+          <button class="btn btn-primary" onclick="App.go('swipe')">开始刷茶</button>
+        </div>
+        <div class="launch-hint"><span class="dot"></span>不需要做测试</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Screen 2 · Blind Swipe ===================== -->
+  <section class="screen screen-swipe" data-screen="swipe">
+    <div class="statusbar"></div>
+    <div class="swipe-head">
+      <div class="title">刷茶</div>
+      <div class="counter" id="swipeCounter"><b>1</b> / 6</div>
+      <div class="iconbtn" style="position:relative;" onclick="App.toggleHelp()">
+        <span style="font-weight:700;">?</span>
+        <div class="help-pop" id="helpPop">现在不会告诉你茶名。先凭感觉选——「想喝」还是「下一杯」。</div>
+      </div>
+    </div>
+
+    <div class="swipe-stage" id="swipeStage">
+      <!-- 卡片由 JS 动态渲染 -->
+    </div>
+
+    <div class="swipe-actions">
+      <button class="act act-skip" onclick="App.swipe('skip')" aria-label="下一杯">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <button class="act act-like" onclick="App.swipe('like')" aria-label="想喝">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 4 14.5 4 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 2.5C20 14.5 12 21 12 21Z"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===================== Screen 6 · Tea Detail ===================== -->
+  <section class="screen screen-scroll screen-detail" data-screen="detail">
+    <div class="statusbar"></div>
+    <div class="pagehead">
+      <button class="back" onclick="App.go('swipe')">←</button>
+      <div class="ptitle">茶详情<small id="detailBreadcrumb">贵州 · 黔南</small></div>
+    </div>
+    <div class="detail-hero" id="detailHero">
+      <div class="eyebrow">你刚刚喜欢的那一杯</div>
+      <h1 id="detailName">都匀毛尖</h1>
+      <div class="region" id="detailRegion">贵州 · 黔南</div>
+      <div class="hero-tags" id="detailTags"></div>
+    </div>
+    <div class="detail-visual"><span class="leaf-emoji" id="detailVisual">🍃</span></div>
+    <div class="detail-actions">
+      <button class="action-card" onclick="App.go('brew')">
+        <div class="ico brew">🫖</div>
+        <div><div class="atitle">泡这杯</div><div class="asub">AI 在旁边看着你泡</div></div>
+        <span class="arrow">›</span>
+      </button>
+      <button class="action-card" onclick="App.go('taste')">
+        <div class="ico taste">🍵</div>
+        <div><div class="atitle">品这杯</div><div class="asub">不会形容也没关系</div></div>
+        <span class="arrow">›</span>
+      </button>
+      <button class="action-card" onclick="App.go('realm')">
+        <div class="ico realm">🌱</div>
+        <div><div class="atitle">看看它从哪里来</div><div class="asub">进入这片叶子背后的贵州</div></div>
+        <span class="arrow">›</span>
+      </button>
+    </div>
+    <div class="detail-meta">
+      <div class="meta-row"><div class="k">感官</div><div class="v" id="detailSensory"></div></div>
+      <div class="meta-row"><div class="k">冲泡</div><div class="v" id="detailBrewing"></div></div>
+      <div class="meta-row"><div class="k">地域</div><div class="v" id="detailOrigin"></div></div>
+      <div class="meta-row"><div class="k">工艺</div><div class="v" id="detailProcess"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== Screen 7 · Brew Mode ===================== -->
+  <section class="screen screen-brew" data-screen="brew">
+    <div class="brew-head">
+      <button class="back" onclick="App.go('detail')">←</button>
+      <div class="btitle" id="brewTitle">都匀毛尖<small>泡茶陪伴</small></div>
+      <div class="brew-mic">🎙</div>
+    </div>
+    <div class="brew-cam" id="brewCam">
+      <div class="cam-vignette"></div>
+      <div class="cam-tag tl"><span class="led"></span>检测到：盖碗</div>
+      <div class="cam-teaware"><span class="gaiwan" id="brewGaiwan">🫖</span></div>
+      <div class="cam-tag br" id="brewStateTag"><span class="led"></span><span id="brewStateText">正在注水</span></div>
+    </div>
+    <div class="brew-steps" id="brewSteps">
+      <div class="step done"><div class="dot">✓</div><span>投茶</span></div>
+      <div class="step done"><div class="dot">✓</div><span>注水</span></div>
+      <div class="step now"><div class="dot">•</div><span>等待</span></div>
+      <div class="step"><div class="dot">4</div><span>出汤</span></div>
+      <div class="step"><div class="dot">5</div><span>完成</span></div>
+    </div>
+    <div class="brew-companion">
+      <div class="companion-says">
+        <div class="av">🍃</div>
+        <div>
+          <div class="say" id="brewSay">差不多可以出汤了。</div>
+          <div class="why" onclick="this.nextElementSibling.classList.toggle('hidden')">为什么？</div>
+          <div class="say hidden" style="margin-top:10px; font-size:13px; color:rgba(237,242,233,.7);" id="brewWhy">这一泡建议短一些，能让鲜爽感更明显。</div>
+        </div>
+      </div>
+    </div>
+    <div class="brew-foot">
+      <button class="btn btn-dark-ghost" onclick="App.brewNext()">结束这一泡</button>
+      <button class="btn btn-primary" onclick="App.brewNext()">下一步 ›</button>
+    </div>
+  </section>
+
+  <!-- ===================== Screen 8 · Taste Mode ===================== -->
+  <section class="screen screen-scroll screen-taste" data-screen="taste">
+    <div class="statusbar"></div>
+    <div class="taste-head">
+      <button class="back" onclick="App.go('detail')">←</button>
+      <div class="ttitle" id="tasteTitle">品茶陪伴<small>都匀毛尖</small></div>
+    </div>
+    <div class="taste-prompt">
+      <h2>喝一口。<br/>不用说专业词。</h2>
+      <div class="q">“它让你想到什么？”</div>
+    </div>
+    <div class="taste-voice" id="tasteVoice">
+      <div class="micbtn" onclick="App.tasteSpeak()">🎙</div>
+      <div class="hint" id="tasteHint">点一下，用你自己的话说</div>
+    </div>
+    <div class="taste-thread" id="tasteThread" style="display:none;"></div>
+    <div class="taste-rate" id="tasteRate" style="display:none;">
+      <div class="q">这杯你喜欢吗？</div>
+      <div class="rate-row">
+        <button class="rate-btn" onclick="App.tasteRate(this,'比想象中喜欢')">比想象中<br/>喜欢</button>
+        <button class="rate-btn" onclick="App.tasteRate(this,'还行')">还行</button>
+        <button class="rate-btn" onclick="App.tasteRate(this,'不是我的菜')">不是我的菜</button>
+      </div>
+    </div>
+    <div style="height:calc(var(--tab-h) + var(--safe-b) + 10px);"></div>
+  </section>
+
+  <!-- ===================== Screen 10 · Tea Realm 首页 ===================== -->
+  <section class="screen screen-scroll screen-realm" data-screen="realm">
+    <div class="statusbar"></div>
+    <div class="realm-head">
+      <div class="eyebrow">茶境 · TEA REALM</div>
+      <h2>喝过的茶，会慢慢<br/>长成你的<span class="em">世界。</span></h2>
+    </div>
+    <div class="realm-world" id="realmWorld"></div>
+    <div class="realm-unlocked">
+      <div class="lbl">已解锁</div>
+      <button class="realm-card" onclick="App.startChapter()">
+        <div class="rc-ico">🍃</div>
+        <div><div class="rc-name">都匀毛尖</div><div class="rc-sub">贵州 · 黔南 · 一叶成茶</div></div>
+        <span class="rc-go">进入一叶成茶</span>
+      </button>
+    </div>
+    <div class="realm-locked">
+      <div class="q">？ ？ ？</div>
+      继续刷茶，解锁更多茶境
+    </div>
+  </section>
+
+  <!-- ===================== Screen 11 · 一叶成茶 章节 ===================== -->
+  <section class="screen screen-chapter" data-screen="chapter">
+    <div class="pagehead" style="flex:none;">
+      <button class="back" onclick="App.go('realm')">←</button>
+      <div class="ptitle">一叶成茶<small id="chapterStageLbl">生长 · 1 / 4</small></div>
+    </div>
+    <div class="chapter-progress" id="chapterProgress"></div>
+    <div class="chapter-stage" id="chapterStage"></div>
+    <div class="chapter-dialog" id="chapterDialog"></div>
+    <div class="chapter-foot" id="chapterFoot"></div>
+  </section>
+
+  <!-- ===================== Screen 12 · Realm Ending ===================== -->
+  <section class="screen screen-ending" data-screen="ending">
+    <div>
+      <span class="ending-leaf">🍃</span>
+      <div class="ending-txt">
+        <div>这就是你刚刚喝的那杯茶。</div>
+        <h2>都匀毛尖</h2>
+        <div class="name">贵州 · 黔南</div>
+      </div>
+      <div class="ending-actions">
+        <button class="btn btn-primary" onclick="App.addPassport()">收进茶护照</button>
+        <button class="btn btn-ghost" onclick="App.go('swipe')">继续刷茶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Screen 13 · 我的 ===================== -->
+  <section class="screen screen-scroll screen-profile" data-screen="profile">
+    <div class="statusbar"></div>
+    <div class="profile-head"><h2>我的茶</h2></div>
+    <div class="teabti-card" onclick="App.go('teabti')">
+      <span class="t-lbl">TEA-BTI</span><span class="t-state">正在形成</span>
+      <div class="t-name">🌫 春雾回甘型</div>
+      <div class="t-desc">你更容易被轻盈、清鲜的茶吸引，<br/>喜欢入口柔和，但尾巴最好留久一点。</div>
+      <span class="t-cta">查看我的 Tea-BTI ›</span>
+    </div>
+    <div class="profile-section">
+      <div class="sec-title">茶护照</div>
+      <div id="profilePassport"></div>
+      <div class="sec-title">收藏</div>
+      <div class="passport-mini">
+        <div class="pm-ico">🤍</div>
+        <div><div class="pm-name">还没有收藏</div><div class="pm-sub">长按卡片可以收藏</div></div>
+      </div>
+    </div>
+    <div class="profile-pad"></div>
+  </section>
+
+  <!-- ===================== Screen 14 · Tea-BTI ===================== -->
+  <section class="screen screen-scroll screen-teabti" data-screen="teabti">
+    <div class="statusbar"></div>
+    <div class="bti-head">
+      <div class="eyebrow">IDENTITY · 喝出来的味觉人格</div>
+      <h2>你的 Tea-BTI</h2>
+      <div class="bti-state">正在形成</div>
+    </div>
+    <div class="bti-persona">
+      <span class="p-emoji">🌫</span>
+      <div class="p-name">春雾回甘型</div>
+      <div class="p-desc">你更容易被轻盈、清鲜的茶吸引。<br/>喜欢入口柔和一点，<br/>但尾巴最好留久一点。</div>
+    </div>
+    <div class="bti-axes" id="btiAxes"></div>
+    <div class="bti-motto"><div class="m">不是测出来的，是喝出来的。</div></div>
+    <div class="bti-evidence">
+      <div class="e-title">最近让这个画像更清晰的是：</div>
+      <div class="e-row"><span class="e-ico">❤️</span>都匀毛尖</div>
+      <div class="e-row"><span class="e-ico">❤️</span>湄潭翠芽</div>
+      <div class="e-row"><span class="e-ico">→</span><span class="skip-tag">跳过某款浓厚型茶</span></div>
+    </div>
+    <div class="bti-actions">
+      <button class="btn btn-primary" onclick="App.go('swipe')">继续刷，让它更懂你</button>
+      <button class="btn btn-ghost" onclick="App.toast('分享卡片已准备好')">分享我的 Tea-BTI</button>
+    </div>
+  </section>
+
+  <!-- ===================== Screen 15 · Tea Passport ===================== -->
+  <section class="screen screen-scroll screen-passport" data-screen="passport">
+    <div class="statusbar"></div>
+    <div class="pp-head">
+      <div class="eyebrow">MEMORY · TEA PASSPORT</div>
+      <h2>茶护照</h2>
+      <div class="sub">你真正喝过的茶，才算来过这里。</div>
+    </div>
+    <div id="passportList"></div>
+    <div class="pp-pad"></div>
+  </section>
+
+  <!-- ===================== 覆盖层：Reveal ===================== -->
+  <div class="overlay" id="revealOverlay">
+    <div class="scrim" onclick="App.closeReveal('swipe')"></div>
+    <div class="sheet reveal-sheet">
+      <div class="grabber"></div>
+      <div class="reveal-eyebrow eyebrow">你刚刚喜欢的是</div>
+      <div class="reveal-name" id="revealName">都匀毛尖</div>
+      <div class="reveal-region" id="revealRegion">贵州 · 黔南</div>
+      <div class="reveal-tags" id="revealTags"></div>
+      <div class="reveal-translate" id="revealTranslate"></div>
+      <div class="reveal-actions">
+        <button class="btn btn-ghost" onclick="App.closeReveal('swipe')">继续刷</button>
+        <button class="btn btn-primary" onclick="App.closeReveal('detail')">看看这杯</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 覆盖层：Taste Summary ===================== -->
+  <div class="overlay" id="summaryOverlay">
+    <div class="scrim" onclick="App.closeSummary()"></div>
+    <div class="sheet summary-sheet">
+      <div class="grabber"></div>
+      <div class="summary-eyebrow eyebrow">RECOMMENDATION · 我开始有点懂你了</div>
+      <div class="summary-title">我开始<br/>有点懂你了。</div>
+      <div class="summary-block">
+        <div class="lbl">你连续留下了</div>
+        <div class="summary-pillrow" id="summaryPos"></div>
+      </div>
+      <div class="summary-block">
+        <div class="lbl">但两次跳过了</div>
+        <div class="summary-pillrow" id="summaryNeg"></div>
+      </div>
+      <div class="summary-reco">
+        <div class="reco-lbl">目前最想让你试的一杯</div>
+        <div class="reco-name">都匀毛尖</div>
+        <div class="reco-region">贵州 · 黔南</div>
+      </div>
+      <div class="summary-actions">
+        <button class="btn btn-ghost" onclick="App.closeSummary(true)">再刷几杯</button>
+        <button class="btn btn-primary" onclick="App.closeSummary(false)">喝这杯 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 覆盖层：AI Companion Drawer ===================== -->
+  <div class="overlay" id="companionOverlay">
+    <div class="scrim" onclick="App.closeCompanion()"></div>
+    <div class="sheet companion-sheet">
+      <div class="grabber"></div>
+      <div class="cm-head">
+        <div class="av">🍃</div>
+        <div><div class="nm">茶伴</div><div class="ctx">正在聊：都匀毛尖</div></div>
+        <button class="iconbtn cm-close" onclick="App.closeCompanion()">✕</button>
+      </div>
+      <div class="cm-quick">
+        <button onclick="App.companionAnswer(this)">下一泡怎么调整？</button>
+        <button onclick="App.companionAnswer(this)">我上次怎么形容它？</button>
+        <button onclick="App.companionAnswer(this)">为什么会有栗香？</button>
+      </div>
+      <div class="cm-msg" id="cmMsg"></div>
+      <div class="cm-history">查看这杯茶的历史记录 ›</div>
+    </div>
+  </div>
+
+  <!-- ===================== 浮动 AI 茶伴 ===================== -->
+  <button class="float-companion" id="floatCompanion" onclick="App.openCompanion()">
+    <span class="fc-av">🍃</span>
+    茶伴
+    <span class="fc-dot"></span>
+  </button>
+
+  <!-- ===================== Toast ===================== -->
+  <div id="toast" style="position:absolute; left:50%; bottom:calc(var(--tab-h) + 30px); transform:translateX(-50%) translateY(20px); z-index:100; background:var(--ink); color:#F7F3EA; padding:11px 18px; border-radius:12px; font-size:13px; opacity:0; transition:.3s; pointer-events:none; box-shadow:var(--shadow-float); white-space:nowrap;"></div>
+
+  <!-- ===================== 底部导航 ===================== -->
+  <nav class="bottomnav" id="bottomnav">
+    <button class="nav-item active" data-tab="swipe" onclick="App.tab('swipe')">
+      <span class="n-ico">◫</span>刷茶
+    </button>
+    <button class="nav-item" data-tab="realm" onclick="App.tab('realm')">
+      <span class="n-ico">🌿</span>茶境
+    </button>
+    <button class="nav-item" data-tab="profile" onclick="App.tab('profile')">
+      <span class="n-ico">☰</span>我的
+    </button>
+  </nav>
+
+</div>
+</div>
+
+<script>
+/* ============================================================
+   Mock Data
+   ============================================================ */
+const TEAS = {
+  duyun: {
+    id: 'duyun', name: '都匀毛尖', region: '贵州 · 黔南', type: '绿茶', emoji: '🍃',
+    blind: { headline: '清一点。', desc: '像刚冒出来的嫩叶，\n尾巴还会留一点甜。', tags: ['轻盈','清鲜','回甘'], scene: '适合刚睡醒的周末上午', art: 'mist' },
+    pro: { tags: ['绿茶','栗香','鲜爽','回甘'], sensory: '栗香清高，滋味鲜爽，回甘明显。', brewing: '玻璃杯或盖碗 · 约 80–85°C · 第一泡 20 秒左右。', origin: '贵州省黔南州，高海拔多雾山地茶园。', process: '杀青 → 揉捻 → 干燥，一芽一叶或一芽二叶。', translate: '你刚刚说的「清、嫩、尾巴有点甜」，在茶的语言里，大概就是这一挂。' }
+  },
+  meitan: {
+    id: 'meitan', name: '湄潭翠芽', region: '贵州 · 遵义', type: '绿茶', emoji: '🌱',
+    blind: { headline: '甜香先到。', desc: '有味道，但不厚重。\n下午想喝点东西的时候刚好。', tags: ['甜香','鲜爽','柔和'], scene: '适合午后的那一口', art: 'leaf' },
+    pro: { tags: ['绿茶','甜香','鲜爽','柔和'], sensory: '甜香清雅，滋味鲜爽柔和。', brewing: '玻璃杯 · 约 85°C · 上投法，1–2 分钟。', origin: '贵州省遵义市湄潭县，云雾缭绕的茶区。', process: '摊青 → 杀青 → 理条 → 干燥。', translate: '你说的「甜香、不厚重」，茶里常叫「鲜爽 + 清甜」。' }
+  },
+  zunyi: {
+    id: 'zunyi', name: '遵义红', region: '贵州 · 遵义', type: '红茶', emoji: '🍂',
+    blind: { headline: '这一杯更有存在感。', desc: '稍微厚一点，\n尾韵会停得久一点。', tags: ['醇厚','温熟','绵长'], scene: '适合慢慢坐下来的傍晚', art: 'amber' },
+    pro: { tags: ['红茶','甜香','醇厚','绵长'], sensory: '甜香明显，滋味醇和，尾韵绵长。', brewing: '盖碗或壶 · 约 90°C · 快进快出。', origin: '贵州省遵义市，高山生态茶园。', process: '萎凋 → 揉捻 → 发酵 → 干燥。', translate: '你说的「厚、尾韵久」，在红茶里通常叫「醇厚 + 绵长」。' }
+  },
+  puan: {
+    id: 'puan', name: '普安红', region: '贵州 · 黔西南', type: '红茶', emoji: '🍁',
+    blind: { headline: '暖一点。', desc: '像晒过太阳的叶子，\n喝下去是踏实的甜。', tags: ['甜润','温熟','干净'], scene: '适合有点凉的日子', art: 'amber' },
+    pro: { tags: ['红茶','甜润','温熟','干净'], sensory: '甜润温顺，汤色红亮，干净利落。', brewing: '盖碗 · 约 90°C · 快进快出。', origin: '贵州省黔西南州普安县，高海拔茶区。', process: '萎凋 → 揉捻 → 发酵 → 干燥。', translate: '你说的「暖、踏实甜」，接近「甜润 + 温熟」。' }
+  },
+  leishan: {
+    id: 'leishan', name: '雷山银球茶', region: '贵州 · 黔东南', type: '绿茶', emoji: '🫒',
+    blind: { headline: '很干净的一口。', desc: '没有什么多余的东西，\n像山里的清泉。', tags: ['干净','清鲜','轻盈'], scene: '适合想安静下来的时刻', art: 'mist' },
+    pro: { tags: ['绿茶','银球','清鲜','干净'], sensory: '清香悠长，滋味清鲜干净。', brewing: '玻璃杯 · 约 85°C · 球型茶可稍久。', origin: '贵州省黔东南州雷山县，云雾高山。', process: '杀青 → 揉捻 → 成球 → 干燥。', translate: '你说的「干净、像清泉」，就是「清鲜 + 干净」。' }
+  }
+};
+
+const FEED_ORDER = ['duyun','meitan','zunyi','puan','leishan'];
+
+/* ============================================================
+   状态
+   ============================================================ */
+const App = {
+  currentTab: 'swipe',
+  feedIdx: 0,            // 当前队首索引（循环）
+  swipeCount: 0,         // 已 swipe 次数（用于触发 summary）
+  likes: [],             // 喜欢的茶 id
+  skips: [],
+  currentTea: 'duyun',   // 详情页当前茶
+  brewStep: 2,           // 0..4
+  chapter: 0,            // 0..3
+  chapterDone: [false,false,false,false],
+  passport: [],          // 已收进护照的 tea id
+  lastTaste: null,
+  activeScreen: 'launch',
+
+  /* ----- 屏幕路由 ----- */
+  go(screen){
+    if(screen === 'detail') this.openDetail(this.currentTea);
+    if(screen === 'brew') this.enterBrew();
+    if(screen === 'taste') this.resetTaste();
+    if(screen === 'realm') this.renderRealm();
+    if(screen === 'chapter') this.startChapter();
+    this.setScreen(screen);
+    this.syncTabFor(screen);
+    this.syncFloat(screen);
+  },
+
+  setScreen(name){
+    this.activeScreen = name;
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.querySelector(`[data-screen="${name}"]`);
+    if(el) el.classList.add('active');
+    // 滚动容器回到顶部
+    const sc = document.querySelector('.screen.active');
+    if(sc) sc.scrollTop = 0;
+    // 底部导航：入口页 / 沉浸页隐藏
+    const navHidden = ['launch','brew','taste'].includes(name);
+    document.getElementById('bottomnav').classList.toggle('hidden', navHidden);
+  },
+
+  tab(name){
+    this.currentTab = name;
+    const map = { swipe:'swipe', realm:'realm', profile:'profile' };
+    this.setScreen(map[name]);
+    this.syncTab();
+    this.syncFloat(map[name]);
+    if(name === 'realm') this.renderRealm();
+    if(name === 'profile') this.renderProfile();
+    if(name === 'swipe') this.renderSwipe();
+  },
+
+  syncTab(){
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.tab === this.currentTab);
+    });
+  },
+
+  syncTabFor(screen){
+    const map = { swipe:'swipe', detail:'swipe', brew:'swipe', taste:'swipe', realm:'realm', chapter:'realm', ending:'realm', profile:'profile', teabti:'profile', passport:'profile' };
+    this.currentTab = map[screen] || this.currentTab;
+    this.syncTab();
+  },
+
+  syncFloat(screen){
+    const show = ['swipe','detail','realm','chapter','ending','profile','teabti','passport'].includes(screen) && screen !== 'launch';
+    const f = document.getElementById('floatCompanion');
+    if(show){ f.classList.remove('hidden'); } else { f.classList.add('hidden'); }
+  },
+
+  /* ----- Swipe ----- */
+  renderSwipe(){
+    const stage = document.getElementById('swipeStage');
+    stage.innerHTML = '';
+    const order = this.feedOrder();
+    const slice = order.slice(0,3);
+    slice.forEach((id, i) => {
+      const t = TEAS[id];
+      const el = document.createElement('div');
+      el.className = 'card' + (i===1?' behind':i===2?' behind2':'');
+      el.style.zIndex = String(3 - i); // top 卡(3)在最上层，behind(2)/behind2(1)依次在下，避免重叠
+      el.dataset.id = id;
+      el.innerHTML = this.cardHTML(t, i);
+      stage.appendChild(el);
+    });
+    // 手势
+    const top = stage.querySelector('.card:not(.behind):not(.behind2)');
+    if(top) this.bindDrag(top);
+    this.updateCounter();
+  },
+
+  feedOrder(){
+    // 让队首 = 当前索引，循环
+    const n = FEED_ORDER.length;
+    const out = [];
+    for(let k=0;k<n;k++){ out.push(FEED_ORDER[(this.feedIdx + k) % n]); }
+    return out;
+  },
+
+  cardHTML(t, i){
+    const art = this.artSVG(t.blind.art, t.emoji);
+    const desc = t.blind.desc.replace(/\n/g,'<br/>');
+    return `
+      <div class="card-art">${art}<div class="art-mist"></div></div>
+      <div class="card-body">
+        <div class="card-headline">${t.blind.headline}</div>
+        <div class="card-desc">${desc}</div>
+        <div class="card-tags">${t.blind.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div>
+        <div class="card-scene">${t.blind.scene}</div>
+      </div>`;
+  },
+
+  artSVG(kind, emoji){
+    // 抽象、非商品图：不同茶不同视觉隐喻
+    if(kind === 'amber'){
+      return `<div class="art" style="background:linear-gradient(160deg,#EAD7B0,#D9BE8C);">
+        <div class="blob" style="width:190px;height:190px;left:-20px;top:-20px;background:linear-gradient(145deg,rgba(201,154,91,.5),rgba(201,154,91,.1));"></div>
+        <div class="blob" style="width:150px;height:150px;right:-10px;bottom:-10px;background:linear-gradient(145deg,rgba(168,123,63,.45),transparent);"></div>
+        <div style="position:absolute;inset:0;display:grid;place-items:center;font-size:76px;filter:drop-shadow(0 10px 18px rgba(31,61,43,.18));">${emoji}</div>
+      </div>`;
+    }
+    if(kind === 'leaf'){
+      return `<div class="art" style="background:linear-gradient(160deg,#DCE8CF,#C3D8AC);">
+        <div class="blob" style="width:200px;height:200px;right:-30px;top:-30px;background:linear-gradient(145deg,rgba(111,154,78,.4),transparent);"></div>
+        <div class="blob" style="width:140px;height:140px;left:-14px;bottom:-14px;background:linear-gradient(145deg,rgba(111,154,78,.32),transparent);"></div>
+        <div style="position:absolute;inset:0;display:grid;place-items:center;font-size:76px;filter:drop-shadow(0 10px 18px rgba(31,61,43,.18));">${emoji}</div>
+      </div>`;
+    }
+    // mist（默认）
+    return `<div class="art" style="background:linear-gradient(170deg,#E8EFE0,#D7E4C9 60%,#C9D8B6);">
+      <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;">
+        <ellipse cx="120" cy="60" rx="120" ry="36" fill="rgba(255,255,255,.55)"/>
+        <ellipse cx="280" cy="90" rx="150" ry="42" fill="rgba(255,255,255,.45)"/>
+        <path d="M0 200 L80 150 L150 185 L230 140 L320 185 L400 150 L400 240 L0 240 Z" fill="rgba(111,154,78,.22)"/>
+        <path d="M0 220 L90 180 L180 210 L260 175 L340 210 L400 185 L400 240 L0 240 Z" fill="rgba(85,124,58,.28)"/>
+      </svg>
+      <div style="position:absolute;inset:0;display:grid;place-items:center;font-size:76px;filter:drop-shadow(0 10px 18px rgba(31,61,43,.18));">${emoji}</div>
+    </div>`;
+  },
+
+  updateCounter(){
+    const n = FEED_ORDER.length;
+    document.getElementById('swipeCounter').innerHTML = `<b>${(this.swipeCount % n) + 1}</b> / ${n}`;
+  },
+
+  bindDrag(card){
+    let startX=0, dx=0, dragging=false;
+    const onStart = (e)=>{
+      startX=e.clientX; dx=0; dragging=true;
+      card.style.transition='none';
+      // 锁定指针：鼠标移出卡片边界后 pointermove 仍持续发送，避免拖拽卡顿/脱手
+      if(card.setPointerCapture && e.pointerId != null){
+        try{ card.setPointerCapture(e.pointerId); }catch(_){}
+      }
+      e.preventDefault();
+    };
+    const onMove = (e)=>{
+      if(!dragging) return;
+      dx = e.clientX - startX;
+      card.style.transform = `translateX(${dx}px) rotate(${dx*0.06}deg)`;
+    };
+    const onEnd = (e)=>{
+      if(!dragging) return;
+      dragging=false;
+      card.style.transition='';
+      if(card.hasPointerCapture && e.pointerId != null){
+        try{ card.releasePointerCapture(e.pointerId); }catch(_){}
+      }
+      const w = card.offsetWidth;
+      if(dx > w*0.28){ card.style.transform = `translateX(${w*1.3}px) rotate(18deg)`; setTimeout(()=>this.swipe('like'),220); }
+      else if(dx < -w*0.28){ card.style.transform = `translateX(${-w*1.3}px) rotate(-18deg)`; setTimeout(()=>this.swipe('skip'),220); }
+      else { card.style.transform=''; }
+    };
+    card.addEventListener('pointerdown', onStart);
+    card.addEventListener('pointermove', onMove);
+    card.addEventListener('pointerup', onEnd);
+    card.addEventListener('pointercancel', onEnd);
+  },
+
+  swipe(action){
+    const topId = this.feedOrder()[0];
+    if(action === 'like'){ this.likes.push(topId); } else { this.skips.push(topId); }
+    this.feedIdx = (this.feedIdx + 1) % FEED_ORDER.length;
+    this.swipeCount++;
+
+    if(action === 'like'){
+      // Reveal 当前茶
+      const t = TEAS[topId];
+      this.currentTea = topId;
+      this.openReveal(t);
+    } else {
+      this.renderSwipe();
+      this.maybeSummary();
+    }
+  },
+
+  maybeSummary(){
+    if(this.swipeCount >= 5 && !this._summaryShown){
+      this._summaryShown = true;
+      setTimeout(()=>this.openSummary(), 350);
+    }
+  },
+
+  /* ----- Reveal ----- */
+  openReveal(t){
+    document.getElementById('revealName').textContent = t.name;
+    document.getElementById('revealRegion').textContent = t.region;
+    document.getElementById('revealTags').innerHTML = t.pro.tags.map(x=>`<span class="tag">${x}</span>`).join('');
+    document.getElementById('revealTranslate').innerHTML = t.pro.translate;
+    document.getElementById('revealOverlay').classList.add('show');
+  },
+  closeReveal(next){
+    document.getElementById('revealOverlay').classList.remove('show');
+    if(next === 'detail'){
+      this.openDetail(this.currentTea);
+      this.setScreen('detail'); this.syncTabFor('detail');
+    } else {
+      this.renderSwipe();
+      this.maybeSummary();
+    }
+  },
+
+  /* ----- Summary ----- */
+  openSummary(){
+    document.getElementById('summaryPos').innerHTML = ['清','鲜','有一点甜'].map(x=>`<span class="summary-pill pos">${x}</span>`).join('');
+    document.getElementById('summaryNeg').innerHTML = ['浓','厚','尾韵特别重'].map(x=>`<span class="summary-pill neg">${x}</span>`).join('');
+    document.getElementById('summaryOverlay').classList.add('show');
+  },
+  closeSummary(again){
+    document.getElementById('summaryOverlay').classList.remove('show');
+    if(again){ this.renderSwipe(); }
+    else { this.currentTea='duyun'; this.openDetail('duyun'); this.setScreen('detail'); this.syncTabFor('detail'); }
+  },
+
+  /* ----- Detail ----- */
+  openDetail(id){
+    const t = TEAS[id] || TEAS.duyun;
+    this.currentTea = id;
+    document.getElementById('detailBreadcrumb').textContent = t.region;
+    document.getElementById('detailName').textContent = t.name;
+    document.getElementById('detailRegion').textContent = t.region;
+    document.getElementById('detailTags').innerHTML = t.pro.tags.map(x=>`<span class="tag">${x}</span>`).join('');
+    document.getElementById('detailVisual').textContent = t.emoji;
+    document.getElementById('detailSensory').textContent = t.pro.sensory;
+    document.getElementById('detailBrewing').textContent = t.pro.brewing;
+    document.getElementById('detailOrigin').textContent = t.pro.origin;
+    document.getElementById('detailProcess').textContent = t.pro.process;
+  },
+
+  /* ----- Brew ----- */
+  enterBrew(){
+    this.brewStep = 2;
+    const t = TEAS[this.currentTea] || TEAS.duyun;
+    document.getElementById('brewTitle').innerHTML = t.name + '<small>泡茶陪伴</small>';
+    this.renderBrew();
+  },
+  brewNext(){
+    this.brewStep = Math.min(4, this.brewStep + 1);
+    if(this.brewStep >= 4){ this.renderBrew(); this.toast('这一泡结束 · 已记入记录'); setTimeout(()=>this.go('detail'), 700); }
+    else this.renderBrew();
+  },
+  renderBrew(){
+    const steps = ['投茶','注水','等待','出汤','完成'];
+    const stateTxt = ['正在投茶','正在注水','等待中','正在出汤','完成'];
+    const says = [
+      '把茶叶轻轻放进去，大概铺满盖碗底部。',
+      '水流沿着碗壁缓缓注入，别对着叶子冲。',
+      '这一泡等 20 秒左右，让鲜爽感出来。',
+      '差不多可以出汤了。',
+      '这杯泡好了，趁热喝。'
+    ];
+    const whys = [
+      '投茶量不用太满，盖碗留点空间让叶子舒展。',
+      '沿壁注水能避免水温直接冲击嫩芽。',
+      '短一些能保留鲜爽感，久了容易闷。',
+      '再等会涩感会重，现在出汤最清甜。',
+      ''
+    ];
+    const wrap = document.getElementById('brewSteps');
+    wrap.innerHTML = steps.map((s,i)=>{
+      let cls = ''; if(i < this.brewStep) cls='done'; else if(i === this.brewStep) cls='now';
+      const dot = i < this.brewStep ? '✓' : (i === this.brewStep ? '•' : (i+1));
+      return `<div class="step ${cls}"><div class="dot">${dot}</div><span>${s}</span></div>`;
+    }).join('');
+    document.getElementById('brewStateText').textContent = stateTxt[this.brewStep];
+    document.getElementById('brewGaiwan').textContent = this.brewStep===3 ? '🍵' : '🫖';
+    document.getElementById('brewSay').textContent = says[this.brewStep];
+    document.getElementById('brewWhy').textContent = whys[this.brewStep];
+  },
+
+  /* ----- Taste ----- */
+  resetTaste(){
+    const t = TEAS[this.currentTea] || TEAS.duyun;
+    document.getElementById('tasteTitle').innerHTML = t.name + '<small>品茶陪伴</small>';
+    document.getElementById('tasteVoice').style.display = 'flex';
+    document.getElementById('tasteThread').style.display = 'none';
+    document.getElementById('tasteThread').innerHTML = '';
+    document.getElementById('tasteRate').style.display = 'none';
+  },
+  tasteSpeak(){
+    const voice = document.getElementById('tasteVoice');
+    voice.style.display = 'none';
+    const thread = document.getElementById('tasteThread');
+    thread.style.display = 'flex';
+    thread.innerHTML = `
+      <div class="bubble user fade-in">有点像青草，<br/>但没那么冲，喝完还有一点甜。</div>
+      <div class="bubble ai fade-in"><b>我大概懂你的意思。</b><br/>你说的前半段接近：<div class="mini-tags"><span>清鲜</span><span>嫩香</span></div>后面的那点甜感：<div class="mini-tags"><span>回甘</span></div></div>`;
+    document.getElementById('tasteRate').style.display = 'block';
+  },
+  tasteRate(btn, val){
+    document.querySelectorAll('.rate-btn').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    this.lastTaste = val;
+    const thread = document.getElementById('tasteThread');
+    thread.innerHTML += `<div class="bubble ai fade-in">记住了。下一杯会更懂你一点。</div>`;
+    document.getElementById('tasteRate').innerHTML = `<div class="taste-thanks">已记入这杯茶的记录 🍃</div>`;
+    // 加入护照（品过）
+    this.markTasted();
+  },
+  markTasted(){
+    const id = this.currentTea;
+    if(!this.passport.includes(id)) this.passport.push(id);
+  },
+
+  /* ----- Companion ----- */
+  openCompanion(){
+    document.getElementById('cmMsg').innerHTML = '';
+    document.getElementById('companionOverlay').classList.add('show');
+  },
+  closeCompanion(){ document.getElementById('companionOverlay').classList.remove('show'); },
+  companionAnswer(btn){
+    const q = btn.textContent.trim();
+    const ans = {
+      '下一泡怎么调整？':'这一泡你可以稍微延长 5 秒左右，甜感和回甘会更明显。',
+      '我上次怎么形容它？':'你上次说「像雨后的嫩草，第二泡更甜」。我把「清鲜 + 回甘」记在护照里了。',
+      '为什么会有栗香？':'都匀毛尖在炒制时的高温会带出类似板栗的香气，是它很标志性的味道。'
+    }[q] || '这一泡可以试试。';
+    document.getElementById('cmMsg').innerHTML = `
+      <div class="bubble user" style="align-self:flex-end;background:var(--ink);color:#F7F3EA;">${q}</div>
+      <div class="bubble ai" style="align-self:flex-start;">${ans}</div>`;
+    btn.style.opacity='.5'; btn.style.pointerEvents='none';
+  },
+
+  /* ----- Realm ----- */
+  renderRealm(){
+    const el = document.getElementById('realmWorld');
+    if(el) el.innerHTML = this.realmSVG();
+  },
+  realmSVG(){
+    return `<svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7DFF0"/><stop offset="1" stop-color="#DFEBD8"/></linearGradient>
+      </defs>
+      <rect width="400" height="320" fill="url(#sky)"/>
+      <!-- 雾 -->
+      <ellipse cx="120" cy="70" rx="130" ry="30" fill="rgba(255,255,255,.55)"/>
+      <ellipse cx="300" cy="95" rx="140" ry="34" fill="rgba(255,255,255,.45)"/>
+      <!-- 远山 -->
+      <path d="M0 190 L70 120 L150 190 Z" fill="rgba(111,154,78,.35)"/>
+      <path d="M220 200 L300 130 L400 200 Z" fill="rgba(111,154,78,.3)"/>
+      <!-- 茶园阶梯（像素感） -->
+      <g>
+        <path d="M0 210 L400 210 L400 240 L0 240 Z" fill="#A8C08B"/>
+        <path d="M0 242 L400 242 L400 272 L0 272 Z" fill="#8FA974"/>
+        <path d="M0 274 L400 274 L400 320 L0 320 Z" fill="#7A9660"/>
+      </g>
+      <!-- 茶树点（像素块） -->
+      <g fill="#557C3A">
+        <rect x="30" y="196" width="16" height="14" rx="3"/><rect x="70" y="192" width="16" height="14" rx="3"/><rect x="110" y="196" width="16" height="14" rx="3"/>
+        <rect x="150" y="190" width="16" height="14" rx="3"/><rect x="190" y="194" width="16" height="14" rx="3"/><rect x="230" y="190" width="16" height="14" rx="3"/>
+        <rect x="270" y="194" width="16" height="14" rx="3"/><rect x="310" y="192" width="16" height="14" rx="3"/><rect x="350" y="196" width="16" height="14" rx="3"/>
+      </g>
+      <g fill="#6F9A4E">
+        <rect x="50" y="226" width="18" height="16" rx="3"/><rect x="100" y="222" width="18" height="16" rx="3"/><rect x="150" y="226" width="18" height="16" rx="3"/>
+        <rect x="200" y="222" width="18" height="16" rx="3"/><rect x="250" y="226" width="18" height="16" rx="3"/><rect x="300" y="222" width="18" height="16" rx="3"/>
+      </g>
+      <!-- 小屋 -->
+      <g>
+        <rect x="268" y="150" width="44" height="34" fill="#E8D9B8" rx="3"/>
+        <path d="M262 152 L290 128 L318 152 Z" fill="#A87B3F"/>
+        <rect x="284" y="164" width="12" height="20" fill="#557C3A"/>
+      </g>
+      <!-- 人物 -->
+      <g>
+        <circle cx="180" cy="238" r="8" fill="#E8D9B8"/>
+        <rect x="174" y="246" width="12" height="16" fill="#6F9A4E" rx="4"/>
+      </g>
+      <text x="24" y="30" font-family="serif" font-size="12" fill="rgba(31,61,43,.5)" letter-spacing="2">GUIZHOU · 贵州茶山</text>
+    </svg>`;
+  },
+
+  startChapter(){
+    this.chapter = 0;
+    this.chapterDone = [false,false,false,false];
+    this.setScreen('chapter');
+    this.syncTabFor('chapter');
+    this.renderChapter();
+  },
+  chapterData(){
+    return [
+      { stage:'生长', goal:'让它长出来。', tip:'点击云雾，让茶芽苏醒', who:'', head:'让它长出来。', txt:'贵州山地与多雾环境，让茶树在这里形成自己的生长节奏。', btn:'继续', icon:'🌱' },
+      { stage:'采摘', goal:'摘下这一芽。', tip:'点一下最嫩的芽', who:'', head:'摘下这一芽。', txt:'你刚刚采下的是一芽一叶。', btn:'继续', icon:'🍃' },
+      { stage:'制茶', goal:'让它成为茶。', tip:'连续点击翻炒，完成杀青', who:'', head:'让它成为茶。', txt:'这一道工序改变了叶子的香气与状态。', btn:'继续', icon:'🔥' },
+      { stage:'人与故事', goal:'听它说。', tip:'点击继续', who:'制茶师', head:'', txt:'「我第一次守这口锅的时候，也把茶炒焦过。」<br/>「后来才明白，每一锅都有自己的脾气。」', btn:'完成', icon:'👋' }
+    ];
+  },
+  renderChapter(){
+    const d = this.chapterData()[this.chapter];
+    document.getElementById('chapterStageLbl').textContent = `${d.stage} · ${this.chapter+1} / 4`;
+    // 进度点
+    document.getElementById('chapterProgress').innerHTML = [0,1,2,3].map(i=>`<div class="cp-dot ${i<=this.chapter?'on':''}"></div>`).join('');
+    // 场景
+    const stage = document.getElementById('chapterStage');
+    stage.innerHTML = this.chapterSceneSVG(this.chapter) + `<div class="chapter-tap-hint">${d.tip}</div>`;
+    // 对话
+    const dl = document.getElementById('chapterDialog');
+    dl.innerHTML = `${d.who?`<div class="who">${d.who}</div>`:''}${d.head?`<div class="dhead">${d.head}</div>`:''}<div class="dtxt">${d.txt}</div>`;
+    // 底部按钮
+    document.getElementById('chapterFoot').innerHTML = `<button class="btn btn-primary" onclick="App.chapterNext()">${d.btn}</button>`;
+    // 点击场景触发推进（制茶阶段点锅）
+    stage.onclick = ()=> this.chapterTap();
+  },
+  chapterSceneSVG(i){
+    const scenes = [
+      // 生长：云雾 + 茶芽
+      `<div class="chapter-scene"><svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice"><rect width="400" height="400" fill="#C7DFF0"/>
+        <path d="M0 300 L120 180 L240 300 Z" fill="#8FA974"/><path d="M160 320 L320 200 L400 300 L400 400 L0 400 Z" fill="#7A9660"/>
+        <ellipse cx="200" cy="120" rx="150" ry="40" fill="rgba(255,255,255,.6)"/><ellipse cx="90" cy="150" rx="110" ry="32" fill="rgba(255,255,255,.45)"/>
+        <g fill="#6F9A4E"><rect x="180" y="250" width="14" height="40" rx="6"/><rect x="205" y="242" width="14" height="48" rx="6"/><rect x="155" y="255" width="14" height="35" rx="6"/></g>
+        <text x="200" y="90" text-anchor="middle" font-family="serif" font-size="16" fill="rgba(31,61,43,.55)">点击云雾</text></svg></div>`,
+      // 采摘：嫩芽
+      `<div class="chapter-scene"><svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice"><rect width="400" height="400" fill="#DFEBD8"/>
+        <path d="M0 320 L200 240 L400 320 L400 400 L0 400 Z" fill="#8FA974"/>
+        <g fill="#557C3A"><rect x="80" y="270" width="20" height="60" rx="8"/><rect x="190" y="260" width="20" height="70" rx="8"/><rect x="300" y="275" width="20" height="55" rx="8"/></g>
+        <g fill="#6F9A4E"><rect x="88" y="245" width="16" height="26" rx="6"/><rect x="198" y="235" width="16" height="26" rx="6"/><rect x="308" y="250" width="16" height="26" rx="6"/></g>
+        <text x="200" y="90" text-anchor="middle" font-family="serif" font-size="16" fill="rgba(31,61,43,.55)">点击最嫩的芽</text></svg></div>`,
+      // 制茶：锅
+      `<div class="chapter-scene"><svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice"><rect width="400" height="400" fill="#F0E4D0"/>
+        <circle cx="200" cy="210" r="120" fill="#3A3A3A"/><ellipse cx="200" cy="215" rx="100" ry="70" fill="#2A2A2A"/>
+        <g fill="#6F9A4E"><rect x="180" y="150" width="14" height="24" rx="5"/><rect x="200" y="146" width="14" height="26" rx="5"/><rect x="220" y="152" width="14" height="22" rx="5"/></g>
+        <text x="200" y="350" text-anchor="middle" font-family="serif" font-size="16" fill="rgba(31,61,43,.55)">连续点击翻炒</text></svg></div>`,
+      // 人与故事
+      `<div class="chapter-scene"><svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice"><rect width="400" height="400" fill="#E9F0E0"/>
+        <circle cx="200" cy="170" r="40" fill="#E8D9B8"/><rect x="170" y="205" width="60" height="90" fill="#6F9A4E" rx="16"/>
+        <ellipse cx="200" cy="150" rx="70" ry="26" fill="rgba(255,255,255,.5)"/>
+        <text x="200" y="340" text-anchor="middle" font-family="serif" font-size="16" fill="rgba(31,61,43,.55)">制茶师</text></svg></div>`
+    ];
+    return scenes[i];
+  },
+  chapterTap(){
+    if(this.chapter < 3) this.chapterNext();
+  },
+  chapterNext(){
+    this.chapterDone[this.chapter] = true;
+    if(this.chapter < 3){ this.chapter++; this.renderChapter(); }
+    else { this.setScreen('ending'); this.syncTabFor('ending'); }
+  },
+
+  /* ----- Passport ----- */
+  addPassport(){
+    if(!this.passport.includes('duyun')) this.passport.push('duyun');
+    this.toast('已收进茶护照 🛂');
+    setTimeout(()=>{ this.setScreen('passport'); this.syncTabFor('passport'); this.renderPassport(); }, 500);
+  },
+  renderProfile(){
+    const list = document.getElementById('profilePassport');
+    if(!list) return;
+    if(this.passport.length === 0){
+      list.innerHTML = `<div class="passport-mini" onclick="App.tab('swipe')"><div class="pm-ico">🛂</div><div><div class="pm-name">还没有记录</div><div class="pm-sub">刷到想喝的茶，喝过就会被记在这里</div></div><span class="pm-arrow">›</span></div>`;
+    } else {
+      list.innerHTML = this.passport.map(id=>this.passportMini(TEAS[id])).join('');
+    }
+  },
+  passportMini(t){
+    const brewed = t.id==='duyun';
+    const tasted = this.passport.includes(t.id);
+    const realm = t.id==='duyun';
+    return `<button class="passport-mini" onclick="App.setScreen('passport');App.syncTabFor('passport');App.renderPassport();">
+      <div class="pm-ico">${t.emoji}</div>
+      <div><div class="pm-name">${t.name}</div><div class="pm-sub">${t.region}</div>
+      <div class="pm-badges">${brewed?'<span>已泡</span>':''}${tasted?'<span>已品</span>':''}${realm?'<span>已解锁茶境</span>':''}</div></div>
+      <span class="pm-arrow">›</span></button>`;
+  },
+  renderPassport(){
+    const list = document.getElementById('passportList');
+    if(this.passport.length === 0){
+      list.innerHTML = `<div style="padding:60px 30px;text-align:center;color:var(--ink-faint);font-size:14px;line-height:1.8;">你真正喝过的茶，<br/>才算来过这里。<br/><br/>先从刷一杯开始吧 🍃</div>`;
+      return;
+    }
+    list.innerHTML = this.passport.map(id=>{
+      const t = TEAS[id];
+      const brewed = t.id==='duyun';
+      const tasted = this.passport.includes(t.id);
+      const realm = t.id==='duyun';
+      const quote = t.id==='duyun' ? '像雨后的嫩草，第二泡更甜。' : (t.id==='zunyi' ? '甜香比我想象的明显。' : '');
+      return `<div class="pp-entry fade-in">
+        <div class="pp-stamp">已收录</div>
+        <div class="pp-name">${t.name}</div>
+        <div class="pp-region">${t.region}</div>
+        <div class="pp-badges">${brewed?'<span>已泡</span>':'<span class="off">未泡</span>'}${tasted?'<span>已品</span>':'<span class="off">未品</span>'}${realm?'<span>已解锁茶境</span>':'<span class="off">未解锁</span>'}</div>
+        ${quote?`<div class="pp-quote"><div class="qlbl">你说</div><div class="qtext">${quote}</div></div>`:''}
+      </div>`;
+    }).join('');
+  },
+
+  /* ----- Tea-BTI 轴 ----- */
+  renderBtiAxes(){
+    const axes = [
+      { l:'轻盈', r:'饱满', val:24, note:'偏轻盈' },
+      { l:'清鲜', r:'温熟', val:18, note:'偏清鲜' },
+      { l:'甜润', r:'劲爽', val:32, note:'略偏甜润' },
+      { l:'干净', r:'绵长', val:71, note:'偏绵长' }
+    ];
+    const el = document.getElementById('btiAxes');
+    if(!el) return;
+    el.innerHTML = axes.map(a=>{
+      const leftSide = a.val < 50;
+      return `<div class="axis">
+        <div class="ax-labels"><span class="${leftSide?'a-on':''}">${a.l}</span><span class="${!leftSide?'a-on':''}">${a.r}</span></div>
+        <div class="ax-bar"><div class="fill" style="width:${a.val}%"></div><div class="knob" style="left:${a.val}%"></div></div>
+        <div class="ax-note">${a.note}</div>
+      </div>`;
+    }).join('');
+  },
+
+  /* ----- 帮助 / Toast ----- */
+  toggleHelp(){ document.getElementById('helpPop').classList.toggle('show'); },
+  toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; }, 1800);
+  }
+};
+
+/* ============================================================
+   初始化
+   ============================================================ */
+App.renderBtiAxes();
+App.renderSwipe();
+App.renderProfile();
+App.renderPassport();
+App.renderRealm();
+App.syncFloat('launch');
+
+/* 关闭帮助弹窗：点击其他地方 */
+document.addEventListener('click', e=>{
+  const hp = document.getElementById('helpPop');
+  if(hp && hp.classList.contains('show') && !e.target.closest('.iconbtn')) hp.classList.remove('show');
+});
+</script>
+</body>
+</html>

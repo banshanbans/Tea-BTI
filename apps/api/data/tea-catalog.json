@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "teas": [
+    {
+      "id": "duyun-maojian",
+      "name": "都匀毛尖",
+      "region": "贵州 · 黔南",
+      "teaType": "绿茶",
+      "professionalTags": ["嫩香", "鲜爽", "回甘"],
+      "officialDescription": "嫩香与栗香清晰，滋味鲜爽回甘，茶汤嫩黄绿明亮。",
+      "process": ["摊放", "杀青", "揉捻", "干燥"],
+      "sensoryVector": {
+        "freshness": 0.92,
+        "sweetness": 0.68,
+        "body": 0.25,
+        "roast": 0.12,
+        "astringency": 0.32,
+        "floral": 0.38,
+        "fruity": 0.16,
+        "clean": 0.9,
+        "aftertaste": 0.78
+      },
+      "brewingGuide": {
+        "vessel": "玻璃杯或盖碗",
+        "temperatureRange": "85–90°C 左右",
+        "steepTime": "盖碗约 15–25 秒起步",
+        "notes": ["具体用量与水温优先参考包装说明", "第一泡先短一些，再按滋味逐泡调整", "无法从语音判断精确水温或克数"]
+      },
+      "evidenceRefIds": ["db52-t-433-2018"]
+    },
+    {
+      "id": "meitan-cuiya",
+      "name": "湄潭翠芽",
+      "region": "贵州 · 遵义 · 湄潭",
+      "teaType": "绿茶",
+      "professionalTags": ["清香", "嫩香", "鲜爽"],
+      "officialDescription": "清香、嫩香或栗香持久，滋味鲜爽，茶汤嫩绿明亮。",
+      "process": ["摊放", "杀青", "理条", "干燥"],
+      "sensoryVector": {
+        "freshness": 0.84,
+        "sweetness": 0.6,
+        "body": 0.34,
+        "roast": 0.2,
+        "astringency": 0.27,
+        "floral": 0.46,
+        "fruity": 0.18,
+        "clean": 0.82,
+        "aftertaste": 0.63
+      },
+      "brewingGuide": {
+        "vessel": "玻璃杯或盖碗",
+        "temperatureRange": "85–90°C 左右",
+        "steepTime": "盖碗约 15–25 秒起步",
+        "notes": ["具体用量与水温优先参考包装说明", "先观察清香和鲜爽，再决定是否延长下一泡", "无法从语音判断精确水温或克数"]
+      },
+      "evidenceRefIds": ["guizhou-agri-meitan-cuiya-2025"]
+    },
+    {
+      "id": "zunyi-hong",
+      "name": "遵义红",
+      "region": "贵州 · 遵义",
+      "teaType": "红茶",
+      "professionalTags": ["甜香", "鲜爽", "醇厚"],
+      "officialDescription": "茶汤红亮，甜香高且持久，滋味鲜爽醇厚。",
+      "process": ["萎凋", "揉捻", "发酵", "干燥"],
+      "sensoryVector": {
+        "freshness": 0.5,
+        "sweetness": 0.82,
+        "body": 0.76,
+        "roast": 0.36,
+        "astringency": 0.28,
+        "floral": 0.34,
+        "fruity": 0.64,
+        "clean": 0.68,
+        "aftertaste": 0.74
+      },
+      "brewingGuide": {
+        "vessel": "盖碗或小壶",
+        "temperatureRange": "90–95°C 左右",
+        "steepTime": "盖碗约 15–30 秒起步",
+        "notes": ["具体用量与水温优先参考包装说明", "若甜香足但滋味偏厚，下一泡可以更快出汤", "无法从语音判断精确水温或克数"]
+      },
+      "evidenceRefIds": ["guizhou-sasac-zunyi-hong-2021"]
+    }
+  ]
+}
+

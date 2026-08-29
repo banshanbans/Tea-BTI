@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "strategies": {
+    "quiet": ["duyun-maojian", "meitan-cuiya", "zunyi-hong"],
+    "social": ["meitan-cuiya", "zunyi-hong", "duyun-maojian"],
+    "analytical": ["meitan-cuiya", "duyun-maojian", "zunyi-hong"],
+    "decisive": ["zunyi-hong", "duyun-maojian", "meitan-cuiya"],
+    "skip": ["duyun-maojian", "zunyi-hong", "meitan-cuiya"]
+  },
+  "types": {
+    "INFP": "quiet", "INFJ": "quiet", "ISFP": "quiet", "ISFJ": "quiet",
+    "ENFP": "social", "ENFJ": "social", "ESFP": "social", "ESFJ": "social",
+    "INTP": "analytical", "INTJ": "analytical", "ISTP": "analytical", "ISTJ": "analytical",
+    "ENTP": "decisive", "ENTJ": "decisive", "ESTP": "decisive", "ESTJ": "decisive"
+  },
+  "roleCopy": {
+    "mirror": "它的节奏也许和你现在的状态比较合拍，先从这一杯认识贵州茶。",
+    "surprise": "它保留了一点熟悉感，又多了一层可能让你意外的味道。",
+    "contrast": "它和前两杯走得不太一样，反差也许正好能帮你找到边界。"
+  }
+}

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .db import Base
@@ -117,6 +117,15 @@ class PassportEntry(Base):
 
 class VoiceSession(Base):
     __tablename__ = "voice_sessions"
+    __table_args__ = (
+        Index(
+            "uq_voice_sessions_live_user",
+            "user_id",
+            unique=True,
+            sqlite_where=text("status IN ('prepared', 'starting', 'active', 'stopping')"),
+            postgresql_where=text("status IN ('prepared', 'starting', 'active', 'stopping')"),
+        ),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("anonymous_users.id"), index=True)
@@ -128,6 +137,14 @@ class VoiceSession(Base):
     task_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     brew_stage: Mapped[str | None] = mapped_column(String(24), nullable=True)
     infusion_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    provider_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    provider_stopped_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completion_request: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    completion_result: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    action_lease_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    action_lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_provider_error_code: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    last_provider_request_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

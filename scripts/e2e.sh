@@ -8,6 +8,7 @@ cleanup() {
 trap cleanup EXIT
 
 export DATABASE_URL="sqlite:////data/tea-bti-e2e-$$.db"
+export AI_MODE="mock"
 docker compose down
 docker compose build
 docker compose run --rm web npm ci

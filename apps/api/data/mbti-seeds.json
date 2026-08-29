@@ -1,21 +1,27 @@
 {
-  "schemaVersion": 1,
-  "strategies": {
-    "quiet": ["duyun-maojian", "meitan-cuiya", "zunyi-hong"],
-    "social": ["meitan-cuiya", "zunyi-hong", "duyun-maojian"],
-    "analytical": ["meitan-cuiya", "duyun-maojian", "zunyi-hong"],
-    "decisive": ["zunyi-hong", "duyun-maojian", "meitan-cuiya"],
-    "skip": ["duyun-maojian", "zunyi-hong", "meitan-cuiya"]
+  "schemaVersion": 2,
+  "matches": {
+    "ENFP": ["duyun-maojian", "fanjingshan-matcha", "meitan-cuiya"],
+    "ENTP": ["duyun-maojian", "fanjingshan-matcha", "fenggang-xinxi"],
+    "INTJ": ["meitan-cuiya", "fanjingshan-matcha", "puan-hong"],
+    "ISTJ": ["meitan-cuiya", "lvbaoshi", "duyun-maojian"],
+    "ISTP": ["lvbaoshi", "duyun-maojian", "puan-hong"],
+    "ESTJ": ["lvbaoshi", "zunyi-hong", "leishan-yinqiu"],
+    "INFJ": ["puan-hong", "leishan-yinqiu", "zunyi-hong"],
+    "ENFJ": ["puan-hong", "zunyi-hong", "meitan-cuiya"],
+    "ISFJ": ["fenggang-xinxi", "puan-hong", "fanjingshan-matcha"],
+    "ESFJ": ["fenggang-xinxi", "zunyi-hong", "fanjingshan-matcha"],
+    "ENTJ": ["zunyi-hong", "meitan-cuiya", "leishan-yinqiu"],
+    "ESTP": ["zunyi-hong", "fanjingshan-matcha", "leishan-yinqiu"],
+    "INFP": ["leishan-yinqiu", "puan-hong", "zunyi-hong"],
+    "ISFP": ["leishan-yinqiu", "duyun-maojian", "meitan-cuiya"],
+    "INTP": ["fanjingshan-matcha", "duyun-maojian", "fenggang-xinxi"],
+    "ESFP": ["fanjingshan-matcha", "zunyi-hong", "meitan-cuiya"]
   },
-  "types": {
-    "INFP": "quiet", "INFJ": "quiet", "ISFP": "quiet", "ISFJ": "quiet",
-    "ENFP": "social", "ENFJ": "social", "ESFP": "social", "ESFJ": "social",
-    "INTP": "analytical", "INTJ": "analytical", "ISTP": "analytical", "ISTJ": "analytical",
-    "ENTP": "decisive", "ENTJ": "decisive", "ESTP": "decisive", "ESTJ": "decisive"
-  },
+  "skip": ["duyun-maojian", "puan-hong", "fanjingshan-matcha"],
   "roleCopy": {
-    "mirror": "它的节奏也许和你现在的状态比较合拍，先从这一杯认识贵州茶。",
-    "surprise": "它保留了一点熟悉感，又多了一层可能让你意外的味道。",
-    "contrast": "它和前两杯走得不太一样，反差也许正好能帮你找到边界。"
+    "mirror": "「{keywords}」也许和你此刻的节奏有些相近，先从这杯开始。",
+    "surprise": "它用「{keywords}」从相邻方向靠近，也许会带来一点意外。",
+    "contrast": "它的「{keywords}」可能和前两杯拉开距离，也许能帮你慢慢找到口味边界。"
   }
 }

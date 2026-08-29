@@ -35,17 +35,18 @@
       tea.assets.forEach(function (asset) {
         assets[asset.id] = { tea: tea, asset: asset };
       });
+      assets[tea.detail_asset.id] = { tea: tea, asset: tea.detail_asset };
     });
     return { manifest: manifest, teas: teas, assets: assets };
   }
 
   function renderCapture(model) {
-    if (screen === "blind") {
+    if (screen === "feed") {
       var indexedAsset = model.assets[selectedAssetId];
       if (!indexedAsset) {
         throw new Error("未知 Asset ID：" + selectedAssetId);
       }
-      app.innerHTML = blindScreen(indexedAsset.tea, indexedAsset.asset);
+      app.innerHTML = feedScreen(indexedAsset.tea, indexedAsset.asset);
       return;
     }
 
@@ -76,17 +77,17 @@
     model.manifest.teas.forEach(function (tea) {
       tea.assets.forEach(function (asset) {
         tiles.push(reviewTile(
-          "?screen=blind&asset=" + encodeURIComponent(asset.id),
-          tea.name + " · Blind " + asset.variant.toUpperCase()
+          "?screen=feed&asset=" + encodeURIComponent(asset.id),
+          tea.name + " · Feed"
         ));
       });
       sequenceTiles.push(reviewTile(
-        "?screen=blind&asset=" + encodeURIComponent(tea.visual_profile.primary_anchor_asset_id),
+        "?screen=feed&asset=" + encodeURIComponent(tea.visual_profile.primary_anchor_asset_id),
         tea.name + " · 主锚点"
       ));
+      tiles.push(reviewTile("?screen=detail&tea=" + encodeURIComponent(tea.tea_id), tea.name + " · Detail"));
     });
     tiles.push(reviewTile("?screen=reveal&tea=duyun-maojian", "都匀毛尖 · Reveal"));
-    tiles.push(reviewTile("?screen=detail&tea=duyun-maojian", "都匀毛尖 · Detail"));
     tiles.push(reviewTile("?screen=passport&tea=duyun-maojian", "都匀毛尖 · Passport"));
 
     app.innerHTML = [
@@ -94,22 +95,22 @@
       '<header class="review-header">',
       "<div>",
       "<h1>Tea Visual Review</h1>",
-      "<p>6 张 Blind 基底 + 都匀毛尖跨状态继承。所有文字与抽象层均由 DOM/CSS 渲染。</p>",
+      "<p>八张立体身份图 + 八张详情实拍图；都匀毛尖保留跨状态茶境继承。</p>",
       "</div>",
       '<div class="review-legend">',
-      "<span>synthetic_demo</span>",
-      "<span>demo_only</span>",
+      "<span>8 presentation</span>",
+      "<span>8 detail</span>",
       "<span>390 × 844</span>",
       "</div>",
       "</header>",
       '<section class="review-mode">',
-      '<div class="review-mode-heading"><div><h2>连续三卡模式</h2><p>同屏检查三种视觉人格是否只是在换颜色，以及连续浏览是否出现模板疲劳。</p></div><span>3 teas · primary anchors</span></div>',
+      '<div class="review-mode-heading"><div><h2>八茶连续模式</h2><p>同屏检查八款立体身份是否完整显示、茶名是否清楚，以及连续浏览是否出现模板疲劳。</p></div><span>8 teas · presentation</span></div>',
       '<div class="review-sequence">',
       sequenceTiles.join(""),
       "</div>",
       "</section>",
       '<section class="review-mode">',
-      '<div class="review-mode-heading"><div><h2>单卡模式</h2><p>逐张检查 Blind 风险、真实茶锚点、跨状态继承与 Passport 缩略图。</p></div><span>9 states</span></div>',
+      '<div class="review-mode-heading"><div><h2>单卡模式</h2><p>逐张检查完整构图、详情实拍焦点、跨状态继承与 Passport 显示。</p></div><span>11 states</span></div>',
       '<div class="review-grid">',
       tiles.join(""),
       "</div>",
@@ -127,7 +128,7 @@
     ].join("");
   }
 
-  function blindScreen(tea, asset) {
+  function feedScreen(tea, asset) {
     var profile = tea.visual_profile;
     return [
       '<section class="screen-shell">',
@@ -138,6 +139,8 @@
       '<div class="card-wash"></div>',
       shapeHtml(profile),
       '<div class="card-copy">',
+      '<p class="eyebrow">' + escapeHtml(tea.region) + '</p>',
+      '<h2>' + escapeHtml(tea.name) + '</h2>',
       "<h1>" + escapeHtml(asset.card_copy.headline) + "</h1>",
       "<p>" + escapeHtml(asset.card_copy.body) + "</p>",
       tagsHtml(asset.card_copy.tags),
@@ -158,7 +161,7 @@
   function revealScreen(tea) {
     var profile = tea.visual_profile;
     var asset = tea.assets[0];
-    var supports = tea.evidence_refs[0].supports;
+    var supports = asset.card_copy.tags;
     return [
       '<section class="screen-shell">',
       headerHtml("Reveal"),
@@ -168,7 +171,7 @@
       '<div class="card-wash"></div>',
       shapeHtml(profile),
       '<div class="reveal-panel">',
-      '<p class="eyebrow">你刚刚喜欢的是</p>',
+      '<p class="eyebrow">这一杯是</p>',
       "<h1>" + escapeHtml(tea.name) + "</h1>",
       '<p class="region">' + escapeHtml(tea.region) + "</p>",
       tagsHtml(supports.slice(0, 3)),
@@ -185,7 +188,7 @@
   }
 
   function detailScreen(tea) {
-    var asset = tea.assets[1];
+    var asset = tea.detail_asset;
     return [
       '<section class="screen-shell detail-page">',
       '<button class="detail-back" type="button" aria-label="返回">←</button>',
@@ -210,12 +213,12 @@
   }
 
   function passportScreen(tea) {
-    var derivative = tea.assets[0].derivatives[0];
+    var asset = tea.assets[0];
     return [
       '<section class="screen-shell">',
       '<header class="app-header"><span class="wordmark">茶护照</span><span class="progress">1 杯</span></header>',
       '<article class="passport-card">',
-      '<img src="/' + escapeHtml(derivative.path) + '" alt="">',
+      '<img src="/' + escapeHtml(asset.media_path) + '" alt="">',
       '<div class="passport-copy">',
       "<h1>" + escapeHtml(tea.name) + "</h1>",
       '<p class="region">' + escapeHtml(tea.region) + "</p>",
@@ -254,8 +257,9 @@
   }
 
   function mediaHtml(asset) {
+    var objectPosition = asset.object_position || (asset.crop_strategy && asset.crop_strategy.object_position) || "50% 50%";
     return '<img class="media" src="/' + escapeHtml(asset.media_path) + '" style="object-position:' +
-      escapeHtml(asset.crop_strategy.object_position) + '" alt="">';
+      escapeHtml(objectPosition) + '" alt="">';
   }
 
   function atmosphereHtml(profile) {

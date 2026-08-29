@@ -6,7 +6,7 @@ export function AppShell({ children, active = "swipe", navigation = true, header
     <main className={`mobile-shell ${shellClassName}`.trim()}>
       {header ? <header className="topbar">
         <span className="brand-lockup"><span className="brand-mark"><Leaf size={18} weight="fill" /></span><span className="brand">Tea-BTI</span></span>
-        <span className="brand-caption">Guizhou Tea Identity</span>
+        <span className="brand-caption">贵州茶味身份</span>
       </header> : null}
       {children}
       {navigation ? <Navigation active={active} /> : null}

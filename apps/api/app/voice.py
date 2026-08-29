@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+from copy import deepcopy
 import hashlib
 import hmac
 import json
@@ -18,7 +19,35 @@ from .taste import ALLOWED_TAGS, mock_normalize
 
 
 class ProviderError(RuntimeError):
-    pass
+    def __init__(
+        self,
+        message: str,
+        *,
+        kind: str = "definite",
+        code: str | None = None,
+        request_id: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.kind = kind
+        self.code = code
+        self.request_id = request_id
+
+    @property
+    def outcome_unknown(self) -> bool:
+        return self.kind == "unknown"
+
+    @property
+    def terminal(self) -> bool:
+        return self.kind == "terminal"
+
+
+def _is_terminal_stop_error(status_code: int, code: str, message: str) -> bool:
+    if status_code == 404:
+        return True
+    value = f"{code} {message}".lower()
+    return any(marker in value for marker in (
+        "not found", "notfound", "not exist", "non-existent", "already stopped", "不存在", "已停止",
+    ))
 
 
 def _pack_bytes(value: bytes) -> bytes:
@@ -92,16 +121,32 @@ class VolcengineOpenApiClient:
         version = self.settings.rtc_api_version
         headers = self._headers(action, version, body_bytes)
         url = f"https://{self.host}?Action={action}&Version={version}"
-        async with httpx.AsyncClient(timeout=12.0) as client:
-            response = await client.post(url, headers=headers, content=body_bytes)
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                response = await client.post(url, headers=headers, content=body_bytes)
+        except httpx.RequestError as exc:
+            raise ProviderError("火山 RTC 网络请求失败", kind="unknown", code=exc.__class__.__name__) from exc
         try:
             payload = response.json()
         except ValueError as exc:
-            raise ProviderError(f"火山 RTC 返回了非 JSON 响应：HTTP {response.status_code}") from exc
-        error = payload.get("ResponseMetadata", {}).get("Error")
+            raise ProviderError(
+                f"火山 RTC 返回了非 JSON 响应：HTTP {response.status_code}",
+                kind="unknown",
+                code=f"HTTP_{response.status_code}",
+            ) from exc
+        metadata = payload.get("ResponseMetadata", {}) if isinstance(payload, dict) else {}
+        error = metadata.get("Error") if isinstance(metadata, dict) else None
         if response.is_error or error:
             message = (error or {}).get("Message") or f"HTTP {response.status_code}"
-            raise ProviderError(f"火山 RTC 调用失败：{message}")
+            code = str((error or {}).get("Code") or f"HTTP_{response.status_code}")
+            request_id = metadata.get("RequestId") or metadata.get("RequestID")
+            kind = "terminal" if action == "StopVoiceChat" and _is_terminal_stop_error(response.status_code, code, message) else "definite"
+            raise ProviderError(
+                f"火山 RTC 调用失败：{message}",
+                kind=kind,
+                code=code,
+                request_id=str(request_id) if request_id else None,
+            )
         return payload
 
 
@@ -126,7 +171,7 @@ class VoiceProvider:
             "agentUserId": "tea_companion",
         }
 
-    def _system_messages(self, tea_id: str, mode: str) -> list[str]:
+    def _system_messages(self, tea_id: str, mode: str, user_context: str | None = None) -> list[str]:
         tea = catalog.require_tea(tea_id)
         guide = tea["brewingGuide"]
         factual_context = (
@@ -143,53 +188,64 @@ class VoiceProvider:
             task = "陪用户按准备、温杯、投茶、注水、浸泡、出汤、品饮的顺序完成冲泡。"
         else:
             task = "先接住用户的自然语言感受，再解释它可能对应的茶语；不要说用户喝错了。"
-        return [boundaries, factual_context, task]
+        messages = [boundaries, factual_context, task]
+        if user_context:
+            messages.append(
+                "以下是服务端从用户真实行为中汇总的个性化上下文；"
+                "只用来调整表达和建议，不要声称已经看见或亲身记得用户。"
+                + user_context
+            )
+        return messages
 
-    async def start(self, *, room_id: str, task_id: str, target_user_id: str, tea_id: str, mode: str) -> None:
+    async def start(
+        self, *, room_id: str, task_id: str, target_user_id: str,
+        tea_id: str, mode: str, user_context: str | None = None,
+    ) -> None:
         settings = self.settings
-        asr_params: dict[str, Any] = {
-            "Mode": "bigmodel" if settings.doubao_asr_resource_id else "smallmodel",
-            "AppId": settings.doubao_speech_app_id,
-            "AccessToken": settings.doubao_speech_access_token,
-        }
-        if settings.doubao_asr_resource_id:
-            asr_params["ApiResourceId"] = settings.doubao_asr_resource_id
-        if settings.doubao_asr_cluster:
-            asr_params["Cluster"] = settings.doubao_asr_cluster
-        body = {
-            "AppId": settings.rtc_app_id,
-            "RoomId": room_id,
-            "TaskId": task_id,
-            "AgentConfig": {
-                "TargetUserId": [target_user_id],
-                "WelcomeMessage": "你好，我是茶伴。我们慢慢来，你现在准备到哪一步了？" if mode == "brew" else "先用你自己的话说说这一口，不需要懂茶语。",
-                "UserId": "tea_companion",
-                "EnableConversationStateCallback": True,
-            },
-            "Config": {
-                "ASRConfig": {"Provider": "volcano", "ProviderParams": asr_params},
-                "TTSConfig": {
-                    "Provider": "volcano",
-                    "ProviderParams": {
-                        "app": {
-                            "appid": settings.doubao_speech_app_id,
-                            "token": settings.doubao_speech_access_token,
-                            "cluster": settings.doubao_tts_resource_id,
-                        },
-                        "audio": {"voice_type": settings.doubao_tts_voice_type, "speed_ratio": 1.0, "pitch_ratio": 1.0, "volume_ratio": 1.0},
-                    },
-                },
-                "LLMConfig": {
-                    "Mode": "ArkV3",
-                    "EndPointId": settings.ark_voice_endpoint_id,
-                    "ApiKey": settings.ark_api_key,
-                    "SystemMessages": self._system_messages(tea_id, mode),
-                    "VisionConfig": {"Enable": False},
-                },
-                "SubtitleConfig": {"DisableRTSSubtitle": False, "SubtitleMode": 1},
-                "InterruptMode": 0,
-            },
-        }
+        try:
+            template = json.loads(settings.rtc_voice_config_json)
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise ProviderError("火山 RTC Voice Config 无效") from exc
+        if not isinstance(template, dict):
+            raise ProviderError("火山 RTC Voice Config 无效")
+
+        body = deepcopy(template)
+        body["AppId"] = settings.rtc_app_id
+        body["RoomId"] = room_id
+        body["TaskId"] = task_id
+        body.pop("UserId", None)
+
+        agent = body.setdefault("AgentConfig", {})
+        config = body.setdefault("Config", {})
+        if not isinstance(agent, dict) or not isinstance(config, dict):
+            raise ProviderError("火山 RTC Voice Config 无效")
+
+        # The new scheme binds ASR/TTS/model resources to the AI audio/video
+        # application. Console exports may still include the legacy ASR field,
+        # which the 2025-06-01 schema rejects.
+        if settings.rtc_api_version == "2025-06-01":
+            asr = config.get("ASRConfig")
+            provider_params = asr.get("ProviderParams") if isinstance(asr, dict) else None
+            if isinstance(provider_params, dict):
+                provider_params.pop("ApiResourceId", None)
+
+        agent.update({
+            "TargetUserId": [target_user_id],
+            "WelcomeMessage": "你好，我是茶伴。我们慢慢来，你现在准备到哪一步了？" if mode == "brew" else "先用你自己的话说说这一口，不需要懂茶语。",
+            "UserId": "tea_companion",
+            "EnableConversationStateCallback": True,
+        })
+
+        llm = config.setdefault("LLMConfig", {})
+        if not isinstance(llm, dict) or not llm.get("ModelName"):
+            raise ProviderError("火山 RTC Voice Config 缺少 ModelName")
+        # Never inherit another product's role, camera, or tool configuration.
+        llm["SystemMessages"] = self._system_messages(tea_id, mode, user_context)
+        llm.pop("VisionConfig", None)
+        llm.pop("Tools", None)
+        config.pop("FunctionCallingConfig", None)
+        config.setdefault("SubtitleConfig", {"DisableRTSSubtitle": False, "SubtitleMode": 1})
+        config.setdefault("InterruptMode", 0)
         await self.client.call("StartVoiceChat", body)
 
     async def update_context(self, *, room_id: str, task_id: str, message: str) -> None:
@@ -244,9 +300,10 @@ class TasteNormalizer:
             if not tags:
                 raise ValueError("模型未返回允许的标签")
             return list(dict.fromkeys(tags)), str(parsed.get("explanation") or "已把你的表达整理成茶语。"), "ark_text"
-        except (httpx.HTTPError, KeyError, IndexError, ValueError, json.JSONDecodeError):
-            tags, explanation = mock_normalize(text)
-            return tags, explanation, "server_mock"
+        except (httpx.HTTPError, KeyError, IndexError, ValueError, json.JSONDecodeError) as exc:
+            kind = "unknown" if isinstance(exc, httpx.RequestError) else "definite"
+            code = exc.__class__.__name__
+            raise ProviderError("方舟茶语归一化暂不可用", kind=kind, code=code) from exc
 
 
 voice_provider = VoiceProvider()

@@ -135,7 +135,7 @@ def test_public_profile_is_live_private_by_construction_and_revocable(client, au
     assert payload["myWords"]["text"] == "像雨后刚打开的窗，尾巴有一点甜。"
     assert payload["teaPassport"]["items"][0]["tasted"] is True
     serialized = json.dumps(payload, ensure_ascii=False)
-    for forbidden in ["userId", "feedbackId", "firstDrunkAt", "favoriteInfusion", "userDescription", "collectedAt"]:
+    for forbidden in ["userId", "feedbackId", "firstDrunkAt", "favoriteInfusion", "userDescription", "collectedAt", "behaviorEvidence", "personaDetail"]:
         assert forbidden not in serialized
     assert "像雨后刚打开的窗，清清的，尾巴有一点甜" not in serialized
 

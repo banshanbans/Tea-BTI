@@ -95,34 +95,20 @@ Tea-BTI：
 
 Tea-BTI 的视觉不是统一海报滤镜，而是风味翻译系统。
 
-Blind Card 默认采用：
+识别式茶卡默认采用用户提供的八张完整立体设计图：
 
-> **65–75% 真实茶的视觉权重 + 25–35% 情绪转译**
+> **一茶一幅完整立体身份图 + 统一宣纸背景 + 最少量结构化文字**
 
-每张卡必须包含一个真实茶锚点：
+立体图必须 `object-fit: contain`，不能裁掉图内茶名。详情页才切换为对应实拍图，并使用逐图配置的 `object-position`。不要给立体图叠加第二套撕纸、复古颗粒、打字机小字或拼贴版式。
 
-- 茶汤；
-- 杯沿 / 蒸汽；
-- 注水动作；
-- 经过 Blind-safe 裁切的叶底或干茶局部。
-
-每张卡的情绪转译只能使用：
-
-1. 一个结构色；
-2. 一个抽象形；
-3. 一个环境暗示。
-
-不要给所有卡重复使用撕纸、复古颗粒、打字机小字或同一种拼贴版式。连续三张卡必须能靠构图、真实锚点和主形态区分，而不只是换颜色。
-
-Blind 状态禁止出现：
+Feed 状态禁止出现：
 
 - 包装与 Logo；
-- 产地文字与地标；
-- 完整商品摄影；
-- 足以直接暴露茶类或茶名的典型干茶形态；
+- 商品等级与价格；
+- 内部九维推荐向量；
 - 无来源的花朵、水果、栗子或文化符号。
 
-Reveal、详情和 Tea Realm 必须延续同一款茶的结构色、抽象形和环境气氛，只逐步增加真实身份信息。
+MBTI、Feed、选择反馈、推荐、护照与个人主页使用立体图；详情使用实拍图。Tea Realm 必须延续同一款茶的结构色、抽象形和环境气氛。
 
 不要直接模仿或复刻任何外部 Visual Skill 的标志性成品版式。完整规则参考项目内 `docs/design/tea-visual-grammar.md`。
 
@@ -153,15 +139,15 @@ AI 茶伴：
 
 ---
 
-## Screen 1｜Launch / Entry
+## Screen 1｜MBTI 破冰 / Entry
 
 不要登录。
 
 不要注册。
 
-不要问卷。
+不要人格问卷；直接选择已知 MBTI，也可以跳过。
 
-页面只有：
+品牌过渡后显示：
 
 ### Logo
 
@@ -174,33 +160,30 @@ AI 茶伴：
 
 辅助：
 
-> 今天想喝什么？别选，刷就行。
+> 选择你已知的类型，或先凭感觉开始。
 
 按钮：
 
-> `开始刷茶`
+> `就选这个` / `还没测过？先凭感觉开始`
 
-下方极轻提示：
-
-> 不需要做测试。
-
-不要出现 MBTI。
+随后展示“最像你 / 可能惊喜 / 反差值得试”三杯，再进入八茶 Feed。解释只使用“可能、也许、此刻”等非确定性措辞，不展示匹配百分比或科学测评结论。
 
 ---
 
-# 5. Screen 2｜Blind Swipe 首页
+# 5. Screen 2｜八茶识别式 Swipe 首页
 
 这是整个产品最重要的页面。
 
 请把卡片做成全屏偏上的大型 Swipe Card。
 
-### 卡片第一态不能显示：
+### 卡片第一态必须显示：
 
-- 茶名；
-- 品牌；
-- 价格；
-- 茶类；
-- 等级。
+- 茶名、茶类与产区；
+- 三项性格关键词；
+- 完整立体设计图；
+- 一句感受型短标题与轻量进度。
+
+品牌、价格、商品等级和内部推荐向量不显示。
 
 ### 示例卡片 A
 
@@ -213,11 +196,13 @@ Body：
 > 像刚冒出来的嫩叶，  
 > 尾巴还会留一点甜。
 
-Tags：
+Identity：
 
-`轻盈`
-`清鲜`
-`回甘`
+`都匀毛尖` `绿茶` `贵州 · 黔南州 · 都匀市`
+
+Personality：
+
+`灵动` `敏锐` `清醒`
 
 Scene：
 
@@ -225,13 +210,10 @@ Scene：
 
 视觉：
 
-- 真实锚点：暖白杯中的浅色茶汤、杯沿与极轻蒸汽；
-- 结构色：嫩黄绿，只使用一个强调色；
-- 抽象形：一条细长山脊线，从茶汤边缘向留白延伸；
-- 环境暗示：清晨薄雾；
-- 保留大量暖白留白；
-- 不出现包装、茶名、产地地标和完整干茶形态；
-- 看起来是年轻内容产品，不是商品海报。
+- 使用都匀毛尖对应的完整 `presentation` 立体图；
+- 图片 `contain`，背景匹配暖白宣纸；
+- 图内与页面茶名均不被裁切；
+- 看起来是年轻内容产品，不是商品货架。
 
 底部按钮：
 
@@ -252,7 +234,7 @@ Scene：
 
 顶部：
 
-> 2 / 6
+> 2 / 8
 
 右上：
 
@@ -262,13 +244,13 @@ Scene：
 
 用于说明：
 
-> “现在不会告诉你茶名，先选感觉。”
+> “茶名会直接显示；冲泡与资料依据在详情展开。”
 
 ---
 
-# 6. Screen 3｜Blind Swipe 卡片 B / C
+# 6. Screen 3｜识别式 Swipe 卡片 B / C
 
-请至少设计三种风格明显不同的 Blind Card，便于 Demo。
+请完整呈现八款风格明显不同的贵州茶立体卡片，便于 Demo。
 
 ### B
 
@@ -316,21 +298,21 @@ Tags：
 
 ---
 
-# 7. Screen 4｜Reveal Moment
+# 7. Screen 4｜选择反馈
 
 当用户点击“想喝”以后，
 
 卡片不要立即消失。
 
-做一个 Reveal 动画：
+做一个选择反馈动画：
 
-Blind 文案淡出一部分。
+卡片文案淡出一部分。
 
-Tea Identity 从下方出现。
+Tea Identity 保持可见，反馈面板从下方出现。
 
 示例：
 
-> **你刚刚喜欢的是：**
+> **这一杯是：**
 
 # 都匀毛尖
 
@@ -417,7 +399,7 @@ Secondary：
 
 视觉连续性：
 
-- 继承 Blind Card 的嫩黄绿、细长山脊和清晨薄雾；
+- 继承 Feed 卡片的嫩黄绿、细长山脊和清晨薄雾；
 - 真实锚点从茶汤局部扩展到完整茶叶 / 茶汤视觉；
 - 不突然切换到另一套商品摄影或国风版式；
 - 产地内容可采用“真实产地摄影 + 抽象记忆面板”，但抽象部分只能来自该照片真实存在的空间、颜色和结构。
@@ -966,13 +948,13 @@ type Tea = {
   id: string
   name: string
   region: string
-  blindHeadline: string
-  blindBody: string
-  blindTags: string[]
+  feedHeadline: string
+  feedBody: string
+  personalityKeywords: string[]
   professionalTags: string[]
   visualProfile: {
     primaryAnchorAssetId: string
-    anchorTypes: Array<"tea_liquor" | "infusion" | "wet_leaf" | "dry_leaf" | "brewing_action">
+    anchorTypes: Array<"stylized_identity" | "tea_liquor" | "infusion" | "wet_leaf" | "dry_leaf" | "brewing_action">
     structureColor: string
     structureColorBasis: string
     abstractForm: string
@@ -990,15 +972,17 @@ type Tea = {
   }
   visualAssets: Array<{
     id: string
-    sourceKind: "ai_generated" | "self_shot" | "licensed_photo"
-    authenticityState: "synthetic_demo" | "documentary"
+    role: "presentation" | "detail" | "realm"
+    sourceKind: "user_provided" | "third_party_photo" | "ai_generated" | "self_shot" | "licensed_photo"
+    authenticityState: "stylized_demo" | "reference" | "synthetic_demo" | "documentary"
     rightsState: "owned" | "licensed" | "demo_only" | "unknown"
+    sourceUrl: string
     mediaPath: string
     cropStrategy: string
-    blindSafe: boolean
-    identityRisk: "low" | "medium" | "high"
-    promptId: string
+    active: boolean
+    masterSha256: string
     sha256: string
+    editChain: EditStep[]
   }>
 }
 ```
@@ -1051,10 +1035,10 @@ type Tea = {
 - 松手回弹；
 - 完成滑动进入下一张。
 
-### Reveal
+### 选择反馈
 
-- Blind 内容退场；
-- 茶名渐现；
+- Feed 内容退场；
+- 茶名保持可见；
 - 标签出现。
 
 ### Taste Summary
@@ -1088,11 +1072,11 @@ type Tea = {
 
 ## Principle 2
 
-> **先感觉，后术语**
+> **先识别，再理解**
 
-Blind Card 先用普通人语言。
+Feed Card 先用普通人语言。
 
-Reveal 后再展示专业茶语。
+选择反馈与详情再逐步展示专业茶语。
 
 ## Principle 3
 
@@ -1125,11 +1109,11 @@ AI 不应该占满产品。
 ```text
 开始刷茶
 ↓
-Blind Swipe
+八茶识别式 Swipe
 ↓
 喜欢某种感觉
 ↓
-Reveal 原来是什么茶
+确认刚刚选择的茶
 ↓
 AI 开始理解 Taste
 ↓
@@ -1164,7 +1148,7 @@ Tea-BTI 更新
 2. 所有主要页面；
 3. 可点击的页面导航；
 4. Swipe interaction；
-5. Reveal state；
+5. 选择反馈 state；
 6. AI Companion drawer；
 7. Brew / Taste mock state；
 8. Tea Realm 2.5D pixel-inspired screen；
@@ -1172,8 +1156,8 @@ Tea-BTI 更新
 10. Tea-BTI；
 11. Mock Data；
 12. 完整中文 UI 文案；
-13. 3 款核心茶的 Visual Profile；
-14. Blind → Reveal → 详情 → Tea Realm 的视觉继承；
+13. 8 款核心茶的 Visual Profile 与双视觉配置；
+14. 立体展示 → 选择反馈 → 实拍详情 → Tea Realm 的视觉继承；
 15. 可替换的本地 Mock 视觉资产槽位，不依赖外部 Skill 或在线生图。
 
 优先级：

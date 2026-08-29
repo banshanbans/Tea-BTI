@@ -13,6 +13,8 @@ EXPOSE 3000
 CMD ["npm", "--workspace", "apps/web", "run", "dev"]
 
 FROM base AS builder
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY apps/web apps/web
 COPY packages/contracts packages/contracts
 RUN npm --workspace apps/web run build

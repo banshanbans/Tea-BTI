@@ -1,0 +1,12 @@
+gks.socialdog.cn {
+	encode zstd gzip
+
+	@api path /api/* /healthz /docs* /redoc* /openapi.json
+	handle @api {
+		reverse_proxy 172.30.25.1:18000
+	}
+
+	handle {
+		reverse_proxy 172.30.25.1:13000
+	}
+}

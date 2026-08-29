@@ -10,7 +10,7 @@
 ```text
 Mobile Web / PWA
     │
-    ├── Blind Swipe Feed
+    ├── Identified Eight-Tea Swipe Feed
     ├── Tea Detail
     ├── Brew Mode
     ├── Taste Mode
@@ -77,9 +77,17 @@ Taste Vector、Tea Journey、Passport、Realm Progress 与 Tea-BTI 以服务端�
 
 ## User Journey Orchestration
 
-冷启动和应用主界面使用不同 Shell：`launch / mbti / seeds` 不渲染顶部应用栏和底部 Tab，`feed / reveal / recommendation` 才进入应用导航。`tea-bti.launchSeen` 只记录启动页是否已被用户确认；恢复依据仍来自 `/bootstrap`。
+破冰和应用主界面使用不同 Shell：`mbti / seeds` 不渲染顶部应用栏和底部 Tab，`feed / reveal / recommendation` 才进入应用导航。新用户、未完成破冰的用户和 `fromProfile` 访问者在 Bootstrap 后直接进入 MBTI；已完成破冰的回访用户经过至少 `0.8s` 品牌过渡后恢复 Feed。`tea-bti.launchSeen` 仅为旧版本兼容保留，不再参与入口判断；恢复依据始终来自 `/bootstrap.onboardingCompleted`。
+
+MBTI 转盘状态只保存在前端：16 型采用固定顺序、CSS Scroll Snap 和 Pointer/Keyboard 输入，确认后仍调用既有 `POST /onboarding/seed`。未知类型提交 `mbti: null`，不产生新的领域状态。
+
+Swipe 由单一 MotionValue 驱动顶层位移、旋转、X / Heart 强度以及第二、第三张卡的上移补位。手势和按钮进入同一个幂等提交函数；飞卡动画与 API 并行，接口失败时恢复原卡并允许重试。`prefers-reduced-motion` 下取消旋转、弹性和脉冲，只保留短淡入淡出与即时补位。
 
 单茶页的主操作不在前端拼接 Passport 和 Realm 状态。后端通过 `TeaJourneyResponse` 聚合 `PassportEntry + RealmProgress`，按 `brew → taste → realm → passport` 返回第一个未完成阶段。该结果只用于引导，不作为路由权限或解锁门槛。
+
+内部导航只接受固定来源：`origin = swipe | passport | profile`，未知值回退为 `swipe`；Tea Realm 另接受 `entry = tea | realm`，未知值回退为 `realm`。茶详情、Brew、Taste 与从茶详情进入的 Realm 透传 `origin`，Realm 仅在 `entry = tea` 且 Tea ID 与已加载定义一致时退出到茶详情，否则安全回到 `/realm`。不接收通用 `returnTo` 或外部 URL。
+
+Swipe 的下一张 `cardId` 只保存在当前前端 Zustand 内存中，用于客户端路由往返后的 Feed 恢复；整页刷新不持久化该位置。Tea Realm 的界面幕与服务端 `currentScene` 分开：返回已完成幕只修改本地 `screen`，再次向前若该幕已在 `completedScenes` 中则不调用 `PATCH /progress`，只有服务端前沿幕可以提交新的完成事件。
 
 ---
 
@@ -191,7 +199,7 @@ Tea {
   sensory_vector: number[]
   embedding: number[]
 
-  blind_copy: {
+  feed_copy: {
     headline: string
     description: string
     scene: string
@@ -351,6 +359,8 @@ ProfileShare {
 
 分享撤销会移除当前 `public_id`；再次开启生成全新 capability。公开页始终实时读取 TeaProfile，因此编辑后同步生效，已撤销 ID 不会恢复。Profile 的编辑、分享、浏览和 CTA 服务不调用 Taste 更新、推荐或 Tea-BTI 写逻辑。
 
+私有页面将同一份聚合数据投影为三层：`/profile` 的 Tea Identity Hero、我的茶迹与继续探索；`/profile/edit` 的资料/候选/分享范围编辑；`/profile/tea-bti` 的当前人格解读。内部 Block ID 和 `isPublic` 只服务数据与编辑流程，不出现在 `/profile` 浏览态。公开 `/p/{publicId}` 继续使用独立公开模型与既有页面。
+
 ---
 
 # 7. Tea Profile 数据结构
@@ -380,8 +390,8 @@ ProfileShare {
 - official_description
 
 年轻化表达：
-- blind_headline
-- blind_description
+- feed_headline
+- feed_description
 - scene
 - emotion
 - visual_metaphor
@@ -399,7 +409,7 @@ LLM：
 
 ## 7.1 Visual Profile / 视觉资产契约
 
-每款核心 Demo 茶必须有人工审核的 Visual Profile，用同一份配置连接 Blind、Reveal、详情、Tea Realm、Passport 与 Tea-BTI 证据卡。
+每款核心 Demo 茶必须有人工审核的 Visual Profile，用同一份配置连接 MBTI、识别式 Swipe、选择反馈、详情、Tea Realm、Passport 与 Tea-BTI 证据卡。`visual` 代表立体展示图，`detail_visual` 代表详情实拍图。
 
 ```ts
 type VisualProfile = {
@@ -439,8 +449,12 @@ type VisualAsset = {
   master_path: string
   media_path: string
   crop_strategy: string
-  blind_safe: boolean
-  identity_risk: "low" | "medium" | "high"
+  role: "presentation" | "detail" | "realm"
+  active: boolean
+  source_url: string
+  original_sha256: string
+  master_sha256: string
+  edit_chain: EditStep[]
   prompt_id: string
   sha256: string
 }
@@ -450,7 +464,7 @@ Demo 规则：
 
 - Visual Profile 与卡片视觉提前生成并本地缓存；
 - 不让运行时 LLM 自由创造结构色、风味隐喻或产地场景；
-- `blind_safe = false` 的资产不能进入 Blind Feed；
+- 当前 Feed 只读取 `role = presentation && active = true` 的八张立体图；
 - `rights_state = unknown` 的资产不能进入正式生产构建；
 - `authenticity_state = synthetic_demo` 的资产不能被描述为真实商品或纪实产地摄影；
 - 原图、裁切图、成品图与 Tea ID 通过资产清单稳定关联；
@@ -566,7 +580,7 @@ score =
 
 ---
 
-# 9. Blind Card 文案生成
+# 9. 识别式 Swipe Card 文案生成
 
 ## 输入
 
@@ -593,9 +607,8 @@ score =
 
 约束：
 
-- 不出现茶名；
-- 不出现品牌；
-- 不出现茶类；
+- 必须显示茶名、茶类、产区和三项性格关键词；
+- 不出现商品品牌、等级或价格；
 - 不编造感官特征；
 - 语言不使用过度玄学；
 - 文案长度适合单屏卡片；
@@ -823,63 +836,49 @@ AI 不应该告诉用户：
 
 ## 底层不是 LLM 人格测试
 
-底层从 Taste Vector 投影到四个轴。
+底层从连续 Taste Vector 和探索行为投影到四个饮茶偏好轴，再按顺序组成四字母 Code：
 
-示例：
+| 轴 | 左侧（分数大于等于 0） | 右侧（分数小于 0） |
+|---|---|---|
+| 风味基调 | `F — Fresh 清鲜` | `M — Mellow 醇和` |
+| 口感重量 | `L — Light 轻盈` | `R — Rich 浓郁` |
+| 感知入口 | `S — Scent 香气先行` | `T — Taste 滋味先行` |
+| 探索倾向 | `E — Explorer 尝新` | `C — Comfort 守味` |
 
-```text
-Axis 1
-Light ←→ Full
-
-Axis 2
-Fresh ←→ Warm
-
-Axis 3
-Soft/Sweet ←→ Punchy
-
-Axis 4
-Clean ←→ Long
-```
-
-每轴：
-
-```text
-0–100
-```
-
-例如：
-
-```json
-{
-  "light_full": 24,
-  "fresh_warm": 18,
-  "sweet_punchy": 32,
-  "clean_long": 71
-}
-```
+投影继续由 `taste.py` 的既有 Taste Vector 规则计算；人格配置只解释结果，不进入推荐权重，也不改变用户落入各 Code 的阈值。
 
 ---
 
 ## Tea-BTI 名称生成
 
-不要让模型每次随机命名。
+16 型人格名、简短气质和“茶桌精神速写”结构化内容由 `apps/api/data/tea-bti-personas.json` 唯一提供。API 启动时校验 F/M、L/R、S/T、E/C 的笛卡尔积恰好出现一次，并校验每型固定字段数量、对话结构、CP 存在且互为映射以及禁用表达；缺项、重复、未知 Code、空文案或单向 CP 都会阻止启动。运行时不允许 LLM 随机命名、生成段子或拼接回退名称。
 
-Demo 建议预先设计 6–8 个 Archetype。
+| Code | Tea-BTI 人格 | 简短气质 |
+|---|---|---|
+| `FLSE` | **山雾漫游者** | 清鲜、轻盈，追着香气认识新茶 |
+| `FLSC` | **春庭守香人** | 清鲜、轻盈，偏爱熟悉舒服的香 |
+| `FLTE` | **清溪寻味者** | 清鲜、轻盈，喜欢探索细微滋味 |
+| `FLTC` | **白露慢饮者** | 清鲜、轻盈，找到喜欢的便慢慢喝 |
+| `FRSE` | **花岭猎香者** | 清鲜但有厚度，喜欢追逐强烈香气 |
+| `FRSC` | **兰室藏香人** | 清鲜浓郁，偏爱稳定而有层次的香 |
+| `FRTE` | **青岚探味者** | 清鲜饱满，喜欢挑战不同滋味结构 |
+| `FRTC` | **松间守味人** | 清鲜饱满，偏爱有存在感的熟悉滋味 |
+| `MLSE` | **暮野寻香者** | 温润轻盈，在柔和茶里不断寻找新香 |
+| `MLSC` | **暖庭藏香人** | 温润轻盈，喜欢熟悉、安静的香气 |
+| `MLTE` | **秋溪探味者** | 温润轻盈，更关注入口与回味变化 |
+| `MLTC` | **暖盏慢饮者** | 温润轻盈，一杯喜欢的茶可以喝很久 |
+| `MRSE` | **烟霞猎香者** | 醇和浓郁，喜欢大胆探索厚重香气 |
+| `MRSC` | **炉火守香人** | 醇和浓郁，对熟悉的深香有稳定偏爱 |
+| `MRTE` | **深山探味者** | 醇厚浓郁，专注复杂滋味和长尾韵 |
+| `MRTC` | **炉火守夜人** | 醇厚浓郁，偏爱稳定、深沉、耐喝的茶 |
 
-规则匹配：
+**山雾漫游者、白露慢饮者、花岭猎香者、暖盏慢饮者、深山探味者、炉火守夜人** 仅作为品牌演示与传播代表，不带特殊 UI 标记，也不参与算法优先级。
 
-```text
-if light < 35
-and fresh < 35
-and long > 65
-→ SPRING_MIST
-```
+`TeaBtiResponse.personaDetail` 在 `early / stable` 返回对应静态内容，在 `forming` 返回 `null`。配置中的 `chemistry.partnerCode` 是事实源，API 根据同一配置补全 `partnerName`，避免重复维护名称。
 
-显示：
+`TeaBtiResponse.behaviorEvidence` 最多返回三条结构化真实事件。选择顺序为：最近一条有原话的品饮、不同茶的最近喜欢或收藏、不同茶的最近跳过；不足三条时按时间用其他真实事件补齐。响应只携带事件种类、茶摘要、可空用户原话和可空泡数，不虚构次数或停留时长。公开 Profile 使用独立 `PublicTeaBtiResponse`，不返回 `personaDetail` 或 `behaviorEvidence`，避免私有行为及原话越过分享边界。
 
-> 春雾回甘型
-
-LLM 只负责解释。
+前端 `/profile/tea-bti` 只消费上述确定性响应，形成中使用独立分支；已形成页面先呈现趣味栏目，再呈现完整四轴和真实证据。顶部入口复用 `ProfileShareSheet`，分享权限、链接复用、二维码、复制、系统分享和撤销逻辑保持单一实现。
 
 ---
 
@@ -897,6 +896,19 @@ LLM 只负责解释。
 ```
 
 真喝反馈可计更高信号权重。
+
+形成态接口必须返回可执行进度，已形成状态返回 `null`：
+
+```ts
+formationProgress: {
+  swipesCompleted: number
+  swipesRequired: 5
+  swipesRemaining: number
+  positiveSignalCompleted: boolean
+} | null
+```
+
+`forming` 文案组合“剩余选择数”与“是否还缺一次喜欢、收藏或真实品饮”；`early / stable` 不再返回形成进度。该结构只解释形成门槛，不改变 Taste Vector、四轴投影或稳定度计算。
 
 ---
 
@@ -978,7 +990,7 @@ conversation_summary
 
 ```text
 session_started
-blind_card_seen
+feed_card_seen
 tea_liked
 tea_skipped
 tea_revealed
@@ -1078,7 +1090,7 @@ Brew 会话提前停止时只结束会话，不自动把 `brewStage` 改成 `com
 可缓存：
 
 - Tea Profile；
-- Blind Card；
+- 八茶识别式 Swipe Card；
 - Tea Embedding；
 - Tea Realm static data。
 
@@ -1120,7 +1132,7 @@ Hackathon 中国现场建议：
 
 本地 Taste Vector 算法即可，不依赖 LLM。
 
-## Blind Copy
+## Feed Copy
 
 提前生成。
 

@@ -1,87 +1,143 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "teas": [
     {
       "id": "duyun-maojian",
       "name": "都匀毛尖",
-      "region": "贵州 · 黔南",
+      "region": "贵州 · 黔南州 · 都匀市",
       "teaType": "绿茶",
       "professionalTags": ["嫩香", "鲜爽", "回甘"],
-      "officialDescription": "嫩香与栗香清晰，滋味鲜爽回甘，茶汤嫩黄绿明亮。",
-      "process": ["摊放", "杀青", "揉捻", "干燥"],
-      "sensoryVector": {
-        "freshness": 0.92,
-        "sweetness": 0.68,
-        "body": 0.25,
-        "roast": 0.12,
-        "astringency": 0.32,
-        "floral": 0.38,
-        "fruity": 0.16,
-        "clean": 0.9,
-        "aftertaste": 0.78
-      },
-      "brewingGuide": {
-        "vessel": "玻璃杯或盖碗",
-        "temperatureRange": "85–90°C 左右",
-        "steepTime": "盖碗约 15–25 秒起步",
-        "notes": ["具体用量与水温优先参考包装说明", "第一泡先短一些，再按滋味逐泡调整", "无法从语音判断精确水温或克数"]
-      },
-      "evidenceRefIds": ["db52-t-433-2018"]
+      "personalityKeywords": ["灵动", "敏锐", "清醒"],
+      "representativeFeatures": "条索紧细卷曲，形似鱼钩，白毫明显；干茶、茶汤与叶底呈现绿中透黄的特征。",
+      "aromaAndTaste": "清嫩香气高而持久，入口鲜爽，回甘清甜。",
+      "officialDescription": "白毫显露、条索紧细卷曲，清嫩香气高而持久，滋味鲜爽回甘。",
+      "process": ["摊放", "杀青", "揉捻", "搓团提毫", "干燥"],
+      "sensoryVector": {"freshness": 0.92, "sweetness": 0.68, "body": 0.25, "roast": 0.12, "astringency": 0.32, "floral": 0.38, "fruity": 0.16, "clean": 0.9, "aftertaste": 0.78},
+      "brewingGuide": {"vessel": "玻璃杯", "temperatureRange": "80–85°C", "teaAmount": "3g", "waterVolume": "150ml", "method": "玻璃杯冲泡", "steepTime": null, "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "水温、用量优先参考包装说明"]},
+      "evidenceRefs": [
+        {"id": "moa-duyun-maojian-2020", "label": "农业农村部相关介绍：饮罢浮花清香味", "url": "https://cnafun.moa.gov.cn/zt/gjcr/202005/t20200518_6344434.html", "supports": ["鱼钩形与白毫", "三绿三黄", "鲜爽回甘", "冲泡建议"]},
+        {"id": "db52-t-433-2018", "label": "DB52/T 433—2018 都匀毛尖茶", "url": "https://nynct.guizhou.gov.cn/xwzx/wjzz/201810/t20181023_25593500.html", "supports": ["产品特征", "感官边界"]}
+      ]
     },
     {
       "id": "meitan-cuiya",
       "name": "湄潭翠芽",
-      "region": "贵州 · 遵义 · 湄潭",
+      "region": "贵州 · 遵义市 · 湄潭县",
       "teaType": "绿茶",
-      "professionalTags": ["清香", "嫩香", "鲜爽"],
-      "officialDescription": "清香、嫩香或栗香持久，滋味鲜爽，茶汤嫩绿明亮。",
+      "professionalTags": ["清香", "嫩栗香", "鲜爽"],
+      "personalityKeywords": ["克制", "细致", "有秩序"],
+      "representativeFeatures": "茶身扁、平、光滑，形似葵花籽，色泽翠绿。",
+      "aromaAndTaste": "清香与嫩栗香明显，滋味醇厚爽口，回味甘甜，汤色黄绿明亮。",
+      "officialDescription": "外形扁平直、匀整，清香或嫩栗香持久，滋味鲜爽，汤色嫩绿明亮。",
       "process": ["摊放", "杀青", "理条", "干燥"],
-      "sensoryVector": {
-        "freshness": 0.84,
-        "sweetness": 0.6,
-        "body": 0.34,
-        "roast": 0.2,
-        "astringency": 0.27,
-        "floral": 0.46,
-        "fruity": 0.18,
-        "clean": 0.82,
-        "aftertaste": 0.63
-      },
-      "brewingGuide": {
-        "vessel": "玻璃杯或盖碗",
-        "temperatureRange": "85–90°C 左右",
-        "steepTime": "盖碗约 15–25 秒起步",
-        "notes": ["具体用量与水温优先参考包装说明", "先观察清香和鲜爽，再决定是否延长下一泡", "无法从语音判断精确水温或克数"]
-      },
-      "evidenceRefIds": ["guizhou-agri-meitan-cuiya-2025"]
+      "sensoryVector": {"freshness": 0.84, "sweetness": 0.6, "body": 0.34, "roast": 0.2, "astringency": 0.27, "floral": 0.46, "fruity": 0.18, "clean": 0.82, "aftertaste": 0.63},
+      "brewingGuide": {"vessel": "玻璃杯", "temperatureRange": "80–85°C", "teaAmount": "3g", "waterVolume": "150ml", "method": "上投或中投", "steepTime": null, "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "先观察清香和鲜爽，再决定是否延长下一次浸泡"]},
+      "evidenceRefs": [
+        {"id": "guizhou-agri-meitan-cuiya-2025", "label": "贵州省农业农村厅：湄潭翠芽", "url": "https://nynct.guizhou.gov.cn/syqt/tsny/202512/t20251202_89008101.html", "supports": ["外形", "清香或嫩香或栗香", "滋味鲜爽", "汤色"]},
+        {"id": "cnipa-meitan-cuiya-2021", "label": "国家知识产权局：湄潭翠芽地理标志商标", "url": "https://www.cnipa.gov.cn/art/2021/1/28/art_2526_156453.html", "supports": ["地理标志与产区"]}
+      ]
+    },
+    {
+      "id": "lvbaoshi",
+      "name": "绿宝石茶",
+      "region": "贵州 · 高原茶区",
+      "teaType": "颗粒形绿茶",
+      "professionalTags": ["浓郁", "鲜爽", "耐泡"],
+      "personalityKeywords": ["沉稳", "凝聚", "有韧性"],
+      "representativeFeatures": "干茶呈盘花状，颗粒紧实厚重；冲泡后逐渐舒展成完整叶片。",
+      "aromaAndTaste": "香气浓郁持久，滋味鲜爽浓醇，回甘明显，较为耐泡。",
+      "officialDescription": "盘花状颗粒紧实，香气浓郁持久，滋味鲜爽浓醇，回甘明显。",
+      "process": ["摊放", "杀青", "揉捻", "颗粒做形", "干燥"],
+      "sensoryVector": {"freshness": 0.8, "sweetness": 0.65, "body": 0.64, "roast": 0.18, "astringency": 0.25, "floral": 0.35, "fruity": 0.18, "clean": 0.8, "aftertaste": 0.82},
+      "brewingGuide": {"vessel": "玻璃杯或盖碗", "temperatureRange": "85–90°C", "teaAmount": "3–4g", "waterVolume": "150ml", "method": "可先润茶数秒", "steepTime": null, "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "颗粒舒展后再按浓淡调整后续浸泡"]},
+      "evidenceRefs": [
+        {"id": "db52-t-442-4-2017", "label": "DB52/T 442.4—2017 贵州绿茶 第4部分：颗粒形茶", "url": "https://nynct.guizhou.gov.cn/xwzx/wjzz/201810/t20181023_25593562.html", "supports": ["颗粒形茶定义", "盘花状颗粒感官品质"]},
+        {"id": "db52-t-997-2018", "label": "DB52/T 997—2018 绿宝石 绿茶", "url": "https://amr.guizhou.gov.cn/ztzl_85/bzhzl/gg/202401/t20240109_83502673.html", "supports": ["地方标准登记"]}
+      ]
+    },
+    {
+      "id": "puan-hong",
+      "name": "普安红",
+      "region": "贵州 · 黔西南州 · 普安县",
+      "teaType": "红茶",
+      "professionalTags": ["蜜香", "花果香", "甘润"],
+      "personalityKeywords": ["温暖", "深沉", "有包容力"],
+      "representativeFeatures": "条索细紧、略带弯曲，芽毫显露；优质产品常呈金黄与乌黑相间。",
+      "aromaAndTaste": "常见蜜香、花香和果香，茶汤橙红明亮，滋味醇厚甘润。",
+      "officialDescription": "条索细紧，蜜香、花香和果香交织，茶汤橙红明亮，滋味醇厚甘润。",
+      "process": [],
+      "sensoryVector": {"freshness": 0.48, "sweetness": 0.8, "body": 0.76, "roast": 0.3, "astringency": 0.24, "floral": 0.64, "fruity": 0.72, "clean": 0.74, "aftertaste": 0.8},
+      "brewingGuide": {"vessel": "盖碗或小壶", "temperatureRange": "90–95°C", "teaAmount": "4g", "waterVolume": "150ml", "method": "快速出汤", "steepTime": "前几泡 10–20 秒", "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "香气足而滋味偏厚时，下一泡可以更快出汤"]},
+      "evidenceRefs": [{"id": "guizhou-puan-hong-2021", "label": "贵州希望网：贵州茶叶“三绿三红”之普安红", "url": "https://www.gzxw.gov.cn/dvsgz/5332", "supports": ["产区", "蜜果花香", "汤色", "醇厚甘润"]}]
+    },
+    {
+      "id": "fenggang-xinxi",
+      "name": "凤冈锌硒茶",
+      "region": "贵州 · 遵义市 · 凤冈县",
+      "teaType": "绿茶（区域公用品牌）",
+      "professionalTags": ["嫩栗香", "兰花香", "平衡"],
+      "personalityKeywords": ["自然", "平衡", "可靠"],
+      "representativeFeatures": "区域公用品牌，生长于富含锌、硒元素的生态茶区；本项目按常见绿茶产品呈现。",
+      "aromaAndTaste": "常见嫩栗香或自然兰花香，滋味鲜爽、醇厚、回甘。",
+      "officialDescription": "本项目以常见绿茶产品呈现凤冈锌硒茶：色泽绿润，香气自然，滋味鲜爽醇厚。",
+      "process": [],
+      "sensoryVector": {"freshness": 0.82, "sweetness": 0.64, "body": 0.58, "roast": 0.18, "astringency": 0.23, "floral": 0.54, "fruity": 0.18, "clean": 0.86, "aftertaste": 0.76},
+      "brewingGuide": {"vessel": "玻璃杯或盖碗", "temperatureRange": "80–85°C", "teaAmount": "3g", "waterVolume": "150ml", "method": "按绿茶方式冲泡", "steepTime": null, "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "凤冈锌硒茶包含不同产品形态，应优先参考具体包装说明"]},
+      "evidenceRefs": [
+        {"id": "guizhou-agri-fenggang-2023", "label": "贵州省农业农村厅：凤冈县茶产业", "url": "https://nynct.guizhou.gov.cn/xwzx/zwdt/202307/t20230731_81366880.html", "supports": ["产区生态", "土壤锌硒元素"]},
+        {"id": "mofcom-fenggang-gi", "label": "中欧地理标志协定：凤冈锌硒茶", "url": "https://zyzddf.mofcom.gov.cn/hwwq_2/chn_eu_gi/chn/chn-cat-02-1.8.html", "supports": ["地理标志与原产地"]}
+      ]
     },
     {
       "id": "zunyi-hong",
       "name": "遵义红",
-      "region": "贵州 · 遵义",
-      "teaType": "红茶",
-      "professionalTags": ["甜香", "鲜爽", "醇厚"],
-      "officialDescription": "茶汤红亮，甜香高且持久，滋味鲜爽醇厚。",
+      "region": "贵州 · 遵义茶区",
+      "teaType": "工夫红茶",
+      "professionalTags": ["嫩甜香", "鲜爽", "醇厚"],
+      "personalityKeywords": ["热烈", "坚定", "有行动力"],
+      "representativeFeatures": "外形紧细秀丽，色泽乌润，茶汤红亮透明。",
+      "aromaAndTaste": "嫩甜香突出，香气馥郁持久；滋味鲜爽醇厚，温和顺滑。",
+      "officialDescription": "外形条索紧细、色泽乌润，茶汤红亮，甜香高而持久，滋味鲜爽醇厚。",
       "process": ["萎凋", "揉捻", "发酵", "干燥"],
-      "sensoryVector": {
-        "freshness": 0.5,
-        "sweetness": 0.82,
-        "body": 0.76,
-        "roast": 0.36,
-        "astringency": 0.28,
-        "floral": 0.34,
-        "fruity": 0.64,
-        "clean": 0.68,
-        "aftertaste": 0.74
-      },
-      "brewingGuide": {
-        "vessel": "盖碗或小壶",
-        "temperatureRange": "90–95°C 左右",
-        "steepTime": "盖碗约 15–30 秒起步",
-        "notes": ["具体用量与水温优先参考包装说明", "若甜香足但滋味偏厚，下一泡可以更快出汤", "无法从语音判断精确水温或克数"]
-      },
-      "evidenceRefIds": ["guizhou-sasac-zunyi-hong-2021"]
+      "sensoryVector": {"freshness": 0.5, "sweetness": 0.82, "body": 0.76, "roast": 0.36, "astringency": 0.28, "floral": 0.34, "fruity": 0.64, "clean": 0.68, "aftertaste": 0.74},
+      "brewingGuide": {"vessel": "盖碗或小壶", "temperatureRange": "90–95°C", "teaAmount": "4g", "waterVolume": "150ml", "method": "快速出汤", "steepTime": "前几泡 10–20 秒", "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "甜香足而滋味偏厚时，下一泡可以更快出汤"]},
+      "evidenceRefs": [
+        {"id": "guizhou-agri-zunyi-hong-2025", "label": "贵州省农业农村厅：遵义红", "url": "https://nynct.guizhou.gov.cn/syqt/tsny/202506/t20250611_88128834.html", "supports": ["品质特征", "制作工艺", "产区"]},
+        {"id": "db52-t-1000-2018", "label": "DB52/T 1000—2018 遵义红 红茶", "url": "https://nynct.guizhou.gov.cn/xwzx/wjzz/201810/W020181023570633556191.pdf", "supports": ["外形", "汤色", "甜香", "鲜爽醇厚"]}
+      ]
+    },
+    {
+      "id": "leishan-yinqiu",
+      "name": "雷山银球茶",
+      "region": "贵州 · 黔东南州 · 雷山县",
+      "teaType": "造型绿茶",
+      "professionalTags": ["清香", "鲜爽", "醇和"],
+      "personalityKeywords": ["内敛", "慢热", "层层展开"],
+      "representativeFeatures": "茶叶被手工揉制成小球，一颗通常约 2.5g；入水后缓慢舒展。",
+      "aromaAndTaste": "清香鲜爽，滋味醇和回甘；兼具观赏性和苗族手工制茶特色。",
+      "officialDescription": "手工揉制成球，一球约 2.5g，入水后逐层舒展，清香鲜爽、醇和回甘。",
+      "process": ["手工揉制成球"],
+      "sensoryVector": {"freshness": 0.76, "sweetness": 0.63, "body": 0.5, "roast": 0.16, "astringency": 0.22, "floral": 0.42, "fruity": 0.16, "clean": 0.82, "aftertaste": 0.72},
+      "brewingGuide": {"vessel": "玻璃杯", "temperatureRange": "85–90°C", "teaAmount": "一球（约 2.5g）", "waterVolume": "250–300ml", "method": "一球一杯", "steepTime": null, "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "留出空间观察茶球缓慢舒展"]},
+      "evidenceRefs": [{"id": "tongren-leishan-yinqiu-2022", "label": "铜仁网：雷山银球茶的春天味道", "url": "https://www.tongren.gov.cn/2022/0422/271681.shtml", "supports": ["约 2.5g 一球", "手工揉制", "造型特点"]}]
+    },
+    {
+      "id": "fanjingshan-matcha",
+      "name": "梵净山抹茶",
+      "region": "贵州 · 铜仁市 · 梵净山周边",
+      "teaType": "抹茶（蒸青茶粉）",
+      "professionalTags": ["海苔香", "鲜醇", "细腻"],
+      "personalityKeywords": ["专注", "鲜明", "充满能量"],
+      "representativeFeatures": "茶树经过遮阴，鲜叶经蒸汽杀青、叶梗分离、干燥和超细研磨制成翠绿茶粉。",
+      "aromaAndTaste": "色泽翠绿，带海苔香、嫩香和植物清香；鲜醇细腻，略带清苦。",
+      "officialDescription": "遮阴茶青经蒸青与精细研磨制成，色泽翠绿，香气鲜明，滋味鲜醇细腻。",
+      "process": ["遮阴覆盖", "蒸汽杀青", "冷却干燥", "梗叶分离", "精细研磨"],
+      "sensoryVector": {"freshness": 0.86, "sweetness": 0.35, "body": 0.7, "roast": 0.06, "astringency": 0.4, "floral": 0.18, "fruity": 0.1, "clean": 0.78, "aftertaste": 0.6},
+      "brewingGuide": {"vessel": "茶碗与茶筅", "temperatureRange": "70–80°C", "teaAmount": "1.5–2g", "waterVolume": "60–80ml", "method": "用茶筅打匀", "steepTime": null, "notes": ["冲泡参数属于体验建议，不同等级和品牌可适当调整", "先少量加水调开茶粉，再继续打匀"]},
+      "evidenceRefs": [
+        {"id": "tongren-matcha-2023", "label": "铜仁网：阳春三月，又闻铜仁抹茶香", "url": "https://www.tongren.gov.cn/2023/0328/296944.shtml", "supports": ["蒸汽杀青", "干燥", "磨粉", "遮阴覆盖"]},
+        {"id": "tongren-matcha-2025", "label": "铜仁网：梵净抹茶书写中国茶产业新传奇", "url": "https://www.tongren.gov.cn/2025/0511/334946.shtml", "supports": ["梵净抹茶产业与产区"]}
+      ]
     }
   ]
 }
-

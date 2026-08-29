@@ -1,8 +1,8 @@
 {
   "$schema": "./manifest.schema.json",
-  "schema_version": 2,
-  "visual_grammar_version": "0.1",
-  "generated_at": "2026-08-28T20:45:00+08:00",
+  "schema_version": 3,
+  "visual_grammar_version": "0.2",
+  "generated_at": "2026-08-29T09:37:09.909Z",
   "review_viewport": {
     "width": 390,
     "height": 844
@@ -11,40 +11,62 @@
     {
       "tea_id": "duyun-maojian",
       "name": "都匀毛尖",
-      "region": "贵州 · 黔南",
-      "evidence_refs": [
-        {
-          "id": "db52-t-433-2018",
-          "label": "DB52/T 433—2018 都匀毛尖茶省级地方标准",
-          "url": "https://nynct.guizhou.gov.cn/xwzx/wjzz/201810/t20181023_25593500.html",
-          "supports": ["嫩香与栗香", "鲜爽回甘", "嫩黄绿明亮汤色"]
-        },
-        {
-          "id": "food-chemistry-x-2026-figure-7",
-          "label": "Food Chemistry: X 35 (2026) 103843, Figure 7A",
-          "url": "https://doi.org/10.1016/j.fochx.2026.103843",
-          "supports": ["都匀毛尖五个等级的干茶纪实对照"]
-        }
-      ],
+      "region": "贵州 · 黔南州 · 都匀市",
       "visual_profile": {
-        "primary_anchor_asset_id": "duyun-maojian-mist-cup",
-        "anchor_types": ["tea_liquor", "infusion"],
-        "structure_color": "#B7CF72",
-        "structure_color_basis": "取自嫩黄绿明亮汤色，并提高少量明度用于移动端结构层。",
+        "primary_anchor_asset_id": "duyun-maojian-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#718A5A",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
         "abstract_form": "ridge_line",
-        "abstract_form_basis": "以黔南山地的方向感连接轻、清、鲜的主要感受；不承担具体产地复原。",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
         "atmosphere_cue": "morning_mist",
         "atmosphere_is_metaphor": true,
         "overlay": {
-          "bottom_percent": 28,
-          "left_percent": -8,
-          "width_percent": 116,
-          "height_percent": 24,
-          "opacity": 0.38,
-          "atmosphere_opacity": 0.22
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
         }
       },
       "assets": [
+        {
+          "id": "duyun-maojian-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/07-都匀毛尖-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/duyun-maojian.png",
+          "media_path": "assets/tea-visuals/media/presentation/duyun-maojian.webp",
+          "master_width": 973,
+          "master_height": 1617,
+          "media_width": 973,
+          "media_height": 1617,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "b9fc8384ad1ecadbeee01d290b584d8f5d085427af6c746042c15039ead9d01c",
+          "sha256": "420f8d95eed0aa3dab96fc6d6a3fdcec0165076b6cfd77a59869d615fd5da957",
+          "card_copy": {
+            "headline": "山雾刚散。",
+            "body": "嫩叶的清气先到，回甘在后面轻轻跟上。",
+            "tags": [
+              "灵动",
+              "敏锐",
+              "清醒"
+            ],
+            "scene": "晨雾刚从黔南山间散开"
+          }
+        }
+      ],
+      "legacy_assets": [
         {
           "id": "duyun-maojian-mist-cup",
           "role": "blind_base",
@@ -68,10 +90,14 @@
           "prompt_id": "prompt-duyun-maojian-mist-cup-v1",
           "sha256": "30101b125f1b548a99960d4fcbfac59ba0ad718f2de5c79972888a4c0236eca7",
           "card_copy": {
-            "headline": "清一点。",
-            "body": "像刚冒出来的嫩叶，尾巴还会留一点甜。",
-            "tags": ["轻盈", "清鲜", "回甘"],
-            "scene": "适合刚睡醒的周末上午"
+            "headline": "山雾刚散。",
+            "body": "嫩叶的清气先到，回甘在后面轻轻跟上。",
+            "tags": [
+              "轻盈",
+              "清鲜",
+              "回甘"
+            ],
+            "scene": "周末刚醒，窗边还有一点凉"
           },
           "preview_path": "assets/tea-visuals/previews/duyun-maojian-mist-cup-blind.png",
           "derivatives": [
@@ -83,7 +109,8 @@
               "height": 600,
               "sha256": "376f740b3ceb8bd6fda607cd60f61d0bfd1f910eb31cf8a5738ce645d801899d"
             }
-          ]
+          ],
+          "active": false
         },
         {
           "id": "duyun-maojian-pour-ripple",
@@ -108,15 +135,43 @@
           "prompt_id": "prompt-duyun-maojian-pour-ripple-v1",
           "sha256": "e2fe273210e52bc545ba03bb65c1e7749726773d94a08204042670d6b79938e7",
           "card_copy": {
-            "headline": "先嫩，后甜。",
-            "body": "入口很轻，咽下去以后，甜意才慢慢回来。",
-            "tags": ["嫩香", "鲜爽", "回甘"],
-            "scene": "适合把早晨放慢一点的时候"
+            "headline": "一口春天。",
+            "body": "第一口很嫩，咽下去，甜才慢慢回来。",
+            "tags": [
+              "嫩香",
+              "鲜爽",
+              "回甘"
+            ],
+            "scene": "早晨不赶时间"
           },
           "preview_path": "assets/tea-visuals/previews/duyun-maojian-pour-ripple-blind.png",
-          "derivatives": []
+          "derivatives": [],
+          "active": false
         }
       ],
+      "detail_asset": {
+        "id": "duyun-maojian-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.pp918.com/guideinfo_9521.html",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/duyun-maojian.jpg",
+        "master_path": "assets/tea-visuals/masters/detail/source/duyun-maojian.jpg",
+        "media_path": "assets/tea-visuals/media/detail/duyun-maojian.webp",
+        "master_width": 800,
+        "master_height": 800,
+        "media_width": 800,
+        "media_height": 800,
+        "original_sha256": "2a67947b65a13287150b32801dda3c1f3c8e32f96305fbfecafe0b96979c2033",
+        "master_sha256": "2a67947b65a13287150b32801dda3c1f3c8e32f96305fbfecafe0b96979c2033",
+        "object_position": "50% 50%",
+        "sha256": "d7436d6031ad0f1df91b1b764a076018a36061b6f149800ee52e456ec333ca64",
+        "edit_note": null,
+        "edit_chain": []
+      },
       "realm_assets": [
         {
           "id": "realm-duyun-mist",
@@ -180,7 +235,9 @@
           "rights_state": "open_license",
           "rights_note": "Figure 7A 干茶行裁剪，论文按 CC BY 4.0 开放；Demo 可用，正式商业发布前仍应替换为品牌自有或明确商用授权摄影。",
           "credit": "Xia, W.-W. et al. (2026), Food Chemistry: X 35, 103843, Figure 7A, CC BY 4.0；裁剪为干茶行。",
-          "evidence_ref_ids": ["food-chemistry-x-2026-figure-7"],
+          "evidence_ref_ids": [
+            "food-chemistry-x-2026-figure-7"
+          ],
           "master_path": "assets/tea-visuals/masters/realm/duyun-dry-tea-figure7.jpg",
           "media_path": "assets/tea-visuals/media/realm/duyun-dry-tea-figure7.webp",
           "master_width": 476,
@@ -212,34 +269,62 @@
     {
       "tea_id": "meitan-cuiya",
       "name": "湄潭翠芽",
-      "region": "贵州 · 遵义 · 湄潭",
-      "evidence_refs": [
-        {
-          "id": "guizhou-agri-meitan-cuiya-2025",
-          "label": "贵州省农业农村厅：湄潭翠芽",
-          "url": "https://nynct.guizhou.gov.cn/syqt/tsny/202512/t20251202_89008101.html",
-          "supports": ["清香或嫩香或栗香持久", "滋味鲜爽", "嫩绿明亮汤色"]
-        }
-      ],
+      "region": "贵州 · 遵义市 · 湄潭县",
       "visual_profile": {
-        "primary_anchor_asset_id": "meitan-cuiya-spring-pour",
-        "anchor_types": ["infusion", "tea_liquor", "wet_leaf"],
-        "structure_color": "#72A85C",
-        "structure_color_basis": "来自黄绿润外形与嫩绿明亮汤色的中明度春绿。",
+        "primary_anchor_asset_id": "meitan-cuiya-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#56784B",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
         "abstract_form": "layered_horizontal",
-        "abstract_form_basis": "由扁平直的外形与生长层次提炼为稀疏横向节奏。",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
         "atmosphere_cue": "spring_afternoon",
         "atmosphere_is_metaphor": true,
         "overlay": {
-          "bottom_percent": 24,
-          "left_percent": 8,
-          "width_percent": 84,
-          "height_percent": 22,
-          "opacity": 0.3,
-          "atmosphere_opacity": 0.18
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
         }
       },
       "assets": [
+        {
+          "id": "meitan-cuiya-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/08-湄潭翠芽-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/meitan-cuiya.png",
+          "media_path": "assets/tea-visuals/media/presentation/meitan-cuiya.webp",
+          "master_width": 973,
+          "master_height": 1616,
+          "media_width": 973,
+          "media_height": 1616,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "62495d195ed852eb69531aabf088abc9d1c5bf3da4af1452f12c1c5321a90a96",
+          "sha256": "c41b2ce93281a391774975bfdf973691cd5ee9ebe118aecac7e8e8cf9b3bb804",
+          "card_copy": {
+            "headline": "清香落得很轻。",
+            "body": "扁平嫩叶安静铺开，清香在杯口多停了一会儿。",
+            "tags": [
+              "克制",
+              "细致",
+              "有秩序"
+            ],
+            "scene": "春日下午，留一点空白"
+          }
+        }
+      ],
+      "legacy_assets": [
         {
           "id": "meitan-cuiya-spring-pour",
           "role": "blind_base",
@@ -263,13 +348,18 @@
           "prompt_id": "prompt-meitan-cuiya-spring-pour-v1",
           "sha256": "5b29b3bd832b696d78349c5d4eff5a66b076fb73830f1342471c540dc6f2485e",
           "card_copy": {
-            "headline": "鲜得很安静。",
-            "body": "像刚摊开的嫩叶，清香停得比想象久。",
-            "tags": ["清香", "鲜爽", "柔和"],
-            "scene": "适合春日下午留一点空白"
+            "headline": "清香落得很轻。",
+            "body": "嫩叶摊开，清香在杯口多停了一会儿。",
+            "tags": [
+              "清香",
+              "鲜爽",
+              "柔和"
+            ],
+            "scene": "春日下午，留一点空白"
           },
           "preview_path": "assets/tea-visuals/previews/meitan-cuiya-spring-pour-blind.png",
-          "derivatives": []
+          "derivatives": [],
+          "active": false
         },
         {
           "id": "meitan-cuiya-clear-infusion",
@@ -294,48 +384,373 @@
           "prompt_id": "prompt-meitan-cuiya-clear-infusion-v1",
           "sha256": "f20ca5c156ec9b72e7898b7c49b9a8d9907e1de518275b6c7055af662c32a95e",
           "card_copy": {
-            "headline": "一口亮起来。",
-            "body": "先是嫩绿的清，后面才慢慢多一点香。",
-            "tags": ["嫩香", "鲜醇", "清亮"],
-            "scene": "适合下午刚刚醒过来的时候"
+            "headline": "杯里亮了一下。",
+            "body": "先是嫩绿的清，再有一缕香慢慢浮上来。",
+            "tags": [
+              "嫩香",
+              "鲜醇",
+              "清亮"
+            ],
+            "scene": "午后刚醒，光落在桌边"
           },
           "preview_path": "assets/tea-visuals/previews/meitan-cuiya-clear-infusion-blind.png",
-          "derivatives": []
+          "derivatives": [],
+          "active": false
         }
       ],
+      "detail_asset": {
+        "id": "meitan-cuiya-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://nynct.guizhou.gov.cn/syqt/tsny/202512/t20251202_89008101.html",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/meitan-cuiya.png",
+        "master_path": "assets/tea-visuals/masters/detail/edited/meitan-cuiya-watermark-removed-v1.png",
+        "media_path": "assets/tea-visuals/media/detail/meitan-cuiya.webp",
+        "master_width": 1080,
+        "master_height": 824,
+        "media_width": 1080,
+        "media_height": 824,
+        "original_sha256": "bfc33a50eb8e22d0019389a5f0fe2d82eb5da7bc4444b31dbe8dbe797930cceb",
+        "master_sha256": "4a2b05675c95bd6a9e7e17500c05f835ff99e04f6df10e9c1c5d3c8b2b4bfb78",
+        "object_position": "50% 48%",
+        "sha256": "bb9b4298f89ccdaa91f67d2c3525119f1a71b6bb11510eb313947258fc8fee13",
+        "edit_note": "OpenAI image editor removed only the bottom-right public-account watermark; the original source file is retained alongside this version.",
+        "edit_chain": [
+          {
+            "operation": "watermark_removal",
+            "tool": "OpenAI ImageGen (image-2)",
+            "version": "v1",
+            "scope": {
+              "x": 870,
+              "y": 740,
+              "width": 210,
+              "height": 84
+            },
+            "constraints": "Remove only the bottom-right public-account watermark; preserve tea leaves, liquor, vessels, background, color and composition.",
+            "verification": {
+              "original_dimensions_preserved": true,
+              "outside_scope_pixel_difference": "0 (0)"
+            }
+          }
+        ]
+      },
+      "realm_assets": []
+    },
+    {
+      "tea_id": "lvbaoshi",
+      "name": "绿宝石茶",
+      "region": "贵州 · 高原茶区",
+      "visual_profile": {
+        "primary_anchor_asset_id": "lvbaoshi-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#315D4D",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
+        "abstract_form": "rounded_low_mass",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
+        "atmosphere_cue": "spring_afternoon",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
+        }
+      },
+      "assets": [
+        {
+          "id": "lvbaoshi-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/06-绿宝石茶-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/lvbaoshi.png",
+          "media_path": "assets/tea-visuals/media/presentation/lvbaoshi.webp",
+          "master_width": 979,
+          "master_height": 1607,
+          "media_width": 979,
+          "media_height": 1607,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "e8ee4b066291d9d147775b08c017ee45be2207c405d6e9e970ad80c26aa6cd68",
+          "sha256": "44426d2d8d9643428dcd9e56fe48f85f0b8677f1e26f052d687628d55cbbf319",
+          "card_copy": {
+            "headline": "一颗，慢慢展开。",
+            "body": "紧实的颗粒落进水里，鲜爽和回甘一层层松开。",
+            "tags": [
+              "沉稳",
+              "凝聚",
+              "有韧性"
+            ],
+            "scene": "事情很多，也想稳稳喝一杯"
+          }
+        }
+      ],
+      "legacy_assets": [],
+      "detail_asset": {
+        "id": "lvbaoshi-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.chabaike.com/lvcha/lvbaoshicha/",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/lvbaoshi.jpg",
+        "master_path": "assets/tea-visuals/masters/detail/source/lvbaoshi.jpg",
+        "media_path": "assets/tea-visuals/media/detail/lvbaoshi.webp",
+        "master_width": 620,
+        "master_height": 385,
+        "media_width": 620,
+        "media_height": 385,
+        "original_sha256": "0488f0973a6081aafd721d74084a03999c8ac1b5a3159c0ffa7e97cc542e2aa0",
+        "master_sha256": "0488f0973a6081aafd721d74084a03999c8ac1b5a3159c0ffa7e97cc542e2aa0",
+        "object_position": "50% 48%",
+        "sha256": "73b0d558cea62e4425671b636a9664a359c1d80d9d6554e94feff87016365ce8",
+        "edit_note": null,
+        "edit_chain": []
+      },
+      "realm_assets": []
+    },
+    {
+      "tea_id": "puan-hong",
+      "name": "普安红",
+      "region": "贵州 · 黔西南州 · 普安县",
+      "visual_profile": {
+        "primary_anchor_asset_id": "puan-hong-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#82543E",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
+        "abstract_form": "ridge_line",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
+        "atmosphere_cue": "dusk_table",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
+        }
+      },
+      "assets": [
+        {
+          "id": "puan-hong-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/04-普安红-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/puan-hong.png",
+          "media_path": "assets/tea-visuals/media/presentation/puan-hong.webp",
+          "master_width": 941,
+          "master_height": 1672,
+          "media_width": 941,
+          "media_height": 1672,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "dcece100fb7bf2e9b94c0b980392b32c3ec6e7eb613e74bbc48b148e7d0db1c2",
+          "sha256": "fcb2d0e5977493e05a3c123f9a6ea2516b778e9de0697758ea3d8022c047cd07",
+          "card_copy": {
+            "headline": "暖意慢慢回来。",
+            "body": "蜜香和花果香先靠近，甘润留在最后。",
+            "tags": [
+              "温暖",
+              "深沉",
+              "有包容力"
+            ],
+            "scene": "天色转暖，留一盏慢慢喝"
+          }
+        }
+      ],
+      "legacy_assets": [],
+      "detail_asset": {
+        "id": "puan-hong-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.tesegu.com/techan/54874.html",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/puan-hong.jpg",
+        "master_path": "assets/tea-visuals/masters/detail/source/puan-hong.jpg",
+        "media_path": "assets/tea-visuals/media/detail/puan-hong.webp",
+        "master_width": 600,
+        "master_height": 600,
+        "media_width": 600,
+        "media_height": 600,
+        "original_sha256": "ed22864e70e2e255150e0472171161f90d641e76dd42ee813e017695520396c8",
+        "master_sha256": "ed22864e70e2e255150e0472171161f90d641e76dd42ee813e017695520396c8",
+        "object_position": "66% 50%",
+        "sha256": "7c3c8ca2665434816001e3a68d894d498dbb526e794412d47c29633db5d123b7",
+        "edit_note": null,
+        "edit_chain": []
+      },
+      "realm_assets": []
+    },
+    {
+      "tea_id": "fenggang-xinxi",
+      "name": "凤冈锌硒茶",
+      "region": "贵州 · 遵义市 · 凤冈县",
+      "visual_profile": {
+        "primary_anchor_asset_id": "fenggang-xinxi-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#55745D",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
+        "abstract_form": "layered_horizontal",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
+        "atmosphere_cue": "morning_mist",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
+        }
+      },
+      "assets": [
+        {
+          "id": "fenggang-xinxi-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/05-凤冈锌硒茶-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/fenggang-xinxi.png",
+          "media_path": "assets/tea-visuals/media/presentation/fenggang-xinxi.webp",
+          "master_width": 940,
+          "master_height": 1672,
+          "media_width": 940,
+          "media_height": 1672,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "c8496102f88e12112a6be73f0a4c80b89feebd2da7a0dfde195f807dae290b94",
+          "sha256": "0d51baceb3ee5c4bca0ab4bc2fe65355701a30d59f7a42dd29ba1a372d32a22d",
+          "card_copy": {
+            "headline": "山里有自己的平衡。",
+            "body": "自然的清香铺开，鲜爽和醇厚没有争先。",
+            "tags": [
+              "自然",
+              "平衡",
+              "可靠"
+            ],
+            "scene": "需要把节奏放稳的时候"
+          }
+        }
+      ],
+      "legacy_assets": [],
+      "detail_asset": {
+        "id": "fenggang-xinxi-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.chinateawholesale.com/product-page/fenggang-zinc-selenium-organic-tea-gui-zhou-green-tea-wholesale-1",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/fenggang-xinxi.jpg",
+        "master_path": "assets/tea-visuals/masters/detail/source/fenggang-xinxi.jpg",
+        "media_path": "assets/tea-visuals/media/detail/fenggang-xinxi.webp",
+        "master_width": 480,
+        "master_height": 534,
+        "media_width": 480,
+        "media_height": 534,
+        "original_sha256": "bdf003c8361d4aabff30e52418fc35c3c3ee23ed8052c400e05cbc8502abbb08",
+        "master_sha256": "bdf003c8361d4aabff30e52418fc35c3c3ee23ed8052c400e05cbc8502abbb08",
+        "object_position": "50% 55%",
+        "sha256": "f2bcba35aa0fc2354b5375820a32a24babad2c1d23e2111578fae9a47042761a",
+        "edit_note": null,
+        "edit_chain": []
+      },
       "realm_assets": []
     },
     {
       "tea_id": "zunyi-hong",
       "name": "遵义红",
-      "region": "贵州 · 遵义",
-      "evidence_refs": [
-        {
-          "id": "guizhou-sasac-zunyi-hong-2021",
-          "label": "贵州省国资委：遵义红产品品质特点",
-          "url": "https://gzw.guizhou.gov.cn/xwzx/qyzc/202105/t20210511_68054280.html",
-          "supports": ["汤色红亮", "甜香高且持久", "滋味鲜爽醇厚"]
-        }
-      ],
+      "region": "贵州 · 遵义茶区",
       "visual_profile": {
-        "primary_anchor_asset_id": "zunyi-hong-amber-table",
-        "anchor_types": ["tea_liquor"],
-        "structure_color": "#A35D42",
-        "structure_color_basis": "从红亮琥珀茶汤提炼暖红褐，用作低重心结构色。",
-        "abstract_form": "rounded_low_mass",
-        "abstract_form_basis": "以圆润低重心色块转译甜香与醇厚，不添加蜂蜜或水果符号。",
+        "primary_anchor_asset_id": "zunyi-hong-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#8B4032",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
+        "abstract_form": "ridge_line",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
         "atmosphere_cue": "dusk_table",
         "atmosphere_is_metaphor": true,
         "overlay": {
-          "bottom_percent": 12,
-          "left_percent": 4,
-          "width_percent": 92,
-          "height_percent": 38,
-          "opacity": 0.28,
-          "atmosphere_opacity": 0.24
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
         }
       },
       "assets": [
+        {
+          "id": "zunyi-hong-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/01-遵义红-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/zunyi-hong.png",
+          "media_path": "assets/tea-visuals/media/presentation/zunyi-hong.webp",
+          "master_width": 940,
+          "master_height": 1672,
+          "media_width": 940,
+          "media_height": 1672,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "5bccc50caabc232d0e486915c13114df264545f337d32f1fc161bef5ad6e27f5",
+          "sha256": "9e65ef7e162a42c2d155aaf0e6c490658229480c3d21f7a8875ff7793054b8e3",
+          "card_copy": {
+            "headline": "暖意沿着山脉流动。",
+            "body": "嫩甜香很快抵达，鲜爽醇厚把这一杯稳稳接住。",
+            "tags": [
+              "热烈",
+              "坚定",
+              "有行动力"
+            ],
+            "scene": "想把一件事认真做成"
+          }
+        }
+      ],
+      "legacy_assets": [
         {
           "id": "zunyi-hong-amber-table",
           "role": "blind_base",
@@ -359,13 +774,18 @@
           "prompt_id": "prompt-zunyi-hong-amber-table-v1",
           "sha256": "b2b3f84737c39f2da4e5273a302457d8d2926570591cea821376a5418b556ee9",
           "card_copy": {
-            "headline": "甜香先到。",
-            "body": "有味道，但不厚重。下午想喝点东西的时候刚好。",
-            "tags": ["甜香", "鲜爽", "柔和"],
-            "scene": "适合天色慢慢暖下来的时候"
+            "headline": "甜香先亮起来。",
+            "body": "茶汤有了暖意，滋味仍然轻快。",
+            "tags": [
+              "甜香",
+              "鲜爽",
+              "柔和"
+            ],
+            "scene": "天色渐暖，手边正空"
           },
           "preview_path": "assets/tea-visuals/previews/zunyi-hong-amber-table-blind.png",
-          "derivatives": []
+          "derivatives": [],
+          "active": false
         },
         {
           "id": "zunyi-hong-red-bright-cup",
@@ -390,15 +810,228 @@
           "prompt_id": "prompt-zunyi-hong-red-bright-cup-v1",
           "sha256": "b9004dbaf5b29c222b2c72cd149ff1e17831107c2768b57fc08a1f697c1a9a69",
           "card_copy": {
-            "headline": "更有存在感。",
-            "body": "稍微厚一点，甜香和暖意都会多停一会儿。",
-            "tags": ["甜香", "醇厚", "温润"],
-            "scene": "适合傍晚把节奏放慢的时候"
+            "headline": "暖意多停一会儿。",
+            "body": "滋味厚了一点，甜香沿着杯沿慢慢留下。",
+            "tags": [
+              "甜香",
+              "醇厚",
+              "温润"
+            ],
+            "scene": "傍晚慢下来以后"
           },
           "preview_path": "assets/tea-visuals/previews/zunyi-hong-red-bright-cup-blind.png",
-          "derivatives": []
+          "derivatives": [],
+          "active": false
         }
       ],
+      "detail_asset": {
+        "id": "zunyi-hong-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.ebuy7.com/2023-guizhou-zunyi-black-tea-meitan-fenggang-alpine-cloud-tea-bulk-bag-fruity-flavor-bulk-250g.html",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/zunyi-hong.jpg",
+        "master_path": "assets/tea-visuals/masters/detail/source/zunyi-hong.jpg",
+        "media_path": "assets/tea-visuals/media/detail/zunyi-hong.webp",
+        "master_width": 800,
+        "master_height": 800,
+        "media_width": 800,
+        "media_height": 800,
+        "original_sha256": "8fc49032efefa781592d8052dfbdd0073b9d580e81e136efd6285fd1fca28968",
+        "master_sha256": "8fc49032efefa781592d8052dfbdd0073b9d580e81e136efd6285fd1fca28968",
+        "object_position": "58% 50%",
+        "sha256": "7d86fa83bec4def34c6622e08cf1611fc6a29c60f8a8e9079e4d48766dfee4a9",
+        "edit_note": null,
+        "edit_chain": []
+      },
+      "realm_assets": []
+    },
+    {
+      "tea_id": "leishan-yinqiu",
+      "name": "雷山银球茶",
+      "region": "贵州 · 黔东南州 · 雷山县",
+      "visual_profile": {
+        "primary_anchor_asset_id": "leishan-yinqiu-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#466B5C",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
+        "abstract_form": "rounded_low_mass",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
+        "atmosphere_cue": "morning_mist",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
+        }
+      },
+      "assets": [
+        {
+          "id": "leishan-yinqiu-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/03-雷山银球茶-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/leishan-yinqiu.png",
+          "media_path": "assets/tea-visuals/media/presentation/leishan-yinqiu.webp",
+          "master_width": 941,
+          "master_height": 1672,
+          "media_width": 941,
+          "media_height": 1672,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "2c7532ff647391f184563e3139b7823d83c9d04bc4c176c336e94a608a883ef8",
+          "sha256": "d240ff0c48e52b355a26363b42ec659a0c547a35a6bccf23297ba13754ddcce3",
+          "card_copy": {
+            "headline": "一颗茶球，慢慢打开。",
+            "body": "不急着说完，清香和回甘随着叶片层层展开。",
+            "tags": [
+              "内敛",
+              "慢热",
+              "层层展开"
+            ],
+            "scene": "给一杯茶多一点时间"
+          }
+        }
+      ],
+      "legacy_assets": [],
+      "detail_asset": {
+        "id": "leishan-yinqiu-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.nfncb.cn/yaowen/45539.html",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/leishan-yinqiu.png",
+        "master_path": "assets/tea-visuals/masters/detail/source/leishan-yinqiu.png",
+        "media_path": "assets/tea-visuals/media/detail/leishan-yinqiu.webp",
+        "master_width": 1192,
+        "master_height": 781,
+        "media_width": 1192,
+        "media_height": 781,
+        "original_sha256": "f768f4f57f6040ee9057d49023157e77238c7a6a5bb4b5236d3c89cb0ad9a66a",
+        "master_sha256": "f768f4f57f6040ee9057d49023157e77238c7a6a5bb4b5236d3c89cb0ad9a66a",
+        "object_position": "50% 56%",
+        "sha256": "fc6044113ddcb26bc4eb05880f57554db959a3e17dc5a0e155abc510cbc4dfaf",
+        "edit_note": null,
+        "edit_chain": []
+      },
+      "realm_assets": []
+    },
+    {
+      "tea_id": "fanjingshan-matcha",
+      "name": "梵净山抹茶",
+      "region": "贵州 · 铜仁市 · 梵净山周边",
+      "visual_profile": {
+        "primary_anchor_asset_id": "fanjingshan-matcha-presentation",
+        "anchor_types": [
+          "stylized_identity"
+        ],
+        "structure_color": "#42653B",
+        "structure_color_basis": "Taken from the supplied dimensional Guizhou tea artwork.",
+        "abstract_form": "ridge_line",
+        "abstract_form_basis": "Supports the supplied dimensional paper-art composition.",
+        "atmosphere_cue": "spring_afternoon",
+        "atmosphere_is_metaphor": true,
+        "overlay": {
+          "bottom_percent": 0,
+          "left_percent": 0,
+          "width_percent": 100,
+          "height_percent": 100,
+          "opacity": 0,
+          "atmosphere_opacity": 0
+        }
+      },
+      "assets": [
+        {
+          "id": "fanjingshan-matcha-presentation",
+          "role": "presentation",
+          "active": true,
+          "source_kind": "user_provided",
+          "authenticity_state": "stylized_demo",
+          "rights_state": "demo_only",
+          "rights_note": "User-provided stylized Tea-BTI artwork for non-commercial demonstration; public or commercial reuse requires rights confirmation.",
+          "source_url": "attachment:立体化贵州茶设计图/02-梵净山抹茶-立体版.png",
+          "master_path": "assets/tea-visuals/masters/presentation/fanjingshan-matcha.png",
+          "media_path": "assets/tea-visuals/media/presentation/fanjingshan-matcha.webp",
+          "master_width": 938,
+          "master_height": 1677,
+          "media_width": 938,
+          "media_height": 1677,
+          "crop_strategy": {
+            "aspect_ratio": "9:16",
+            "object_position": "50% 50%"
+          },
+          "master_sha256": "bebfc1881086fd7a2ac3dcc00da64ba3046950e3ba161341c6e8d47f880ef4b9",
+          "sha256": "9a26bbf0bc57d17219a8c3d0059df30e823b8d6dbf149af6a13ca60b3fb143ff",
+          "card_copy": {
+            "headline": "青意在山巅醒来。",
+            "body": "鲜明的植物清香和细腻茶汤，把注意力拉回此刻。",
+            "tags": [
+              "专注",
+              "鲜明",
+              "充满能量"
+            ],
+            "scene": "需要迅速进入状态"
+          }
+        }
+      ],
+      "legacy_assets": [],
+      "detail_asset": {
+        "id": "fanjingshan-matcha-detail",
+        "role": "detail",
+        "source_kind": "third_party_photo",
+        "authenticity_state": "reference",
+        "rights_state": "unknown",
+        "rights_note": "Provided for non-commercial demo and design reference. Removing a watermark does not grant publication or commercial rights.",
+        "source_url": "https://www.thepaper.cn/newsDetail_forward_25908717",
+        "credit": "Source page recorded in the supplied photo provenance file.",
+        "original_path": "assets/tea-visuals/masters/detail/source/fanjingshan-matcha.jpg",
+        "master_path": "assets/tea-visuals/masters/detail/edited/fanjingshan-matcha-watermark-removed-v1.png",
+        "media_path": "assets/tea-visuals/media/detail/fanjingshan-matcha.webp",
+        "master_width": 1200,
+        "master_height": 648,
+        "media_width": 1200,
+        "media_height": 648,
+        "original_sha256": "bfc3bfeb35dcdfc17f2196112da41aa46a4d3c439a27076cec4d256086e2f1e3",
+        "master_sha256": "d92b3d7127e5a34aeb05abba85aac90b432aebb66194cc8edd99a26ca420837b",
+        "object_position": "50% 50%",
+        "sha256": "7f1dda7af9b9a669ad231027b2caec617e3c88a38f6d1d7f1c42e477127162dc",
+        "edit_note": "OpenAI image editor removed only the bottom-right media/account watermark; the original source file is retained alongside this version.",
+        "edit_chain": [
+          {
+            "operation": "watermark_removal",
+            "tool": "OpenAI ImageGen (image-2)",
+            "version": "v1",
+            "scope": {
+              "x": 720,
+              "y": 560,
+              "width": 480,
+              "height": 88
+            },
+            "constraints": "Remove only the bottom-right media/account watermark; preserve matcha, liquor, vessels, background, color and composition.",
+            "verification": {
+              "original_dimensions_preserved": true,
+              "outside_scope_pixel_difference": "0 (0)"
+            }
+          }
+        ]
+      },
       "realm_assets": []
     }
   ],

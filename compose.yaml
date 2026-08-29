@@ -11,6 +11,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-sqlite:////data/tea-bti.db}
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000,http://127.0.0.1:3000}
+      AI_MODE: ${AI_MODE:-auto}
     volumes:
       - ./.data:/data
       - ./apps/api:/app/apps/api

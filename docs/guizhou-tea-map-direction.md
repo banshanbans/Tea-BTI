@@ -264,7 +264,7 @@ tea_map_passport_opened
 ### Phase 1｜地图骨架
 
 - 九市州真实边界；
-- 黔南、遵义接入现有三款茶；
+- 黔南、遵义、黔西南、黔东南与铜仁接入现有八款茶；
 - `available / encountered / experienced / realmCompleted` 四态；
 - 区域抽屉、键盘操作、列表降级；
 - 《雾里一芽》完成后回流地图；
@@ -312,4 +312,3 @@ tea_map_passport_opened
 - [贵州省政府新闻办：贵州茶产业区域品牌体系](https://nynct.guizhou.gov.cn/zwgk/xxgkml/xwfbh/202404/t20240419_84230718.html)
 - [都匀毛尖主产区：毛尖镇](https://mzt.guizhou.gov.cn/ztzl/rdzt/gzdmgs/202504/t20250408_87484981.html)
 - [贵州省农业农村厅：湄潭翠芽](https://nynct.guizhou.gov.cn/syqt/tsny/202512/t20251202_89008101.html)
-

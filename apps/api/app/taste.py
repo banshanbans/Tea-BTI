@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import uuid
 from collections import Counter
+from copy import deepcopy
 from datetime import datetime, timezone
 
 from sqlalchemy import func, select
@@ -102,10 +103,10 @@ def recommendation(db: Session, user_id: str) -> dict:
     _, tea_id = max(ranked)
     high = sorted(DIMENSIONS, key=lambda d: vector[d], reverse=True)[:2]
     low = sorted(DIMENSIONS, key=lambda d: vector[d])[:1]
-    reasons = [f"你更常留下了{'、'.join(DIMENSION_LABELS[d] for d in high)}的方向"]
+    reasons = [f"你停留更多的，是{'、'.join(DIMENSION_LABELS[d] for d in high)}"]
     if vector[low[0]] < 0.46:
-        reasons.append(f"你对{DIMENSION_LABELS[low[0]]}的选择相对谨慎")
-    return {"tea": catalog.tea_summary(tea_id), "reasons": reasons, "rankLabel": "当前推荐 #1"}
+        reasons.append(f"遇到{DIMENSION_LABELS[low[0]]}时，你会多想一下")
+    return {"tea": catalog.tea_summary(tea_id), "reasons": reasons, "rankLabel": "此刻最合拍"}
 
 
 def get_or_create_passport(db: Session, user_id: str, tea_id: str) -> PassportEntry:
@@ -222,7 +223,65 @@ def mock_normalize(text: str) -> tuple[list[str], str]:
         "fresh": "清鲜感", "tender_aroma": "嫩香", "floral": "花香", "fruity": "果香",
         "aftertaste_sweetness": "回甘", "mellow": "醇和", "astringent": "涩感", "clean": "干净度",
     }
-    return tags, "你刚刚说的感觉，在茶的语言里通常接近" + "、".join(labels[tag] for tag in tags) + "。"
+    return tags, "这句话里，浮出来的是" + "、".join(labels[tag] for tag in tags) + "。"
+
+
+def tea_bti_behavior_evidence(db: Session, user_id: str) -> list[dict]:
+    drinks = list(db.scalars(
+        select(DrinkFeedback)
+        .where(DrinkFeedback.user_id == user_id)
+        .order_by(DrinkFeedback.created_at.desc(), DrinkFeedback.id.desc())
+    ).all())
+    swipes = list(db.scalars(
+        select(SwipeEvent)
+        .where(SwipeEvent.user_id == user_id)
+        .order_by(SwipeEvent.created_at.desc(), SwipeEvent.id.desc())
+    ).all())
+
+    selected: list[tuple[str, DrinkFeedback | SwipeEvent]] = []
+    selected_ids: set[tuple[str, str]] = set()
+    selected_teas: set[str] = set()
+
+    def add(kind: str, event: DrinkFeedback | SwipeEvent, *, require_new_tea: bool) -> bool:
+        identity = (kind, event.id)
+        if identity in selected_ids or (require_new_tea and event.tea_id in selected_teas):
+            return False
+        selected.append((kind, event))
+        selected_ids.add(identity)
+        selected_teas.add(event.tea_id)
+        return True
+
+    quoted_drink = next((item for item in drinks if item.user_words and item.user_words.strip()), None)
+    if quoted_drink is not None:
+        add("drink", quoted_drink, require_new_tea=False)
+
+    positive_swipe = next((item for item in swipes if item.action in {"like", "save"} and item.tea_id not in selected_teas), None)
+    if positive_swipe is not None:
+        add(positive_swipe.action, positive_swipe, require_new_tea=True)
+
+    skipped_swipe = next((item for item in swipes if item.action == "skip" and item.tea_id not in selected_teas), None)
+    if skipped_swipe is not None:
+        add("skip", skipped_swipe, require_new_tea=True)
+
+    remaining: list[tuple[datetime, str, DrinkFeedback | SwipeEvent]] = [
+        *((item.created_at, "drink", item) for item in drinks),
+        *((item.created_at, item.action, item) for item in swipes),
+    ]
+    remaining.sort(key=lambda item: item[0], reverse=True)
+    for _, kind, event in remaining:
+        if len(selected) >= 3:
+            break
+        add(kind, event, require_new_tea=False)
+
+    return [
+        {
+            "kind": kind,
+            "tea": catalog.tea_summary(event.tea_id),
+            "userWords": event.user_words if isinstance(event, DrinkFeedback) else None,
+            "infusionNumber": event.infusion_number if isinstance(event, DrinkFeedback) else None,
+        }
+        for kind, event in selected[:3]
+    ]
 
 
 def tea_bti(db: Session, user_id: str) -> dict:
@@ -232,6 +291,8 @@ def tea_bti(db: Session, user_id: str) -> dict:
     positive_tea_ids = {event.tea_id for event in swipes if event.action in {"like", "save"}}
     drink_count = int(db.scalar(select(func.count()).select_from(DrinkFeedback).where(DrinkFeedback.user_id == user_id)) or 0)
     has_positive = bool(positive_tea_ids) or drink_count > 0
+    behavior_evidence = tea_bti_behavior_evidence(db, user_id)
+    swipes_required = 5
     axes = {
         "freshMellow": round(vector["freshness"] - (vector["body"] + vector["roast"]) / 2, 4),
         "lightRich": round(0.5 - vector["body"], 4),
@@ -239,24 +300,41 @@ def tea_bti(db: Session, user_id: str) -> dict:
         "explorerComfort": 1.0 if len(positive_tea_ids) >= 2 else -1.0,
     }
     if len(swipes) < 5 or not has_positive:
-        return {"state": "forming", "code": None, "personaName": None, "axes": axes, "evidence": ["至少完成 5 次刷茶，并留下一次真实喜欢或品饮反馈"]}
+        return {
+            "state": "forming",
+            "code": None,
+            "personaName": None,
+            "personaSummary": None,
+            "formationProgress": {
+                "swipesCompleted": len(swipes),
+                "swipesRequired": swipes_required,
+                "swipesRemaining": max(0, swipes_required - len(swipes)),
+                "positiveSignalCompleted": has_positive,
+            },
+            "personaDetail": None,
+            "behaviorEvidence": behavior_evidence,
+            "axes": axes,
+            "evidence": ["再刷满 5 杯，留下一次喜欢、收藏或真实品饮"],
+        }
     code = "".join([
         "F" if axes["freshMellow"] >= 0 else "M",
         "L" if axes["lightRich"] >= 0 else "R",
         "S" if axes["scentTaste"] >= 0 else "T",
         "E" if axes["explorerComfort"] >= 0 else "C",
     ])
-    confirmed = {"FLSE": "山雾漫游者", "MRSC": "炉火守夜人"}
-    words = {
-        "F": "清鲜", "M": "醇和", "L": "轻盈", "R": "浓郁",
-        "S": "香气", "T": "滋味", "E": "探索型", "C": "熟悉型",
-    }
-    persona = confirmed.get(code, f"{words[code[0]]}{words[code[1]]} · {words[code[2]]}{words[code[3]]}")
+    persona = catalog.require_tea_bti_persona(code)
+    persona_detail = deepcopy(persona["detail"])
+    partner_code = persona_detail["chemistry"]["partnerCode"]
+    persona_detail["chemistry"]["partnerName"] = catalog.require_tea_bti_persona(partner_code)["name"]
     state = "stable" if profile.sample_count >= 16 else "early"
     return {
         "state": state,
         "code": code,
-        "personaName": persona,
+        "personaName": persona["name"],
+        "personaSummary": persona["summary"],
+        "formationProgress": None,
+        "personaDetail": persona_detail,
+        "behaviorEvidence": behavior_evidence,
         "axes": axes,
         "evidence": [f"已完成 {len(swipes)} 次刷茶", f"留下了 {len(positive_tea_ids)} 款不同的茶"],
     }

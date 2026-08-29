@@ -1,11 +1,15 @@
 .git
+.gitignore
 .data
 .cache
 .env
+*.pem
 node_modules
 **/node_modules
 **/.next
 **/.pytest_cache
 **/__pycache__
+*.pyc
+coverage
 apps/web/test-results
 apps/web/playwright-report

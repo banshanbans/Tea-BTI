@@ -6,29 +6,31 @@ import { useEffect, useState } from "react";
 
 import { authenticated, mediaUrl } from "@/lib/api";
 import type { RealmList } from "@/lib/api";
+import { COMMON_COPY } from "@/lib/copy";
 
 export function RealmHome() {
   const [realms, setRealms] = useState<RealmList | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    void authenticated<RealmList>("/realms").then(setRealms).catch((cause) => setError((cause as Error).message));
+    void authenticated<RealmList>("/realms").then(setRealms).catch(() => setError("雾里的路暂时没亮。"));
   }, []);
 
   if (error) return <p className="error">{error}</p>;
-  if (!realms) return <div className="empty">正在穿过黔南的雾…</div>;
+  if (!realms) return <div className="empty">{COMMON_COPY.loadingRealm}</div>;
 
   const realm = realms.items[0];
   if (!realm) return <div className="empty">还没有可进入的茶境。</div>;
   const completed = realm.progress.status === "completed";
   const inProgress = realm.progress.status === "in_progress";
   const action = completed ? "再走一遍" : inProgress ? "继续体验" : "进入茶境";
+  const realmHref = `/realm/${realm.realmId}?entry=realm${completed ? "&replay=1" : ""}`;
 
   return (
     <section className="realm-home-page">
-      <p className="eyebrow">Tea Realm · 文化沉浸</p>
+      <p className="eyebrow">杯中的茶境</p>
       <h1 className="title">从杯中这一口，<br />回到雾里的一芽。</h1>
-      <p className="subtitle">不是文章，也不是游戏。用不到一分钟，亲手经过一片叶子的关键选择。</p>
+      <p className="subtitle">用一分钟，跟着一片嫩叶走进黔南的雾。</p>
 
       <div className={`realm-region-status ${realms.litRegionIds.includes(realm.regionId) ? "lit" : ""}`} aria-label="茶境地图">
         <span className="realm-region-icon">{completed ? <CheckCircle size={28} weight="duotone" /> : <MapPin size={28} weight="duotone" />}</span>
@@ -48,14 +50,14 @@ export function RealmHome() {
             <span>{completed ? "7 / 7 幕完成" : `${realm.progress.completedScenes.length} / 7 幕`}</span>
             <span>{realm.specimen ? "白毫标本 · 已收藏" : "约 55 秒"}</span>
           </div>
-          <Link className="button primary block" href={`/realm/${realm.realmId}${completed ? "?replay=1" : ""}`}>{action} <ArrowRight size={18} /></Link>
+          <Link className="button primary block" href={realmHref}>{action} <ArrowRight size={18} /></Link>
         </div>
       </article>
 
       {realm.specimen ? (
         <section className="panel specimen-preview">
           <img src={mediaUrl(realm.specimen.asset.url)} alt="白毫数字标本" />
-          <div><p className="eyebrow">Passport Specimen</p><h2>白毫</h2><p className="muted">{realm.specimen.description}</p></div>
+          <div><p className="eyebrow">茶境标本</p><h2>白毫</h2><p className="muted">{realm.specimen.description}</p></div>
         </section>
       ) : null}
     </section>

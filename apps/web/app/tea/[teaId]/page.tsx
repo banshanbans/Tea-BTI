@@ -1,8 +1,9 @@
 import { AppShell } from "@/components/AppShell";
 import { TeaDetailView } from "@/components/TeaDetailView";
+import { parseTeaOrigin } from "@/lib/navigation";
 
-export default async function TeaPage({ params }: { params: Promise<{ teaId: string }> }) {
+export default async function TeaPage({ params, searchParams }: { params: Promise<{ teaId: string }>; searchParams: Promise<{ origin?: string | string[] }> }) {
   const { teaId } = await params;
-  return <AppShell active="swipe"><TeaDetailView teaId={teaId} /></AppShell>;
+  const { origin } = await searchParams;
+  return <AppShell active="swipe" header={false}><TeaDetailView teaId={teaId} origin={parseTeaOrigin(origin)} /></AppShell>;
 }
-

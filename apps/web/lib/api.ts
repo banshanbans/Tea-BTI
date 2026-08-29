@@ -5,7 +5,7 @@ export type Schemas = components["schemas"];
 export type AnonymousSession = Schemas["AnonymousSessionResponse"];
 export type Bootstrap = Schemas["BootstrapResponse"];
 export type SeedBatch = Schemas["SeedBatchResponse"];
-export type BlindCard = Schemas["BlindCardResponse"];
+export type TeaFeedCard = Schemas["FeedCardResponse"];
 export type SwipeResult = Schemas["SwipeResponse"];
 export type TeaSummary = Schemas["TeaSummaryResponse"];
 export type TeaDetail = Schemas["TeaDetailResponse"];
@@ -71,6 +71,17 @@ export async function authenticated<T>(path: string, init: RequestInit = {}): Pr
     }
     throw error;
   }
+}
+
+export function abortVoiceSessionBestEffort(voiceSessionId: string): void {
+  const token = getToken();
+  if (!token) return;
+  void fetch(`${API_URL}/voice/sessions/${voiceSessionId}/abort`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: "{}",
+    keepalive: true,
+  }).catch(() => undefined);
 }
 
 export function publicRequest<T>(path: string, init: RequestInit = {}): Promise<T> {

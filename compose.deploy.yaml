@@ -1,0 +1,24 @@
+services:
+  api:
+    restart: unless-stopped
+    env_file: !override
+      - path: .env
+        required: true
+    volumes: !override
+      - ./.data:/data
+    ports: !override
+      - "172.30.25.1:18000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  web:
+    restart: unless-stopped
+    build:
+      target: production
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://gks.socialdog.cn/api/v1}
+    volumes: !override []
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://gks.socialdog.cn/api/v1}
+      WATCHPACK_POLLING: "false"
+    ports: !override
+      - "172.30.25.1:13000:3000"

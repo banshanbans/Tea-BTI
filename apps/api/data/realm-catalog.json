@@ -49,7 +49,7 @@
       "scenes": [
         {
           "id": "liquor-entry",
-          "eyebrow": "Scene 0 · 从茶汤进入",
+          "eyebrow": "序幕 · 从茶汤进入",
           "title": "杯中起雾",
           "instruction": "轻触茶汤，进入这片叶子来时的地方。",
           "completionCopy": "这一口茶汤，慢慢变成了山间的雾。",
@@ -58,7 +58,7 @@
         },
         {
           "id": "mist-mountain",
-          "eyebrow": "Scene 1 · 拨雾见山",
+          "eyebrow": "第一幕 · 拨雾见山",
           "title": "雾后是黔南的山",
           "instruction": "倾斜手机，或左右拖动，把雾拨开。",
           "completionCopy": "多雾的山地，让这一片叶子慢慢长出了自己的节奏。",
@@ -67,7 +67,7 @@
         },
         {
           "id": "pick-bud",
-          "eyebrow": "Scene 2 · 摘下一芽",
+          "eyebrow": "第二幕 · 摘下一芽",
           "title": "哪一片，会成为毛尖？",
           "instruction": "选中一芽一叶，向上提进竹篓。",
           "completionCopy": "就是它。一芽一叶。",
@@ -76,25 +76,25 @@
         },
         {
           "id": "wok-craft",
-          "eyebrow": "Scene 3 · 一口锅",
+          "eyebrow": "第三幕 · 一口锅",
           "title": "让鲜叶慢慢成为茶",
           "instruction": "依次翻动、推揉、画圆，再让白毫显出来。",
-          "completionCopy": "杀青、揉捻、搓团、提毫——术语，是动作完成后的名字。",
+          "completionCopy": "四手做完，名字才浮上来：杀青、揉捻、搓团、提毫。",
           "interaction": "gesture_sequence",
           "assetIds": ["realm-duyun-workshop"]
         },
         {
           "id": "human-judgment",
-          "eyebrow": "Scene 4 · 人的经验",
+          "eyebrow": "第四幕 · 人的经验",
           "title": "什么时候该停？",
           "instruction": "再感受几下叶片的变化，然后由你决定。",
-          "completionCopy": "真正的手艺，没有一条固定倒计时。",
+          "completionCopy": "火候停在哪里，要靠手和鼻子慢慢认。",
           "interaction": "judgment",
           "assetIds": ["realm-duyun-workshop"]
         },
         {
           "id": "real-tea-reveal",
-          "eyebrow": "Scene 5 · 回到真实",
+          "eyebrow": "第五幕 · 回到真实",
           "title": "这就是都匀毛尖",
           "instruction": "让风格化叶片停下来，看看真实干茶。",
           "completionCopy": "这就是你刚刚做出来的样子，也是杯中那一口的来处。",
@@ -103,7 +103,7 @@
         },
         {
           "id": "passport-specimen",
-          "eyebrow": "Scene 6 · 收进茶护照",
+          "eyebrow": "第六幕 · 收进茶护照",
           "title": "留下一枚白毫标本",
           "instruction": "收下它，点亮黔南。",
           "completionCopy": "喝过的茶，会慢慢长成你的世界。",

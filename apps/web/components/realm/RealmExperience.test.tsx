@@ -107,4 +107,48 @@ describe("RealmExperience", () => {
     expect(JSON.parse(String(startCall?.[1]?.body))).toMatchObject({ interactionMode: "reducedMotion", fallbackReason: "reduced_motion" });
     expect(requestPermission).not.toHaveBeenCalled();
   });
+
+  it("reviews a completed previous scene locally and exits to the tea source", async () => {
+    const resumed = {
+      ...detail,
+      progress: progress("pick-bud", ["liquor-entry", "mist-mountain"]),
+    };
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/realms/duyun-maojian-mist-bud") return resumed as never;
+      if (path.endsWith("/events")) return { accepted: true, progress: resumed.progress } as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<RealmExperience realmId="duyun-maojian-mist-bud" replay={false} entry="tea" origin="profile" sourceTeaId="duyun-maojian" />);
+    expect(await screen.findByRole("heading", { name: "哪一片，会成为毛尖？" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "退出茶境并返回茶详情" })).toHaveAttribute("href", "/tea/duyun-maojian?origin=profile");
+
+    fireEvent.click(screen.getByRole("button", { name: "返回上一幕" }));
+    expect(await screen.findByRole("heading", { name: "雾后是黔南的山" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "山出现了" }));
+    expect(await screen.findByRole("heading", { name: "哪一片，会成为毛尖？" })).toBeInTheDocument();
+    expect(vi.mocked(authenticated).mock.calls.filter(([path, init]) => String(path).endsWith("/progress") && init?.method === "PATCH")).toHaveLength(0);
+  });
+
+  it("disables previous-scene navigation while the frontier is being saved", async () => {
+    const resumed = {
+      ...detail,
+      progress: progress("pick-bud", ["liquor-entry", "mist-mountain"]),
+    };
+    let resolveProgress: ((value: unknown) => void) | undefined;
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/realms/duyun-maojian-mist-bud") return resumed as never;
+      if (path.endsWith("/events")) return { accepted: true, progress: resumed.progress } as never;
+      if (path.endsWith("/progress")) return new Promise((resolve) => { resolveProgress = resolve; }) as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<RealmExperience realmId="duyun-maojian-mist-bud" replay={false} />);
+    await screen.findByRole("heading", { name: "哪一片，会成为毛尖？" });
+    fireEvent.click(screen.getByRole("button", { name: "一芽一叶" }));
+    fireEvent.click(screen.getByRole("button", { name: "把它带去锅边" }));
+    expect(screen.getByRole("button", { name: "返回上一幕" })).toBeDisabled();
+    resolveProgress?.({ accepted: true, progress: progress("wok-craft", ["liquor-entry", "mist-mountain", "pick-bud"]) });
+    expect(await screen.findByRole("heading", { name: "让鲜叶慢慢成为茶" })).toBeInTheDocument();
+  });
 });

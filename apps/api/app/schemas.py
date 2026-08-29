@@ -76,6 +76,23 @@ class VisualResponse(ApiModel):
     overlay: dict[str, float]
 
 
+class DetailVisualResponse(ApiModel):
+    url: str
+    object_position: str
+    alt: str
+    rights_state: Literal["unknown", "demo_only", "owned", "licensed", "open_license"]
+    rights_note: str
+    credit: str
+    source_url: str
+
+
+class EvidenceRefResponse(ApiModel):
+    id: str
+    label: str
+    url: str
+    supports: list[str]
+
+
 class SeedTeaResponse(ApiModel):
     role: Literal["mirror", "surprise", "contrast"]
     role_label: str
@@ -84,6 +101,7 @@ class SeedTeaResponse(ApiModel):
     name: str
     region: str
     tags: list[str]
+    personality_keywords: list[str]
     visual: VisualResponse
 
 
@@ -92,8 +110,13 @@ class SeedBatchResponse(ApiModel):
     items: list[SeedTeaResponse]
 
 
-class BlindCardResponse(ApiModel):
+class FeedCardResponse(ApiModel):
     card_id: str
+    tea_id: str
+    name: str
+    region: str
+    tea_type: str
+    personality_keywords: list[str]
     headline: str
     body: str
     tags: list[str]
@@ -102,7 +125,7 @@ class BlindCardResponse(ApiModel):
 
 
 class FeedResponse(ApiModel):
-    items: list[BlindCardResponse]
+    items: list[FeedCardResponse]
     next_cursor: str | None
 
 
@@ -118,6 +141,7 @@ class TeaSummaryResponse(ApiModel):
     region: str
     tea_type: str
     professional_tags: list[str]
+    personality_keywords: list[str]
     translation: str
     visual: VisualResponse
 
@@ -139,7 +163,10 @@ class SwipeResponse(ApiModel):
 class BrewingGuideResponse(ApiModel):
     vessel: str
     temperature_range: str
-    steep_time: str
+    tea_amount: str
+    water_volume: str
+    method: str
+    steep_time: str | None = None
     notes: list[str]
 
 
@@ -153,10 +180,14 @@ class TeaJourneyResponse(ApiModel):
 
 
 class TeaDetailResponse(TeaSummaryResponse):
+    detail_visual: DetailVisualResponse
+    representative_features: str
+    aroma_and_taste: str
     official_description: str
     process: list[str]
     brewing_guide: BrewingGuideResponse
     evidence_ref_ids: list[str]
+    evidence_refs: list[EvidenceRefResponse]
     realm_id: str | None = None
     journey: TeaJourneyResponse
 
@@ -354,10 +385,66 @@ class TasteNormalizeResponse(ApiModel):
     passport_entry: PassportEntryResponse
 
 
+class TeaBtiFormationProgress(ApiModel):
+    swipes_completed: int
+    swipes_required: Literal[5]
+    swipes_remaining: int
+    positive_signal_completed: bool
+
+
+class TeaBtiDialogueLine(ApiModel):
+    speaker: str
+    text: str
+
+
+class TeaBtiContrast(ApiModel):
+    claim: str
+    reality: str
+
+
+class TeaBtiScene(ApiModel):
+    title: str
+    lines: list[TeaBtiDialogueLine]
+
+
+class TeaBtiEnemy(ApiModel):
+    trigger: str
+    reaction: str
+
+
+class TeaBtiChemistry(ApiModel):
+    partner_code: str
+    partner_name: str
+    lines: list[TeaBtiDialogueLine]
+    summary: str
+
+
+class TeaBtiPersonaDetail(ApiModel):
+    punchline: str
+    symptoms: list[str]
+    contrasts: list[TeaBtiContrast]
+    scenes: list[TeaBtiScene]
+    enemies: list[TeaBtiEnemy]
+    signature_moment: list[TeaBtiDialogueLine]
+    never_say: str
+    chemistry: TeaBtiChemistry
+
+
+class TeaBtiBehaviorEvidence(ApiModel):
+    kind: Literal["drink", "like", "save", "skip"]
+    tea: TeaSummaryResponse
+    user_words: str | None
+    infusion_number: int | None
+
+
 class TeaBtiResponse(ApiModel):
     state: Literal["forming", "early", "stable"]
     code: str | None
     persona_name: str | None
+    persona_summary: str | None
+    formation_progress: TeaBtiFormationProgress | None
+    persona_detail: TeaBtiPersonaDetail | None
+    behavior_evidence: list[TeaBtiBehaviorEvidence]
     axes: dict[str, float]
     evidence: list[str]
 
@@ -452,10 +539,20 @@ class ProfileEventResponse(ApiModel):
     accepted: bool
 
 
+class PublicTeaBtiResponse(ApiModel):
+    state: Literal["forming", "early", "stable"]
+    code: str | None
+    persona_name: str | None
+    persona_summary: str | None
+    formation_progress: TeaBtiFormationProgress | None
+    axes: dict[str, float]
+    evidence: list[str]
+
+
 class PublicProfileIdentityResponse(ApiModel):
     display_name: str
     bio: str
-    tea_bti: TeaBtiResponse
+    tea_bti: PublicTeaBtiResponse
 
 
 class PublicProfileWordsResponse(ApiModel):
@@ -517,7 +614,7 @@ class RtcJoinConfig(ApiModel):
 class VoiceSessionResponse(ApiModel):
     voice_session_id: str
     provider_mode: Literal["volcengine_rtc", "browser_mock"]
-    status: Literal["prepared", "active", "stopping", "completed", "failed", "expired"]
+    status: Literal["prepared", "starting", "active", "stopping", "completed", "failed", "expired", "cancelled"]
     expires_at: datetime
     welcome_message: str
     rtc: RtcJoinConfig | None = None
@@ -526,6 +623,7 @@ class VoiceSessionResponse(ApiModel):
 class VoiceContextUpdate(ApiModel):
     brew_stage: Literal["prepare", "warm_vessel", "add_leaves", "pour", "steep", "decant", "taste", "complete"] | None = None
     infusion_number: int | None = Field(default=None, ge=1, le=20)
+    user_text: str | None = Field(default=None, min_length=1, max_length=500)
 
 
 class VoiceTurnInput(ApiModel):
@@ -554,6 +652,10 @@ class VoiceStopResponse(ApiModel):
     experience_completed: bool
     journey: TeaJourneyResponse
     taste_result: TasteNormalizeResponse | None = None
+
+
+class VoiceAbortResponse(ApiModel):
+    status: Literal["cancelled"]
 
 
 class ErrorBody(ApiModel):

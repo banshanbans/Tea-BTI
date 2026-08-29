@@ -374,13 +374,18 @@ def public_profile_response(db: Session, share: ProfileShare) -> dict[str, Any]:
             "tea": catalog.tea_summary(quote.tea_id),
             "normalizedTags": quote.normalized_tags or [],
         }
+    private_tea_bti = tea_bti(db, share.user_id)
+    public_tea_bti = {
+        field: private_tea_bti[field]
+        for field in ("state", "code", "personaName", "personaSummary", "formationProgress", "axes", "evidence")
+    }
     return {
         "publicId": share.public_id,
         "publicBlockIds": public_blocks,
         "identity": {
             "displayName": profile.display_name,
             "bio": profile.bio,
-            "teaBti": tea_bti(db, share.user_id),
+            "teaBti": public_tea_bti,
         },
         "myTea": (
             catalog.tea_summary(profile.selected_tea_id)

@@ -11,7 +11,7 @@
 - Responsive evidence: `docs/design/qa/tea-bti-h5/.design-qa-320-feed.png`, `docs/design/qa/tea-bti-h5/.design-qa-430-feed.png`.
 - Viewport: 390 × 844 CSS px for primary comparison; 320 × 844 and 430 × 844 for boundary checks.
 - Density normalization: both source and implementation page contexts reported device pixel ratio 2; the in-app browser produced normalized 390 × 844 pixel captures, so comparison inputs are equal-sized 1:1 CSS-pixel outputs.
-- States: brand launch, Blind Swipe, tea detail, pre-connection voice, Realm home, Realm scene 1 and private Tea Profile.
+- States: brand launch, identified eight-tea Swipe, tea detail, pre-connection voice, Realm home, Realm scene 1 and private Tea Profile.
 
 ## Final Findings
 
@@ -27,8 +27,8 @@ No actionable P0, P1 or P2 differences remain.
 ## Intentional Product Differences From The Prototype
 
 - The source landing is a warm static home screen; the implementation uses a dark Tea-BTI brand launch because the approved plan requires a launch screen on every home entry.
-- The source jumps directly into Mock Swipe content; the implementation preserves the real MBTI → three-cup Seed → server-backed Blind Feed journey.
-- The source Blind Card is mostly typographic; the implementation uses the reviewed tea visual manifest while preserving Blind identity privacy.
+- The source jumps directly into Mock Swipe content; the implementation preserves the real MBTI → three-cup Seed → server-backed eight-tea Feed journey.
+- The implementation uses the reviewed tea visual manifest and directly shows each tea name, tea type and personality keywords with its complete presentation artwork.
 - The source uses emoji and character controls; the implementation uses a consistent rounded icon library and does not add the unsupported global tea-companion bubble.
 
 ## Comparison History
@@ -61,7 +61,7 @@ Post-fix evidence: `docs/design/qa/tea-bti-h5/.design-qa-feed-comparison-final.p
 ## Primary Interactions Tested
 
 - Launch preload → start → MBTI or returning-user Feed recovery.
-- MBTI skip → three Seed cards → Blind Feed.
+- MBTI skip → three Seed cards → identified eight-tea Feed.
 - Tea detail routes and Brew/Taste/Realm entry affordances.
 - Mock-capable immersive voice pre-connection state.
 - Realm home and seven-scene experience shell; seven progress dots present, with no camera or microphone dependency.

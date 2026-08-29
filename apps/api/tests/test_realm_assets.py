@@ -10,14 +10,48 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_realm_manifest_v2_paths_hashes_rights_and_fact_boundaries():
+def test_manifest_v3_has_eight_presentation_and_detail_assets_with_provenance():
     manifest = read_json(ROOT / "assets/tea-visuals/manifest.json")
     schema = read_json(ROOT / "assets/tea-visuals/manifest.schema.json")
     prompts = read_json(ROOT / "assets/tea-visuals/prompts.json")
     realm_catalog = read_json(ROOT / "apps/api/data/realm-catalog.json")
 
-    assert manifest["schema_version"] == 2
-    assert schema["properties"]["schema_version"]["const"] == 2
+    assert manifest["schema_version"] == 3
+    assert schema["properties"]["schema_version"]["const"] == 3
+    assert len(manifest["teas"]) == 8
+    assert len({tea["tea_id"] for tea in manifest["teas"]}) == 8
+    presentation_assets = [tea["assets"][0] for tea in manifest["teas"]]
+    detail_assets = [tea["detail_asset"] for tea in manifest["teas"]]
+    assert all(asset["active"] and asset["role"] == "presentation" for asset in presentation_assets)
+    assert all(asset["rights_state"] == "demo_only" for asset in presentation_assets)
+    assert all(asset["role"] == "detail" and asset["rights_state"] == "unknown" for asset in detail_assets)
+    for asset in [*presentation_assets, *detail_assets]:
+        master = ROOT / asset["master_path"]
+        media = ROOT / asset["media_path"]
+        assert master.is_file()
+        assert media.is_file()
+        assert asset["source_url"]
+        assert hashlib.sha256(master.read_bytes()).hexdigest() == asset["master_sha256"]
+        assert hashlib.sha256(media.read_bytes()).hexdigest() == asset["sha256"]
+        assert asset["master_width"] > 0 and asset["master_height"] > 0
+        assert asset["media_width"] > 0 and asset["media_height"] > 0
+
+    for asset in detail_assets:
+        original = ROOT / asset["original_path"]
+        assert original.is_file()
+        assert hashlib.sha256(original.read_bytes()).hexdigest() == asset["original_sha256"]
+
+    edited = {asset["id"]: asset for asset in detail_assets if asset["edit_chain"]}
+    assert set(edited) == {"meitan-cuiya-detail", "fanjingshan-matcha-detail"}
+    assert all(asset["edit_chain"][0]["operation"] == "watermark_removal" for asset in edited.values())
+    assert all(asset["edit_chain"][0]["verification"]["outside_scope_pixel_difference"] == "0 (0)" for asset in edited.values())
+
+
+def test_realm_assets_keep_their_rights_and_fact_boundaries():
+    manifest = read_json(ROOT / "assets/tea-visuals/manifest.json")
+    prompts = read_json(ROOT / "assets/tea-visuals/prompts.json")
+    realm_catalog = read_json(ROOT / "apps/api/data/realm-catalog.json")
+
     prompt_ids = {item["prompt_id"] for item in prompts["assets"]}
     assets = [asset for tea in manifest["teas"] for asset in tea["realm_assets"]]
     assert len({asset["id"] for asset in assets}) == len(assets) == 5

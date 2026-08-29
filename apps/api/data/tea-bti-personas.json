@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 2,
+  "personas": [
+    {
+      "code": "FLSE",
+      "name": "山雾漫游者",
+      "summary": "清鲜、轻盈，追着香气认识新茶",
+      "detail": {
+        "punchline": "一杯还没喝明白，你已经想知道下一杯是什么了。",
+        "symptoms": ["茶还没入口，先闻了好几轮。", "别人问好不好喝，你先回答好不好闻。", "同一款茶再次出现，手已经在找下一张。", "看到厚重两个字，会先给味蕾留条退路。", "喜欢的茶看起来很淡，你对它的香气很有意见。"],
+        "contrasts": [
+          { "claim": "我只是喜欢清淡", "reality": "你对厚重风味会先战略观察" },
+          { "claim": "我愿意尝试新东西", "reality": "你很难把注意力只留给一杯" },
+          { "claim": "我比较注重香气", "reality": "泡好以后第一件事通常是深呼吸" },
+          { "claim": "我其实不挑", "reality": "你的下一杯标准一直在悄悄更新" }
+        ],
+        "scenes": [
+          { "title": "再来一泡", "lines": [{ "speaker": "朋友", "text": "这泡不错，再来一泡？" }, { "speaker": "你", "text": "可以。" }, { "speaker": "旁白", "text": "手已经开始翻下一款茶了。" }] },
+          { "title": "年份很久", "lines": [{ "speaker": "朋友", "text": "这款放了很多年。" }, { "speaker": "你", "text": "听起来很好，有没有刚做好的？" }] },
+          { "title": "先说重点", "lines": [{ "speaker": "茶艺师", "text": "山场、工艺、树龄都很特别。" }, { "speaker": "你", "text": "收到，所以它闻起来像什么？" }] }
+        ],
+        "enemies": [
+          { "trigger": "这杯要慢慢坐到后面才懂。", "reaction": "后面有多后面？下一款还在等我。" },
+          { "trigger": "这款以后会更好喝。", "reaction": "听起来很好，可我现在就想认识它。" },
+          { "trigger": "别闻了，直接喝。", "reaction": "流程怎么突然少了一半？" }
+        ],
+        "signatureMoment": [{ "speaker": "你", "text": "这个好香。" }, { "speaker": "朋友", "text": "你喝了吗？" }, { "speaker": "你", "text": "还没。" }],
+        "neverSay": "今天我们只喝这一款。",
+        "chemistry": { "partnerCode": "MRTC", "lines": [{ "speaker": "山雾漫游者", "text": "换一杯？" }, { "speaker": "炉火守夜人", "text": "这一杯才第三泡。" }, { "speaker": "山雾漫游者", "text": "我先看看下一款。" }, { "speaker": "炉火守夜人", "text": "坐下。" }], "summary": "一个负责发现世界，一个负责让世界多泡几次。" }
+      }
+    },
+    {
+      "code": "FLSC",
+      "name": "春庭守香人",
+      "summary": "清鲜、轻盈，偏爱熟悉舒服的香",
+      "detail": {
+        "punchline": "你愿意闻新的香，但最后总会坐回那张熟悉的茶桌。",
+        "symptoms": ["喜欢的香气一出现，整个人会明显安静。", "新茶可以试，熟悉的那杯要留在手边。", "茶汤太有压迫感时，会礼貌地喝慢一点。", "记不住复杂术语，却记得某次舒服的香。", "复饮不是重复，是把心情调回熟悉频道。"],
+        "contrasts": [
+          { "claim": "我很随和", "reality": "你对舒服两个字有自己的精确版本" },
+          { "claim": "什么都能试", "reality": "试完以后还是会找那股熟悉的香" },
+          { "claim": "我不太记茶名", "reality": "你记得它上次出现时的天气" },
+          { "claim": "我喝得比较简单", "reality": "你只是把标准藏得很安静" }
+        ],
+        "scenes": [
+          { "title": "还是那杯", "lines": [{ "speaker": "朋友", "text": "今天换个口味？" }, { "speaker": "你", "text": "可以，先把熟悉的那杯泡上。" }] },
+          { "title": "形容一下", "lines": [{ "speaker": "朋友", "text": "它到底哪里好？" }, { "speaker": "你", "text": "像回到一个不用解释的地方。" }] },
+          { "title": "新香气", "lines": [{ "speaker": "茶艺师", "text": "这款香气很特别。" }, { "speaker": "你", "text": "特别可以，别太吵就行。" }] }
+        ],
+        "enemies": [{ "trigger": "这款每一泡都完全不一样。", "reaction": "可以变化，先让我找到落脚点。" }, { "trigger": "今天没有你常喝的。", "reaction": "那我需要一点时间接受现实。" }, { "trigger": "香气差不多就行。", "reaction": "差很多，只是我暂时没开口。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "又是这款？" }, { "speaker": "你", "text": "今天需要它。" }],
+        "neverSay": "熟悉的茶都没什么惊喜。",
+        "chemistry": { "partnerCode": "MRTE", "lines": [{ "speaker": "深山探味者", "text": "再等等，后面还有变化。" }, { "speaker": "春庭守香人", "text": "可以，只要这股香还在。" }], "summary": "一个追着滋味往深处走，一个替茶桌留住回家的方向。" }
+      }
+    },
+    {
+      "code": "FLTE",
+      "name": "清溪寻味者",
+      "summary": "清鲜、轻盈，喜欢探索细微滋味",
+      "detail": {
+        "punchline": "别人喝到一杯茶，你已经在研究它转弯的地方。",
+        "symptoms": ["第一口很轻，注意力反而立刻上线。", "会认真区分甜、回甘和嘴里留下的那一点变化。", "喝到熟悉味道时，还是想找一个没见过的细节。", "不怕茶淡，怕它从头到尾没有转折。", "一句还不错，通常只是你分析前的开场白。"],
+        "contrasts": [{ "claim": "我喝得挺轻松", "reality": "你的味蕾一直在做细节复盘" }, { "claim": "我喜欢清淡", "reality": "你喜欢的是轻里面还有东西" }, { "claim": "我随便试试", "reality": "你会记住茶汤从入口到回味的路线" }, { "claim": "我没那么专业", "reality": "你只是不用专业词汇开会" }],
+        "scenes": [{ "title": "哪里甜", "lines": [{ "speaker": "朋友", "text": "这杯挺甜。" }, { "speaker": "你", "text": "入口甜，还是喝完以后甜？" }] }, { "title": "淡一点", "lines": [{ "speaker": "朋友", "text": "是不是有点淡？" }, { "speaker": "你", "text": "等一下，它刚刚变了。" }] }, { "title": "再试一次", "lines": [{ "speaker": "茶艺师", "text": "喜欢吗？" }, { "speaker": "你", "text": "让我换个温度再确认。" }] }],
+        "enemies": [{ "trigger": "喝茶别想太多。", "reaction": "我没多想，是它刚好有很多细节。" }, { "trigger": "淡的茶都差不多。", "reaction": "这句话让我的味蕾有点忙。" }, { "trigger": "入口好喝就够了。", "reaction": "回味刚刚举手了。" }],
+        "signatureMoment": [{ "speaker": "你", "text": "刚才第二口和第一口不一样。" }, { "speaker": "朋友", "text": "有吗？" }, { "speaker": "你", "text": "有。" }],
+        "neverSay": "这么淡，有什么好研究的？",
+        "chemistry": { "partnerCode": "MRSC", "lines": [{ "speaker": "清溪寻味者", "text": "刚才那一点变化你喝到了吗？" }, { "speaker": "炉火守香人", "text": "先坐稳，这杯后面会更完整。" }], "summary": "一个负责发现细小转弯，一个负责把整条路慢慢铺开。" }
+      }
+    },
+    {
+      "code": "FLTC",
+      "name": "白露慢饮者",
+      "summary": "清鲜、轻盈，找到喜欢的便慢慢喝",
+      "detail": {
+        "punchline": "你选茶看起来很快，认定一杯以后却能坐很久。",
+        "symptoms": ["入口清爽，心里才有继续坐下的空间。", "找到喜欢的茶，会默默记住冲泡的小细节。", "不急着认识很多款，更在意这一杯能不能再见。", "茶汤变化太突然时，会想把节奏调慢。", "别人忙着换茶，你还在等上一口的回味。"],
+        "contrasts": [{ "claim": "我选得很快", "reality": "你只是对舒服的答案很明确" }, { "claim": "我喝得简单", "reality": "你会把喜欢的冲泡方式默默存档" }, { "claim": "我不追求变化", "reality": "你在意的是变化有没有好好发生" }, { "claim": "我随时都能换", "reality": "手里的回味还没结束，你不会先走" }],
+        "scenes": [{ "title": "换一款吗", "lines": [{ "speaker": "朋友", "text": "下一款已经好了。" }, { "speaker": "你", "text": "等我把这一口喝完。" }] }, { "title": "为什么又喝", "lines": [{ "speaker": "朋友", "text": "最近总是这款。" }, { "speaker": "你", "text": "它最近总是刚刚好。" }] }, { "title": "浓一点", "lines": [{ "speaker": "茶艺师", "text": "要不要泡重一点？" }, { "speaker": "你", "text": "先让它保持现在的呼吸。" }] }],
+        "enemies": [{ "trigger": "喝完就换，别停。", "reaction": "回味还在场，怎么能直接散会。" }, { "trigger": "每次都要换个刺激的。", "reaction": "舒服也值得被认真对待。" }, { "trigger": "清爽就是没个性。", "reaction": "它只是没有抢着讲话。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "这杯你喝很久了。" }, { "speaker": "你", "text": "它还没说完。" }],
+        "neverSay": "喜欢的茶喝一次就够了。",
+        "chemistry": { "partnerCode": "MRSE", "lines": [{ "speaker": "烟霞猎香者", "text": "下一杯很有冲击力。" }, { "speaker": "白露慢饮者", "text": "好，等这一杯安静落地。" }], "summary": "一个把茶桌点亮，一个提醒大家别错过灯光落下的过程。" }
+      }
+    },
+    {
+      "code": "FRSE",
+      "name": "花岭猎香者",
+      "summary": "清鲜但有厚度，喜欢追逐强烈香气",
+      "detail": {
+        "punchline": "香气只要一抬头，你的注意力就会立刻追过去。",
+        "symptoms": ["闻香的时间经常比第一口停留得更久。", "清鲜要有冲劲，轻飘飘很难让你回头。", "新茶一出现，先问香气够不够有存在感。", "会为了一个特别的香，再给整杯茶一次机会。", "茶桌安静太久，你会主动寻找下一个高光。"],
+        "contrasts": [{ "claim": "我只是鼻子比较灵", "reality": "香气已经掌握了你的注意力开关" }, { "claim": "我喜欢清鲜", "reality": "你的清鲜最好还能站到桌子中央" }, { "claim": "我愿意多尝试", "reality": "你在追下一次让眼睛亮起来的瞬间" }, { "claim": "我会认真喝完", "reality": "前提是香气愿意继续营业" }],
+        "scenes": [{ "title": "先别倒", "lines": [{ "speaker": "朋友", "text": "茶汤已经好了。" }, { "speaker": "你", "text": "等一下，盖香正到关键处。" }] }, { "title": "香不香", "lines": [{ "speaker": "茶艺师", "text": "这款层次很丰富。" }, { "speaker": "你", "text": "香气会不会先冲出来？" }] }, { "title": "下一款", "lines": [{ "speaker": "朋友", "text": "这一杯还没喝完。" }, { "speaker": "你", "text": "我只是先闻闻下一杯。" }] }],
+        "enemies": [{ "trigger": "香气没那么重要。", "reaction": "这句话需要重新泡一下。" }, { "trigger": "盖子不用闻。", "reaction": "那今天少了一个主要节目。" }, { "trigger": "这杯要耐心等它慢慢香。", "reaction": "可以等，但请先给一点预告。" }],
+        "signatureMoment": [{ "speaker": "旁白", "text": "闻香很久，茶汤很快。" }, { "speaker": "你", "text": "重点已经抓到了。" }],
+        "neverSay": "香不重要。",
+        "chemistry": { "partnerCode": "MLTC", "lines": [{ "speaker": "花岭猎香者", "text": "你闻到刚才那一下了吗？" }, { "speaker": "暖盏慢饮者", "text": "闻到了，也想看看它第五泡还在不在。" }], "summary": "一个追高光，一个守余温，茶桌从开场热闹到散场。" }
+      }
+    },
+    {
+      "code": "FRSC",
+      "name": "兰室藏香人",
+      "summary": "清鲜浓郁，偏爱稳定而有层次的香",
+      "detail": {
+        "punchline": "你喜欢有存在感的香，也希望它每次出现都守信用。",
+        "symptoms": ["香气可以浓，方向最好别突然失踪。", "遇到稳定好喝的茶，会把它列入长期名单。", "新香气能吸引你，熟悉的层次更容易留住你。", "会认真比较同一款茶这次和上次的表现。", "茶桌太随机时，你会默默接管冲泡节奏。"],
+        "contrasts": [{ "claim": "我只是喜欢香一点", "reality": "你还要求香气有稳定的出勤记录" }, { "claim": "我可以随便泡", "reality": "水温一变，你已经察觉现场失控" }, { "claim": "我愿意试新的", "reality": "试完会立刻和心里的长期名单比较" }, { "claim": "我要求不高", "reality": "稳定和层次两个条件都不能缺席" }],
+        "scenes": [{ "title": "今天不一样", "lines": [{ "speaker": "朋友", "text": "还是那款茶。" }, { "speaker": "你", "text": "香气比上次散得快一点。" }] }, { "title": "随手泡", "lines": [{ "speaker": "朋友", "text": "随便倒点水就行。" }, { "speaker": "你", "text": "可以，先让我看一下水温。" }] }, { "title": "换茶", "lines": [{ "speaker": "朋友", "text": "今天试个全新的？" }, { "speaker": "你", "text": "试，熟悉的那款也留一点。" }] }],
+        "enemies": [{ "trigger": "每次泡成什么样都看运气。", "reaction": "运气可以来，基本秩序也请到场。" }, { "trigger": "香一会儿就够了。", "reaction": "它刚建立关系就离场了。" }, { "trigger": "同一款不用比较。", "reaction": "那我刚才记住的细节放哪里？" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "你怎么知道这次不一样？" }, { "speaker": "你", "text": "它上次不是这样香的。" }],
+        "neverSay": "香气稳定不稳定都一样。",
+        "chemistry": { "partnerCode": "MLTE", "lines": [{ "speaker": "兰室藏香人", "text": "这股香今天很稳。" }, { "speaker": "秋溪探味者", "text": "茶汤后面还转了两次。" }], "summary": "一个守住香气的秩序，一个负责把滋味的变化逐段讲清。" }
+      }
+    },
+    {
+      "code": "FRTE",
+      "name": "青岚探味者",
+      "summary": "清鲜饱满，喜欢挑战不同滋味结构",
+      "detail": {
+        "punchline": "茶汤越有结构，你越想把它从入口追到散场。",
+        "symptoms": ["清鲜只是开门，后面的层次才让你坐下。", "遇到陌生滋味，会先兴奋再认真拆解。", "入口、厚度、回味在你嘴里各有自己的座位。", "一杯太顺到底，反而少了值得讨论的地方。", "会主动调整冲泡，只为看它还能怎么变化。"],
+        "contrasts": [{ "claim": "我只是口味比较丰富", "reality": "你在给茶汤做结构拆解" }, { "claim": "我喜欢挑战", "reality": "越复杂的那杯越容易占用你的下午" }, { "claim": "我不怕浓", "reality": "你怕的是浓得没有层次" }, { "claim": "我随便调一下", "reality": "你已经开始下一轮冲泡实验" }],
+        "scenes": [{ "title": "有点复杂", "lines": [{ "speaker": "朋友", "text": "这杯有点难懂。" }, { "speaker": "你", "text": "很好，再喝一口。" }] }, { "title": "泡法", "lines": [{ "speaker": "茶艺师", "text": "按这个参数最稳定。" }, { "speaker": "你", "text": "稳定以后，可以再试一个版本吗？" }] }, { "title": "入口之后", "lines": [{ "speaker": "朋友", "text": "第一口挺好。" }, { "speaker": "你", "text": "等回味回来再下结论。" }] }],
+        "enemies": [{ "trigger": "茶汤顺就够了。", "reaction": "顺很好，转折也可以来一点。" }, { "trigger": "参数别动，照着泡。", "reaction": "我只是想看看另一扇门。" }, { "trigger": "复杂就是不好喝。", "reaction": "复杂需要时间，先别急着散会。" }],
+        "signatureMoment": [{ "speaker": "你", "text": "这杯有点难懂。" }, { "speaker": "朋友", "text": "那换吗？" }, { "speaker": "你", "text": "再来一泡。" }],
+        "neverSay": "喝茶不需要研究变化。",
+        "chemistry": { "partnerCode": "MLSC", "lines": [{ "speaker": "青岚探味者", "text": "这杯后面很有意思。" }, { "speaker": "暖庭藏香人", "text": "可以慢慢看，别把熟悉的香弄丢。" }], "summary": "一个把茶汤往未知处推，一个替探索留住舒服的扶手。" }
+      }
+    },
+    {
+      "code": "FRTC",
+      "name": "松间守味人",
+      "summary": "清鲜饱满，偏爱有存在感的熟悉滋味",
+      "detail": {
+        "punchline": "你喜欢茶汤有分量，也喜欢它按熟悉的路线好好回来。",
+        "symptoms": ["清鲜可以亮，茶汤也得在嘴里站得住。", "遇到喜欢的结构，会认真寻找相同的稳定感。", "新茶能试，入口到回味最好有清楚交代。", "太轻会觉得没坐稳，太乱会想重新泡。", "复饮时会默默检查那份存在感还在不在。"],
+        "contrasts": [{ "claim": "我喜欢清爽", "reality": "你的清爽也必须有可靠的骨架" }, { "claim": "我比较念旧", "reality": "你在守一条被验证过的滋味路线" }, { "claim": "我不爱折腾", "reality": "茶汤一旦偏航，你会马上调整" }, { "claim": "我喝得很稳", "reality": "稳里少一点存在感都逃不过你" }],
+        "scenes": [{ "title": "今天轻了", "lines": [{ "speaker": "朋友", "text": "还是熟悉的味道。" }, { "speaker": "你", "text": "方向对，今天脚步轻了一点。" }] }, { "title": "新版本", "lines": [{ "speaker": "茶艺师", "text": "这次做得更轻。" }, { "speaker": "你", "text": "可以，回味还站得住吗？" }] }, { "title": "换参数", "lines": [{ "speaker": "朋友", "text": "随便泡泡。" }, { "speaker": "你", "text": "先把它泡回熟悉的位置。" }] }],
+        "enemies": [{ "trigger": "轻一点就什么都不用管。", "reaction": "轻也可以有结构和交代。" }, { "trigger": "每次不一样才有趣。", "reaction": "稳定也有很多值得看的细节。" }, { "trigger": "回味有没有都无所谓。", "reaction": "那这杯走到一半就下班了。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "和上次差不多吧？" }, { "speaker": "你", "text": "方向一样，落点不同。" }],
+        "neverSay": "有点存在感就算太重。",
+        "chemistry": { "partnerCode": "MLSE", "lines": [{ "speaker": "松间守味人", "text": "先把这一杯泡稳。" }, { "speaker": "暮野寻香者", "text": "好，泡稳以后我想闻下一款。" }], "summary": "一个守住茶汤的落点，一个给熟悉的桌面打开新窗。" }
+      }
+    },
+    {
+      "code": "MLSE",
+      "name": "暮野寻香者",
+      "summary": "温润轻盈，在柔和茶里不断寻找新香",
+      "detail": {
+        "punchline": "你喜欢温柔的茶，但对新香气的消息永远很灵通。",
+        "symptoms": ["入口要温和，香气可以悄悄带你走远。", "喜欢探索，又不想让味蕾被突然推一把。", "会在柔和茶汤里寻找一个没遇过的香。", "新茶名单很长，每一款都希望相处得舒服。", "浓烈场面出现时，会先闻闻再决定靠多近。"],
+        "contrasts": [{ "claim": "我口味比较温和", "reality": "你的好奇心一直在温柔地出走" }, { "claim": "我慢慢试就好", "reality": "新香气一来，你马上有空" }, { "claim": "我怕太刺激", "reality": "你只是希望惊喜先敲门" }, { "claim": "我没有收藏很多", "reality": "你的待闻清单已经很有规模" }],
+        "scenes": [{ "title": "新香", "lines": [{ "speaker": "朋友", "text": "这款香气很少见。" }, { "speaker": "你", "text": "入口会不会太急？" }] }, { "title": "再浓一点", "lines": [{ "speaker": "茶艺师", "text": "泡浓一点更明显。" }, { "speaker": "你", "text": "让它明显，但别突然冲过来。" }] }, { "title": "下一款", "lines": [{ "speaker": "朋友", "text": "今天已经试了不少。" }, { "speaker": "你", "text": "最后闻一款，真的。" }] }],
+        "enemies": [{ "trigger": "新茶就要来点猛的。", "reaction": "新鲜感可以有，不用撞门。" }, { "trigger": "温润的茶没什么变化。", "reaction": "它的变化只是说话比较轻。" }, { "trigger": "闻香不用这么认真。", "reaction": "那我的探索路线少了一半。" }],
+        "signatureMoment": [{ "speaker": "你", "text": "我想试新的。" }, { "speaker": "朋友", "text": "要不要来点重的？" }, { "speaker": "你", "text": "新的就好，先温柔一点。" }],
+        "neverSay": "温和的茶都没新意。",
+        "chemistry": { "partnerCode": "FRTC", "lines": [{ "speaker": "暮野寻香者", "text": "窗外好像有一股新香。" }, { "speaker": "松间守味人", "text": "去看看，记得回来把这杯喝稳。" }], "summary": "一个不断开窗，一个守住桌面，探索因此有了来回。" }
+      }
+    },
+    {
+      "code": "MLSC",
+      "name": "暖庭藏香人",
+      "summary": "温润轻盈，喜欢熟悉、安静的香气",
+      "detail": {
+        "punchline": "你喝茶像调灯光，舒服、安静、熟悉，亮一点都要慢慢来。",
+        "symptoms": ["香气不用抢镜，稳定出现就已经很加分。", "喜欢的茶像固定座位，坐下就知道今天对了。", "茶汤太急时，会下意识把冲泡节奏放慢。", "不追很多新款，却会记得熟悉茶香的细微变化。", "别人寻找惊喜，你在确认这杯还让人安心。"],
+        "contrasts": [{ "claim": "我没什么要求", "reality": "舒服和安静都有非常具体的标准" }, { "claim": "我喝熟悉的就好", "reality": "熟悉里面的小变化你一个都没错过" }, { "claim": "我不太在意香", "reality": "香气一乱，你比谁都先察觉" }, { "claim": "我只是想放松", "reality": "你把茶桌的氛围管理得很认真" }],
+        "scenes": [{ "title": "今天喝什么", "lines": [{ "speaker": "朋友", "text": "随便选一款？" }, { "speaker": "你", "text": "先泡那款让人安心的。" }] }, { "title": "香气淡了", "lines": [{ "speaker": "朋友", "text": "感觉差不多。" }, { "speaker": "你", "text": "今天它安静得更早。" }] }, { "title": "热闹一点", "lines": [{ "speaker": "朋友", "text": "来个香气炸开的。" }, { "speaker": "你", "text": "可以先把音量调到中间吗？" }] }],
+        "enemies": [{ "trigger": "喝茶就要越刺激越好。", "reaction": "舒服也有自己的高光。" }, { "trigger": "熟悉就等于无聊。", "reaction": "熟悉是我愿意再见它的理由。" }, { "trigger": "香气乱一点更有趣。", "reaction": "有趣可以，先让它排好队。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "今天想试点什么？" }, { "speaker": "你", "text": "先把熟悉的香找回来。" }],
+        "neverSay": "安心的茶都很无聊。",
+        "chemistry": { "partnerCode": "FRTE", "lines": [{ "speaker": "青岚探味者", "text": "这杯后面还有三个转弯。" }, { "speaker": "暖庭藏香人", "text": "可以走，先确认香气还在。" }], "summary": "一个带路去看复杂风景，一个让沿途始终有安静的灯。" }
+      }
+    },
+    {
+      "code": "MLTE",
+      "name": "秋溪探味者",
+      "summary": "温润轻盈，更关注入口与回味变化",
+      "detail": {
+        "punchline": "你看起来喝得很慢，脑内已经把入口和回味聊了好几轮。",
+        "symptoms": ["茶汤温润，才有耐心追后面的变化。", "不需要很重，但需要从入口走到回味。", "遇到新的细节，会安静地多喝两口确认。", "一杯太直接，反而少了慢慢理解的乐趣。", "喜欢把冲泡调柔一点，再观察滋味怎么展开。"],
+        "contrasts": [{ "claim": "我喝得比较慢", "reality": "你的味蕾正在进行多轮讨论" }, { "claim": "我喜欢柔和", "reality": "柔和只是你观察变化的安静环境" }, { "claim": "我没想那么多", "reality": "你刚刚已经比较了两次回味" }, { "claim": "我愿意试试看", "reality": "试试看通常会发展成再泡一次" }],
+        "scenes": [{ "title": "喝完了吗", "lines": [{ "speaker": "朋友", "text": "这一口结束了吧？" }, { "speaker": "你", "text": "嘴里还在继续。" }] }, { "title": "柔一点", "lines": [{ "speaker": "茶艺师", "text": "重泡更有力量。" }, { "speaker": "你", "text": "我想先听清它后面的变化。" }] }, { "title": "新细节", "lines": [{ "speaker": "朋友", "text": "还要再泡？" }, { "speaker": "你", "text": "刚才有个细节才出现。" }] }],
+        "enemies": [{ "trigger": "第一口就能决定一杯茶。", "reaction": "回味刚到门口。" }, { "trigger": "温润的茶不用细品。", "reaction": "它只是把线索放得比较轻。" }, { "trigger": "变化不明显就算了。", "reaction": "不明显的地方最需要再一口。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "你怎么不说话？" }, { "speaker": "你", "text": "我在等回味把话说完。" }],
+        "neverSay": "第一口没感觉就可以换了。",
+        "chemistry": { "partnerCode": "FRSC", "lines": [{ "speaker": "秋溪探味者", "text": "后面那一点变化很漂亮。" }, { "speaker": "兰室藏香人", "text": "而且今天的香气从头到尾都在。" }], "summary": "一个记录滋味的转弯，一个检查香气是否准时抵达。" }
+      }
+    },
+    {
+      "code": "MLTC",
+      "name": "暖盏慢饮者",
+      "summary": "温润轻盈，一杯喜欢的茶可以喝很久",
+      "detail": {
+        "punchline": "别人把喝茶当行程，你把喜欢的一杯过成了长期项目。",
+        "symptoms": ["茶汤温润，时间就自动慢下来。", "喜欢的茶不需要换，下一泡还可以继续聊。", "会记得哪只杯子、哪个温度最让它舒服。", "新茶可以等等，手里的这一杯还有余温。", "别人追求高光，你擅长把普通一泡喝得很完整。"],
+        "contrasts": [{ "claim": "我只是喝得慢", "reality": "你在给喜欢的一杯长期续约" }, { "claim": "我不太爱换", "reality": "你觉得熟悉值得被继续了解" }, { "claim": "我要求很简单", "reality": "杯子、温度和节奏都已经配好" }, { "claim": "我没有错过新茶", "reality": "你只是把它们排到了下一次" }],
+        "scenes": [{ "title": "下一款", "lines": [{ "speaker": "朋友", "text": "要不要看看新到的？" }, { "speaker": "你", "text": "看，等这杯再泡一次。" }] }, { "title": "第几泡", "lines": [{ "speaker": "朋友", "text": "还在喝它？" }, { "speaker": "你", "text": "这一泡刚好。" }] }, { "title": "换杯子", "lines": [{ "speaker": "朋友", "text": "杯子随便拿一个。" }, { "speaker": "你", "text": "它在这只杯子里更舒服。" }] }],
+        "enemies": [{ "trigger": "同一款喝几泡就够了。", "reaction": "够不够要问这杯还有没有话。" }, { "trigger": "慢慢喝会错过很多。", "reaction": "我正在把这一杯好好遇见。" }, { "trigger": "喝茶就得一直换新。", "reaction": "新鲜很好，长久也很难得。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "换茶吗？" }, { "speaker": "你", "text": "先给它续一泡。" }],
+        "neverSay": "一款茶喝久了都一样。",
+        "chemistry": { "partnerCode": "FRSE", "lines": [{ "speaker": "花岭猎香者", "text": "刚才那股香太亮了。" }, { "speaker": "暖盏慢饮者", "text": "很好，我们看看它能亮多久。" }], "summary": "一个抓住香气的瞬间，一个把瞬间慢慢留成一段时间。" }
+      }
+    },
+    {
+      "code": "MRSE",
+      "name": "烟霞猎香者",
+      "summary": "醇和浓郁，喜欢大胆探索厚重香气",
+      "detail": {
+        "punchline": "茶桌一旦有大场面，你通常已经坐到了第一排。",
+        "symptoms": ["香气要有声量，茶汤也要接得住。", "看到陌生的厚重风味，会先靠近再研究。", "喜欢一杯茶从闻香开始就把存在感拉满。", "新茶越有个性，越容易进入你的尝试名单。", "茶桌过于安静时，会主动寻找更有戏的一款。"],
+        "contrasts": [{ "claim": "我只是口味重一点", "reality": "你在等待茶桌出现主角" }, { "claim": "我喜欢尝鲜", "reality": "普通的新鲜感已经很难让你抬头" }, { "claim": "我先闻一下", "reality": "你在判断这杯有没有开场气势" }, { "claim": "我也能安静喝", "reality": "前提是茶汤自己足够有戏" }],
+        "scenes": [{ "title": "很有力量", "lines": [{ "speaker": "茶艺师", "text": "这款风格很有力量。" }, { "speaker": "你", "text": "很好，香气先从哪里开始？" }] }, { "title": "温柔一点", "lines": [{ "speaker": "朋友", "text": "今天喝点轻松的？" }, { "speaker": "你", "text": "可以，轻松里有大场面吗？" }] }, { "title": "下一款", "lines": [{ "speaker": "朋友", "text": "这杯已经很丰富。" }, { "speaker": "你", "text": "所以我很好奇下一杯。" }] }],
+        "enemies": [{ "trigger": "香气淡一点才高级。", "reaction": "高级可以有很多种音量。" }, { "trigger": "厚重就不要尝新的了。", "reaction": "厚重的世界也很大。" }, { "trigger": "今天都喝差不多的。", "reaction": "茶桌需要一点剧情推进。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "这杯会不会太有存在感？" }, { "speaker": "你", "text": "它终于开始讲话了。" }],
+        "neverSay": "今天别找新香气了。",
+        "chemistry": { "partnerCode": "FLTC", "lines": [{ "speaker": "烟霞猎香者", "text": "下一杯会更有冲击力。" }, { "speaker": "白露慢饮者", "text": "好，先让这一杯慢慢落地。" }], "summary": "一个负责点燃场面，一个负责让每次燃起都得到完整收尾。" }
+      }
+    },
+    {
+      "code": "MRSC",
+      "name": "炉火守香人",
+      "summary": "醇和浓郁，对熟悉的深香有稳定偏爱",
+      "detail": {
+        "punchline": "你认定一股深香以后，会像守火一样看它慢慢亮。",
+        "symptoms": ["香气要深，也要一泡一泡守得住。", "熟悉的浓郁风味，比突然的惊喜更让人安心。", "会认真照顾水温和时间，不让好茶临场失常。", "同一款茶喝得越久，越能发现稳定里的差别。", "别人说差不多，你已经听见火候换了语气。"],
+        "contrasts": [{ "claim": "我只是喜欢浓一点", "reality": "你喜欢的是浓郁还能保持秩序" }, { "claim": "我常喝熟悉的", "reality": "你在长期观察一股深香的状态" }, { "claim": "泡茶不用太复杂", "reality": "你的稳定来自每个细节都没缺席" }, { "claim": "我没有那么认真", "reality": "水温一偏，你已经看向了壶" }],
+        "scenes": [{ "title": "差不多", "lines": [{ "speaker": "朋友", "text": "这几泡都差不多。" }, { "speaker": "你", "text": "刚才那泡火香收得更稳。" }] }, { "title": "换一款", "lines": [{ "speaker": "朋友", "text": "要不要来点新的？" }, { "speaker": "你", "text": "可以，先把这股香守到最后。" }] }, { "title": "快一点", "lines": [{ "speaker": "朋友", "text": "时间差不多就倒吧。" }, { "speaker": "你", "text": "再给它一点点。" }] }],
+        "enemies": [{ "trigger": "每一泡差不多就行。", "reaction": "火候刚刚换了方向。" }, { "trigger": "熟悉的香没必要细闻。", "reaction": "越熟悉，越知道哪里变了。" }, { "trigger": "浓一点怎么泡都一样。", "reaction": "这句话让水温都沉默了。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "还要守着这杯？" }, { "speaker": "你", "text": "它的香还在。" }],
+        "neverSay": "深香都差不多一个味。",
+        "chemistry": { "partnerCode": "FLTE", "lines": [{ "speaker": "清溪寻味者", "text": "刚才有个很小的转折。" }, { "speaker": "炉火守香人", "text": "我知道，香气也在那里稳住了。" }], "summary": "一个发现茶汤里的微光，一个负责让那束光别太快熄灭。" }
+      }
+    },
+    {
+      "code": "MRTE",
+      "name": "深山探味者",
+      "summary": "醇厚浓郁，专注复杂滋味和长尾韵",
+      "detail": {
+        "punchline": "别人问这杯好不好喝，你已经走进它的后半段了。",
+        "symptoms": ["茶汤越厚，越想知道里面到底有几层。", "复杂风味不会劝退你，只会让你坐得更稳。", "入口只是开场，长尾回味才是主线。", "遇到陌生结构，会愿意用更多泡次慢慢理解。", "一杯太快说完，反而让你觉得少了点内容。"],
+        "contrasts": [{ "claim": "我只是喜欢有味道", "reality": "你想把整条滋味路线走完" }, { "claim": "我挺有耐心", "reality": "复杂茶汤已经占用了你的时间感" }, { "claim": "我愿意试新的", "reality": "越难懂的那杯越容易被你留下" }, { "claim": "我不太看第一口", "reality": "你把判断权交给了整段回味" }],
+        "scenes": [{ "title": "难懂", "lines": [{ "speaker": "朋友", "text": "这杯怎么这么复杂？" }, { "speaker": "你", "text": "所以值得再泡。" }] }, { "title": "结束了吗", "lines": [{ "speaker": "朋友", "text": "这口喝完了。" }, { "speaker": "你", "text": "回味还在往后走。" }] }, { "title": "下一款", "lines": [{ "speaker": "朋友", "text": "要不要换？" }, { "speaker": "你", "text": "等这条线走到底。" }] }],
+        "enemies": [{ "trigger": "前三口没懂就算了。", "reaction": "有些茶从第四口才开始自我介绍。" }, { "trigger": "回味长不长无所谓。", "reaction": "主线剧情怎么能提前结束。" }, { "trigger": "复杂就是不够直接。", "reaction": "直接很好，深处也值得去。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "这杯到底哪里好？" }, { "speaker": "你", "text": "再坐一会儿你就知道。" }],
+        "neverSay": "喝到第三泡还不懂就换掉。",
+        "chemistry": { "partnerCode": "FLSC", "lines": [{ "speaker": "深山探味者", "text": "后面还有很长一段。" }, { "speaker": "春庭守香人", "text": "走吧，只要那股舒服的香还在。" }], "summary": "一个往滋味深处探路，一个在长路上保留熟悉的方向。" }
+      }
+    },
+    {
+      "code": "MRTC",
+      "name": "炉火守夜人",
+      "summary": "醇厚浓郁，偏爱稳定、深沉、耐喝的茶",
+      "detail": {
+        "punchline": "别人准备换茶时，你觉得这一杯才刚刚进入状态。",
+        "symptoms": ["茶汤要有厚度，也要经得起一泡接一泡。", "认定一杯以后，不急着把注意力分给下一款。", "会把稳定耐喝当成很高的赞美。", "越到后面越认真，前几泡只是彼此熟悉。", "朋友说可以收了，你往往还想再续一点水。"],
+        "contrasts": [{ "claim": "我只是喝得久", "reality": "你在等一杯茶把完整状态交出来" }, { "claim": "我喜欢熟悉的", "reality": "你相信长期相处比第一眼更可靠" }, { "claim": "我不追求新鲜", "reality": "你把新鲜感留在同一杯的后半程" }, { "claim": "我比较稳", "reality": "换茶按钮在你这里需要充分理由" }],
+        "scenes": [{ "title": "才第五泡", "lines": [{ "speaker": "朋友", "text": "换茶吗？" }, { "speaker": "你", "text": "为什么？它才第五泡。" }] }, { "title": "差不多了", "lines": [{ "speaker": "朋友", "text": "味道差不多淡了。" }, { "speaker": "你", "text": "现在才看得到它的底子。" }] }, { "title": "新到的", "lines": [{ "speaker": "朋友", "text": "旁边有一款新到的。" }, { "speaker": "你", "text": "让它先等等这一杯。" }] }],
+        "enemies": [{ "trigger": "喝三泡就能了解一款茶。", "reaction": "三泡只够互相认识。" }, { "trigger": "差不多一个味。", "reaction": "后半程刚刚证明它们差很多。" }, { "trigger": "快点换，新的更有意思。", "reaction": "有意思的事情也可以慢慢发生。" }],
+        "signatureMoment": [{ "speaker": "朋友", "text": "换茶吗？" }, { "speaker": "你", "text": "为什么？它才第五泡。" }],
+        "neverSay": "差不多一个味。",
+        "chemistry": { "partnerCode": "FLSE", "lines": [{ "speaker": "山雾漫游者", "text": "换一杯？" }, { "speaker": "炉火守夜人", "text": "这一杯才第三泡。" }, { "speaker": "山雾漫游者", "text": "我先看看下一款。" }, { "speaker": "炉火守夜人", "text": "坐下。" }], "summary": "一个负责把世界不断端上桌，一个负责让每一杯得到完整时间。" }
+      }
+    }
+  ]
+}

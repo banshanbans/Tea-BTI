@@ -393,7 +393,7 @@
               "type": "integer",
               "maximum": 20,
               "minimum": 1,
-              "default": 6,
+              "default": 8,
               "title": "Limit"
             }
           },
@@ -421,6 +421,96 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FeedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/media/details/{tea_id}": {
+      "get": {
+        "summary": "Detail Media",
+        "operationId": "detail_media_api_v1_media_details__tea_id__get",
+        "parameters": [
+          {
+            "name": "tea_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tea Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "茶叶详情实拍 WebP",
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -3025,6 +3115,111 @@
         }
       }
     },
+    "/api/v1/voice/sessions/{session_id}/abort": {
+      "post": {
+        "summary": "Abort Voice Session",
+        "operationId": "abort_voice_session_api_v1_voice_sessions__session_id__abort_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceAbortResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/v1/voice/sessions/{session_id}/stop": {
       "post": {
         "summary": "Stop Voice Session",
@@ -3167,46 +3362,6 @@
         ],
         "title": "AnonymousSessionResponse"
       },
-      "BlindCardResponse": {
-        "properties": {
-          "cardId": {
-            "type": "string",
-            "title": "Cardid"
-          },
-          "headline": {
-            "type": "string",
-            "title": "Headline"
-          },
-          "body": {
-            "type": "string",
-            "title": "Body"
-          },
-          "tags": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Tags"
-          },
-          "scene": {
-            "type": "string",
-            "title": "Scene"
-          },
-          "visual": {
-            "$ref": "#/components/schemas/VisualResponse"
-          }
-        },
-        "type": "object",
-        "required": [
-          "cardId",
-          "headline",
-          "body",
-          "tags",
-          "scene",
-          "visual"
-        ],
-        "title": "BlindCardResponse"
-      },
       "BootstrapResponse": {
         "properties": {
           "userId": {
@@ -3264,8 +3419,27 @@
             "type": "string",
             "title": "Temperaturerange"
           },
-          "steepTime": {
+          "teaAmount": {
             "type": "string",
+            "title": "Teaamount"
+          },
+          "waterVolume": {
+            "type": "string",
+            "title": "Watervolume"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "steepTime": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Steeptime"
           },
           "notes": {
@@ -3280,7 +3454,9 @@
         "required": [
           "vessel",
           "temperatureRange",
-          "steepTime",
+          "teaAmount",
+          "waterVolume",
+          "method",
           "notes"
         ],
         "title": "BrewingGuideResponse"
@@ -3318,6 +3494,56 @@
           "tasteNormalization"
         ],
         "title": "CapabilitiesResponse"
+      },
+      "DetailVisualResponse": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "objectPosition": {
+            "type": "string",
+            "title": "Objectposition"
+          },
+          "alt": {
+            "type": "string",
+            "title": "Alt"
+          },
+          "rightsState": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "demo_only",
+              "owned",
+              "licensed",
+              "open_license"
+            ],
+            "title": "Rightsstate"
+          },
+          "rightsNote": {
+            "type": "string",
+            "title": "Rightsnote"
+          },
+          "credit": {
+            "type": "string",
+            "title": "Credit"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "title": "Sourceurl"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "objectPosition",
+          "alt",
+          "rightsState",
+          "rightsNote",
+          "credit",
+          "sourceUrl"
+        ],
+        "title": "DetailVisualResponse"
       },
       "DrinkFeedbackRequest": {
         "properties": {
@@ -3428,11 +3654,110 @@
         ],
         "title": "ErrorResponse"
       },
+      "EvidenceRefResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "supports": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supports"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "url",
+          "supports"
+        ],
+        "title": "EvidenceRefResponse"
+      },
+      "FeedCardResponse": {
+        "properties": {
+          "cardId": {
+            "type": "string",
+            "title": "Cardid"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "teaType": {
+            "type": "string",
+            "title": "Teatype"
+          },
+          "personalityKeywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Personalitykeywords"
+          },
+          "headline": {
+            "type": "string",
+            "title": "Headline"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "scene": {
+            "type": "string",
+            "title": "Scene"
+          },
+          "visual": {
+            "$ref": "#/components/schemas/VisualResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cardId",
+          "teaId",
+          "name",
+          "region",
+          "teaType",
+          "personalityKeywords",
+          "headline",
+          "body",
+          "tags",
+          "scene",
+          "visual"
+        ],
+        "title": "FeedCardResponse"
+      },
       "FeedResponse": {
         "properties": {
           "items": {
             "items": {
-              "$ref": "#/components/schemas/BlindCardResponse"
+              "$ref": "#/components/schemas/FeedCardResponse"
             },
             "type": "array",
             "title": "Items"
@@ -3947,7 +4272,7 @@
             "title": "Bio"
           },
           "teaBti": {
-            "$ref": "#/components/schemas/TeaBtiResponse"
+            "$ref": "#/components/schemas/PublicTeaBtiResponse"
           }
         },
         "type": "object",
@@ -4070,6 +4395,87 @@
           "normalizedTags"
         ],
         "title": "PublicProfileWordsResponse"
+      },
+      "PublicTeaBtiResponse": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "forming",
+              "early",
+              "stable"
+            ],
+            "title": "State"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "personaName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personaname"
+          },
+          "personaSummary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personasummary"
+          },
+          "formationProgress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaBtiFormationProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "axes": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Axes"
+          },
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "code",
+          "personaName",
+          "personaSummary",
+          "formationProgress",
+          "axes",
+          "evidence"
+        ],
+        "title": "PublicTeaBtiResponse"
       },
       "PublicTeaProfileResponse": {
         "properties": {
@@ -5032,6 +5438,13 @@
             "type": "array",
             "title": "Tags"
           },
+          "personalityKeywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Personalitykeywords"
+          },
           "visual": {
             "$ref": "#/components/schemas/VisualResponse"
           }
@@ -5045,6 +5458,7 @@
           "name",
           "region",
           "tags",
+          "personalityKeywords",
           "visual"
         ],
         "title": "SeedTeaResponse"
@@ -5228,6 +5642,229 @@
         ],
         "title": "TasteProfileResponse"
       },
+      "TeaBtiBehaviorEvidence": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "drink",
+              "like",
+              "save",
+              "skip"
+            ],
+            "title": "Kind"
+          },
+          "tea": {
+            "$ref": "#/components/schemas/TeaSummaryResponse"
+          },
+          "userWords": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userwords"
+          },
+          "infusionNumber": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Infusionnumber"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "tea",
+          "userWords",
+          "infusionNumber"
+        ],
+        "title": "TeaBtiBehaviorEvidence"
+      },
+      "TeaBtiChemistry": {
+        "properties": {
+          "partnerCode": {
+            "type": "string",
+            "title": "Partnercode"
+          },
+          "partnerName": {
+            "type": "string",
+            "title": "Partnername"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiDialogueLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "partnerCode",
+          "partnerName",
+          "lines",
+          "summary"
+        ],
+        "title": "TeaBtiChemistry"
+      },
+      "TeaBtiContrast": {
+        "properties": {
+          "claim": {
+            "type": "string",
+            "title": "Claim"
+          },
+          "reality": {
+            "type": "string",
+            "title": "Reality"
+          }
+        },
+        "type": "object",
+        "required": [
+          "claim",
+          "reality"
+        ],
+        "title": "TeaBtiContrast"
+      },
+      "TeaBtiDialogueLine": {
+        "properties": {
+          "speaker": {
+            "type": "string",
+            "title": "Speaker"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "speaker",
+          "text"
+        ],
+        "title": "TeaBtiDialogueLine"
+      },
+      "TeaBtiEnemy": {
+        "properties": {
+          "trigger": {
+            "type": "string",
+            "title": "Trigger"
+          },
+          "reaction": {
+            "type": "string",
+            "title": "Reaction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trigger",
+          "reaction"
+        ],
+        "title": "TeaBtiEnemy"
+      },
+      "TeaBtiFormationProgress": {
+        "properties": {
+          "swipesCompleted": {
+            "type": "integer",
+            "title": "Swipescompleted"
+          },
+          "swipesRequired": {
+            "type": "integer",
+            "const": 5,
+            "title": "Swipesrequired"
+          },
+          "swipesRemaining": {
+            "type": "integer",
+            "title": "Swipesremaining"
+          },
+          "positiveSignalCompleted": {
+            "type": "boolean",
+            "title": "Positivesignalcompleted"
+          }
+        },
+        "type": "object",
+        "required": [
+          "swipesCompleted",
+          "swipesRequired",
+          "swipesRemaining",
+          "positiveSignalCompleted"
+        ],
+        "title": "TeaBtiFormationProgress"
+      },
+      "TeaBtiPersonaDetail": {
+        "properties": {
+          "punchline": {
+            "type": "string",
+            "title": "Punchline"
+          },
+          "symptoms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Symptoms"
+          },
+          "contrasts": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiContrast"
+            },
+            "type": "array",
+            "title": "Contrasts"
+          },
+          "scenes": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiScene"
+            },
+            "type": "array",
+            "title": "Scenes"
+          },
+          "enemies": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiEnemy"
+            },
+            "type": "array",
+            "title": "Enemies"
+          },
+          "signatureMoment": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiDialogueLine"
+            },
+            "type": "array",
+            "title": "Signaturemoment"
+          },
+          "neverSay": {
+            "type": "string",
+            "title": "Neversay"
+          },
+          "chemistry": {
+            "$ref": "#/components/schemas/TeaBtiChemistry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "punchline",
+          "symptoms",
+          "contrasts",
+          "scenes",
+          "enemies",
+          "signatureMoment",
+          "neverSay",
+          "chemistry"
+        ],
+        "title": "TeaBtiPersonaDetail"
+      },
       "TeaBtiResponse": {
         "properties": {
           "state": {
@@ -5261,6 +5898,44 @@
             ],
             "title": "Personaname"
           },
+          "personaSummary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personasummary"
+          },
+          "formationProgress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaBtiFormationProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "personaDetail": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaBtiPersonaDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "behaviorEvidence": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiBehaviorEvidence"
+            },
+            "type": "array",
+            "title": "Behaviorevidence"
+          },
           "axes": {
             "additionalProperties": {
               "type": "number"
@@ -5281,10 +5956,35 @@
           "state",
           "code",
           "personaName",
+          "personaSummary",
+          "formationProgress",
+          "personaDetail",
+          "behaviorEvidence",
           "axes",
           "evidence"
         ],
         "title": "TeaBtiResponse"
+      },
+      "TeaBtiScene": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/TeaBtiDialogueLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "lines"
+        ],
+        "title": "TeaBtiScene"
       },
       "TeaDetailResponse": {
         "properties": {
@@ -5311,12 +6011,30 @@
             "type": "array",
             "title": "Professionaltags"
           },
+          "personalityKeywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Personalitykeywords"
+          },
           "translation": {
             "type": "string",
             "title": "Translation"
           },
           "visual": {
             "$ref": "#/components/schemas/VisualResponse"
+          },
+          "detailVisual": {
+            "$ref": "#/components/schemas/DetailVisualResponse"
+          },
+          "representativeFeatures": {
+            "type": "string",
+            "title": "Representativefeatures"
+          },
+          "aromaAndTaste": {
+            "type": "string",
+            "title": "Aromaandtaste"
           },
           "officialDescription": {
             "type": "string",
@@ -5338,6 +6056,13 @@
             },
             "type": "array",
             "title": "Evidencerefids"
+          },
+          "evidenceRefs": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRefResponse"
+            },
+            "type": "array",
+            "title": "Evidencerefs"
           },
           "realmId": {
             "anyOf": [
@@ -5361,12 +6086,17 @@
           "region",
           "teaType",
           "professionalTags",
+          "personalityKeywords",
           "translation",
           "visual",
+          "detailVisual",
+          "representativeFeatures",
+          "aromaAndTaste",
           "officialDescription",
           "process",
           "brewingGuide",
           "evidenceRefIds",
+          "evidenceRefs",
           "journey"
         ],
         "title": "TeaDetailResponse"
@@ -5655,6 +6385,13 @@
             "type": "array",
             "title": "Professionaltags"
           },
+          "personalityKeywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Personalitykeywords"
+          },
           "translation": {
             "type": "string",
             "title": "Translation"
@@ -5670,6 +6407,7 @@
           "region",
           "teaType",
           "professionalTags",
+          "personalityKeywords",
           "translation",
           "visual"
         ],
@@ -5716,6 +6454,20 @@
         ],
         "title": "VisualResponse"
       },
+      "VoiceAbortResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "cancelled",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "VoiceAbortResponse"
+      },
       "VoiceContextUpdate": {
         "properties": {
           "brewStage": {
@@ -5751,6 +6503,19 @@
               }
             ],
             "title": "Infusionnumber"
+          },
+          "userText": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usertext"
           }
         },
         "type": "object",
@@ -5796,11 +6561,13 @@
             "type": "string",
             "enum": [
               "prepared",
+              "starting",
               "active",
               "stopping",
               "completed",
               "failed",
-              "expired"
+              "expired",
+              "cancelled"
             ],
             "title": "Status"
           },

@@ -22,8 +22,7 @@ const visual = {
 
 describe("HomeExperience", () => {
   beforeEach(() => {
-    window.localStorage.clear();
-    useAppStore.setState({ swipeCount: 0, mbti: null });
+    useAppStore.setState({ swipeCount: 0, mbti: null, feedResumeCardId: null });
     vi.mocked(authenticated).mockImplementation(async (path: string) => {
       if (path === "/bootstrap") return {
         userId: "user-1", mbti: null, onboardingCompleted: false, swipeCount: 0,
@@ -34,38 +33,52 @@ describe("HomeExperience", () => {
         mbti: "INFP",
         items: ["mirror", "surprise", "contrast"].map((role, index) => ({
           role, roleLabel: role, explanation: "破冰理由", teaId: `tea-${index}`,
-          name: `测试茶 ${index + 1}`, region: "贵州", tags: ["清香"], visual,
+          name: `测试茶 ${index + 1}`, region: "贵州", tags: ["清香"], personalityKeywords: ["细致"], visual,
         })),
       } as never;
       if (path.startsWith("/feed")) return {
-        items: [{ cardId: "opaque-card", headline: "先凭感觉", body: "不露出茶的身份", tags: ["轻盈"], scene: "早晨", visual }],
+        items: [
+          { cardId: "opaque-card", teaId: "tea-1", name: "测试绿茶", region: "贵州", teaType: "绿茶", personalityKeywords: ["灵动"], headline: "先凭感觉", body: "认识这杯茶", tags: ["轻盈"], scene: "早晨", visual },
+          { cardId: "second-card", teaId: "tea-2", name: "测试红茶", region: "贵州", teaType: "红茶", personalityKeywords: ["温暖"], headline: "再看一杯", body: "认识另一杯茶", tags: ["清鲜"], scene: "午后", visual },
+        ],
       } as never;
       if (path === "/swipes") return {
         accepted: true,
         tasteProfile: { vector: {}, sampleCount: 1, confidenceState: "forming" },
         recommendationReady: false,
         recommendation: null,
-        reveal: { teaId: "duyun-maojian", name: "都匀毛尖", region: "贵州 · 黔南", teaType: "绿茶", professionalTags: ["鲜爽"], translation: "你留下了鲜爽的方向", visual },
+        reveal: { teaId: "duyun-maojian", name: "都匀毛尖", region: "贵州 · 黔南", teaType: "绿茶", professionalTags: ["鲜爽"], personalityKeywords: ["灵动"], translation: "你留下了鲜爽的方向", visual },
       } as never;
       throw new Error(`Unexpected path: ${path}`);
     });
   });
 
-  it("completes MBTI seed, blind swipe and reveal without frontend tea mapping", async () => {
+  it("completes MBTI seed, identified tea swipe and reveal without frontend tea mapping", async () => {
     render(<HomeExperience />);
-    fireEvent.click(await screen.findByRole("button", { name: /开始刷茶/ }));
+    expect(await screen.findByRole("heading", { name: "找到你的 MBTI" })).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "主导航" })).not.toBeInTheDocument();
-    fireEvent.click(await screen.findByRole("button", { name: "INFP" }));
+    fireEvent.click(screen.getByRole("option", { name: "P" }));
+    fireEvent.click(screen.getByRole("button", { name: /就选这个 · INFP/ }));
     expect(await screen.findByText("测试茶 1")).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "主导航" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "先看看" }));
-    expect(screen.getByText(/Taste Vector/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /开始刷茶，让推荐变准/ }));
+    expect(screen.getByText(/口味会在接下来的选择里慢慢清晰/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "下一杯" }));
+    expect(await screen.findByText("测试茶 2")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "开始刷茶" }));
     expect(await screen.findByRole("heading", { name: "先凭感觉" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "主导航" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "想喝" }));
+    expect(screen.getAllByText("测试绿茶 · 绿茶").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: "这杯想喝" }));
     expect(await screen.findByText("都匀毛尖")).toBeInTheDocument();
-    expect(screen.getByText("你刚刚喜欢的是")).toBeInTheDocument();
+    expect(screen.getByText("这一杯是")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "关闭茶叶揭晓" }));
+    expect(await screen.findByRole("heading", { name: "再看一杯" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "这杯想喝" }));
+    expect(await screen.findByText("这一杯是")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "继续刷" }));
+    expect(await screen.findByRole("heading", { name: "先凭感觉" })).toBeInTheDocument();
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith("/swipes", expect.anything()));
   });
 
@@ -79,15 +92,13 @@ describe("HomeExperience", () => {
       throw new Error(`Unexpected path: ${path}`);
     });
     render(<HomeExperience forceOnboarding />);
-    fireEvent.click(await screen.findByRole("button", { name: /开始刷茶/ }));
-    expect(await screen.findByRole("heading", { name: /你的 MBTI/ })).toBeInTheDocument();
-    expect(screen.getByText(/不会清空你原来的记录/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "找到你的 MBTI" })).toBeInTheDocument();
+    expect(screen.getByText(/你原来的记录都在/)).toBeInTheDocument();
     expect(authenticated).not.toHaveBeenCalledWith(expect.stringContaining("/feed"));
     expect(useAppStore.getState().swipeCount).toBe(7);
   });
 
   it("shows a short brand transition and automatically resumes returning users in the feed", async () => {
-    window.localStorage.setItem("tea-bti.launchSeen", "1");
     vi.mocked(authenticated).mockImplementation(async (path: string) => {
       if (path === "/bootstrap") return {
         userId: "returning-user", mbti: "INFP", onboardingCompleted: true, swipeCount: 8,
@@ -95,15 +106,59 @@ describe("HomeExperience", () => {
         capabilities: { voice: "mock", tasteNormalization: "mock", missingConfig: [] },
       } as never;
       if (path.startsWith("/feed")) return {
-        items: [{ cardId: "restored-card", headline: "继续凭感觉", body: "服务端恢复的卡片", tags: ["清甜"], scene: "午后", visual }],
+        items: [{ cardId: "restored-card", teaId: "tea-1", name: "测试茶", region: "贵州", teaType: "绿茶", personalityKeywords: ["可靠"], headline: "继续凭感觉", body: "服务端恢复的卡片", tags: ["清甜"], scene: "午后", visual }],
       } as never;
       throw new Error(`Unexpected path: ${path}`);
     });
 
     render(<HomeExperience />);
     expect(await screen.findByText("Tea-BTI")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /开始刷茶/ })).not.toBeInTheDocument();
+    expect(screen.getByText("正在摆好三杯茶")).toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "继续凭感觉" }, { timeout: 1600 })).toBeInTheDocument();
     expect(useAppStore.getState().swipeCount).toBe(8);
+  });
+
+  it("restores the next card kept in memory after returning from a detail route", async () => {
+    useAppStore.setState({ feedResumeCardId: "second-card" });
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/bootstrap") return {
+        userId: "returning-user", mbti: "INFP", onboardingCompleted: true, swipeCount: 3,
+        recommendationReady: false, tasteProfile: { vector: {}, sampleCount: 3, confidenceState: "forming" },
+        capabilities: { voice: "mock", tasteNormalization: "mock", missingConfig: [] },
+      } as never;
+      if (path.startsWith("/feed")) return {
+        items: [
+          { cardId: "first-card", teaId: "tea-1", name: "第一杯", region: "贵州", teaType: "绿茶", personalityKeywords: ["轻盈"], headline: "第一张", body: "第一杯", tags: ["清鲜"], scene: "早晨", visual },
+          { cardId: "second-card", teaId: "tea-2", name: "第二杯", region: "贵州", teaType: "红茶", personalityKeywords: ["温暖"], headline: "接着这一张", body: "第二杯", tags: ["温润"], scene: "午后", visual },
+        ],
+      } as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<HomeExperience />);
+    expect(await screen.findByRole("heading", { name: "接着这一张" }, { timeout: 1600 })).toBeInTheDocument();
+  });
+
+  it("changes each MBTI axis independently with keyboard and keeps a skip path", async () => {
+    render(<HomeExperience />);
+    const energyWheel = await screen.findByRole("listbox", { name: "能量维度" });
+    expect(screen.getAllByRole("listbox")).toHaveLength(4);
+    fireEvent.keyDown(energyWheel, { key: "ArrowUp" });
+    fireEvent.click(screen.getByRole("option", { name: "S" }));
+    fireEvent.click(screen.getByRole("option", { name: "T" }));
+    fireEvent.click(screen.getByRole("option", { name: "P" }));
+    expect(screen.getByRole("button", { name: /就选这个 · ESTP/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "还没测过？先凭感觉开始" }));
+    await waitFor(() => expect(authenticated).toHaveBeenCalledWith("/onboarding/seed", expect.objectContaining({ body: JSON.stringify({ mbti: null }) })));
+  });
+
+  it("returns from the three-cup results to the preserved MBTI selection", async () => {
+    render(<HomeExperience />);
+    fireEvent.click(await screen.findByRole("option", { name: "P" }));
+    fireEvent.click(screen.getByRole("button", { name: /就选这个 · INFP/ }));
+    await screen.findByText("测试茶 1");
+    fireEvent.click(screen.getByRole("button", { name: "返回 MBTI 选择" }));
+    expect(await screen.findByRole("button", { name: /就选这个 · INFP/ })).toBeInTheDocument();
+    expect(screen.queryByText("测试茶 1")).not.toBeInTheDocument();
   });
 });

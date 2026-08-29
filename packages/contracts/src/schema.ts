@@ -89,6 +89,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/media/details/{tea_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detail Media */
+        get: operations["detail_media_api_v1_media_details__tea_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/swipes": {
         parameters: {
             query?: never;
@@ -465,6 +482,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/voice/sessions/{session_id}/abort": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Abort Voice Session */
+        post: operations["abort_voice_session_api_v1_voice_sessions__session_id__abort_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/voice/sessions/{session_id}/stop": {
         parameters: {
             query?: never;
@@ -498,20 +532,6 @@ export interface components {
              */
             createdAt: string;
         };
-        /** BlindCardResponse */
-        BlindCardResponse: {
-            /** Cardid */
-            cardId: string;
-            /** Headline */
-            headline: string;
-            /** Body */
-            body: string;
-            /** Tags */
-            tags: string[];
-            /** Scene */
-            scene: string;
-            visual: components["schemas"]["VisualResponse"];
-        };
         /** BootstrapResponse */
         BootstrapResponse: {
             /** Userid */
@@ -532,8 +552,14 @@ export interface components {
             vessel: string;
             /** Temperaturerange */
             temperatureRange: string;
+            /** Teaamount */
+            teaAmount: string;
+            /** Watervolume */
+            waterVolume: string;
+            /** Method */
+            method: string;
             /** Steeptime */
-            steepTime: string;
+            steepTime?: string | null;
             /** Notes */
             notes: string[];
         };
@@ -551,6 +577,26 @@ export interface components {
             tasteNormalization: "real" | "mock";
             /** Missingconfig */
             missingConfig?: string[];
+        };
+        /** DetailVisualResponse */
+        DetailVisualResponse: {
+            /** Url */
+            url: string;
+            /** Objectposition */
+            objectPosition: string;
+            /** Alt */
+            alt: string;
+            /**
+             * Rightsstate
+             * @enum {string}
+             */
+            rightsState: "unknown" | "demo_only" | "owned" | "licensed" | "open_license";
+            /** Rightsnote */
+            rightsNote: string;
+            /** Credit */
+            credit: string;
+            /** Sourceurl */
+            sourceUrl: string;
         };
         /** DrinkFeedbackRequest */
         DrinkFeedbackRequest: {
@@ -593,10 +639,45 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** EvidenceRefResponse */
+        EvidenceRefResponse: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Url */
+            url: string;
+            /** Supports */
+            supports: string[];
+        };
+        /** FeedCardResponse */
+        FeedCardResponse: {
+            /** Cardid */
+            cardId: string;
+            /** Teaid */
+            teaId: string;
+            /** Name */
+            name: string;
+            /** Region */
+            region: string;
+            /** Teatype */
+            teaType: string;
+            /** Personalitykeywords */
+            personalityKeywords: string[];
+            /** Headline */
+            headline: string;
+            /** Body */
+            body: string;
+            /** Tags */
+            tags: string[];
+            /** Scene */
+            scene: string;
+            visual: components["schemas"]["VisualResponse"];
+        };
         /** FeedResponse */
         FeedResponse: {
             /** Items */
-            items: components["schemas"]["BlindCardResponse"][];
+            items: components["schemas"]["FeedCardResponse"][];
             /** Nextcursor */
             nextCursor: string | null;
         };
@@ -745,7 +826,7 @@ export interface components {
             displayName: string;
             /** Bio */
             bio: string;
-            teaBti: components["schemas"]["TeaBtiResponse"];
+            teaBti: components["schemas"]["PublicTeaBtiResponse"];
         };
         /** PublicProfilePassportItemResponse */
         PublicProfilePassportItemResponse: {
@@ -785,6 +866,27 @@ export interface components {
             tea: components["schemas"]["TeaSummaryResponse"];
             /** Normalizedtags */
             normalizedTags: string[];
+        };
+        /** PublicTeaBtiResponse */
+        PublicTeaBtiResponse: {
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "forming" | "early" | "stable";
+            /** Code */
+            code: string | null;
+            /** Personaname */
+            personaName: string | null;
+            /** Personasummary */
+            personaSummary: string | null;
+            formationProgress: components["schemas"]["TeaBtiFormationProgress"] | null;
+            /** Axes */
+            axes: {
+                [key: string]: number;
+            };
+            /** Evidence */
+            evidence: string[];
         };
         /** PublicTeaProfileResponse */
         PublicTeaProfileResponse: {
@@ -1116,6 +1218,8 @@ export interface components {
             region: string;
             /** Tags */
             tags: string[];
+            /** Personalitykeywords */
+            personalityKeywords: string[];
             visual: components["schemas"]["VisualResponse"];
         };
         /** SwipeRequest */
@@ -1179,6 +1283,83 @@ export interface components {
              */
             confidenceState: "forming" | "early" | "stable";
         };
+        /** TeaBtiBehaviorEvidence */
+        TeaBtiBehaviorEvidence: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "drink" | "like" | "save" | "skip";
+            tea: components["schemas"]["TeaSummaryResponse"];
+            /** Userwords */
+            userWords: string | null;
+            /** Infusionnumber */
+            infusionNumber: number | null;
+        };
+        /** TeaBtiChemistry */
+        TeaBtiChemistry: {
+            /** Partnercode */
+            partnerCode: string;
+            /** Partnername */
+            partnerName: string;
+            /** Lines */
+            lines: components["schemas"]["TeaBtiDialogueLine"][];
+            /** Summary */
+            summary: string;
+        };
+        /** TeaBtiContrast */
+        TeaBtiContrast: {
+            /** Claim */
+            claim: string;
+            /** Reality */
+            reality: string;
+        };
+        /** TeaBtiDialogueLine */
+        TeaBtiDialogueLine: {
+            /** Speaker */
+            speaker: string;
+            /** Text */
+            text: string;
+        };
+        /** TeaBtiEnemy */
+        TeaBtiEnemy: {
+            /** Trigger */
+            trigger: string;
+            /** Reaction */
+            reaction: string;
+        };
+        /** TeaBtiFormationProgress */
+        TeaBtiFormationProgress: {
+            /** Swipescompleted */
+            swipesCompleted: number;
+            /**
+             * Swipesrequired
+             * @constant
+             */
+            swipesRequired: 5;
+            /** Swipesremaining */
+            swipesRemaining: number;
+            /** Positivesignalcompleted */
+            positiveSignalCompleted: boolean;
+        };
+        /** TeaBtiPersonaDetail */
+        TeaBtiPersonaDetail: {
+            /** Punchline */
+            punchline: string;
+            /** Symptoms */
+            symptoms: string[];
+            /** Contrasts */
+            contrasts: components["schemas"]["TeaBtiContrast"][];
+            /** Scenes */
+            scenes: components["schemas"]["TeaBtiScene"][];
+            /** Enemies */
+            enemies: components["schemas"]["TeaBtiEnemy"][];
+            /** Signaturemoment */
+            signatureMoment: components["schemas"]["TeaBtiDialogueLine"][];
+            /** Neversay */
+            neverSay: string;
+            chemistry: components["schemas"]["TeaBtiChemistry"];
+        };
         /** TeaBtiResponse */
         TeaBtiResponse: {
             /**
@@ -1190,12 +1371,25 @@ export interface components {
             code: string | null;
             /** Personaname */
             personaName: string | null;
+            /** Personasummary */
+            personaSummary: string | null;
+            formationProgress: components["schemas"]["TeaBtiFormationProgress"] | null;
+            personaDetail: components["schemas"]["TeaBtiPersonaDetail"] | null;
+            /** Behaviorevidence */
+            behaviorEvidence: components["schemas"]["TeaBtiBehaviorEvidence"][];
             /** Axes */
             axes: {
                 [key: string]: number;
             };
             /** Evidence */
             evidence: string[];
+        };
+        /** TeaBtiScene */
+        TeaBtiScene: {
+            /** Title */
+            title: string;
+            /** Lines */
+            lines: components["schemas"]["TeaBtiDialogueLine"][];
         };
         /** TeaDetailResponse */
         TeaDetailResponse: {
@@ -1209,9 +1403,16 @@ export interface components {
             teaType: string;
             /** Professionaltags */
             professionalTags: string[];
+            /** Personalitykeywords */
+            personalityKeywords: string[];
             /** Translation */
             translation: string;
             visual: components["schemas"]["VisualResponse"];
+            detailVisual: components["schemas"]["DetailVisualResponse"];
+            /** Representativefeatures */
+            representativeFeatures: string;
+            /** Aromaandtaste */
+            aromaAndTaste: string;
             /** Officialdescription */
             officialDescription: string;
             /** Process */
@@ -1219,6 +1420,8 @@ export interface components {
             brewingGuide: components["schemas"]["BrewingGuideResponse"];
             /** Evidencerefids */
             evidenceRefIds: string[];
+            /** Evidencerefs */
+            evidenceRefs: components["schemas"]["EvidenceRefResponse"][];
             /** Realmid */
             realmId?: string | null;
             journey: components["schemas"]["TeaJourneyResponse"];
@@ -1313,6 +1516,8 @@ export interface components {
             teaType: string;
             /** Professionaltags */
             professionalTags: string[];
+            /** Personalitykeywords */
+            personalityKeywords: string[];
             /** Translation */
             translation: string;
             visual: components["schemas"]["VisualResponse"];
@@ -1334,12 +1539,22 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** VoiceAbortResponse */
+        VoiceAbortResponse: {
+            /**
+             * Status
+             * @constant
+             */
+            status: "cancelled";
+        };
         /** VoiceContextUpdate */
         VoiceContextUpdate: {
             /** Brewstage */
             brewStage?: ("prepare" | "warm_vessel" | "add_leaves" | "pour" | "steep" | "decant" | "taste" | "complete") | null;
             /** Infusionnumber */
             infusionNumber?: number | null;
+            /** Usertext */
+            userText?: string | null;
         };
         /** VoiceSessionCreate */
         VoiceSessionCreate: {
@@ -1364,7 +1579,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "prepared" | "active" | "stopping" | "completed" | "failed" | "expired";
+            status: "prepared" | "starting" | "active" | "stopping" | "completed" | "failed" | "expired" | "cancelled";
             /**
              * Expiresat
              * Format: date-time
@@ -1753,6 +1968,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeedResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    detail_media_api_v1_media_details__tea_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tea_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 茶叶详情实拍 WebP */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/webp": string;
                 };
             };
             /** @description Bad Request */
@@ -3658,6 +3949,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VoiceTurnsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    abort_voice_session_api_v1_voice_sessions__session_id__abort_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoiceAbortResponse"];
                 };
             };
             /** @description Bad Request */

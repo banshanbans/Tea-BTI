@@ -45,6 +45,11 @@ Authorization: Bearer <anonymousAccessToken>
 | `VOICE_SESSION_STATE` | 409 | 语音会话状态不允许当前操作 |
 | `VOICE_PROVIDER_UNAVAILABLE` | 503 | 真实语音强制模式配置不全或启动失败 |
 | `VOICE_CONTEXT_UPDATE_FAILED` | 503 | 实时 AI 上下文更新失败 |
+| `VOICE_STOP_FAILED` | 503 | 远端实时语音任务未能停止，当前会话可重试结束 |
+| `VOICE_START_UNCERTAIN` | 503 | 启动请求结果不确定；会话保持 `starting`，必须先中止或等待清理 |
+| `VOICE_SESSION_BUSY` | 409 | 另一请求或清理任务持有会话生命周期租约 |
+| `VOICE_ABORT_FAILED` | 503 | 自动接管前未能确认旧远端任务已停止 |
+| `TASTE_PROVIDER_UNAVAILABLE` | 503 | 已配置的真实茶语归一化服务调用失败，不静默降级 Mock |
 
 ## 业务接口
 
@@ -53,14 +58,15 @@ Authorization: Bearer <anonymousAccessToken>
 | `POST /sessions/anonymous` | 无 | `userId`, `accessToken`, `createdAt` |
 | `GET /bootstrap` | 无 | MBTI、恢复状态、Swipe 进度、Taste Profile、AI 能力 |
 | `POST /onboarding/seed` | `{ "mbti": "INFP" }` 或 `null` | 已揭示的 `mirror/surprise/contrast` 三杯 |
-| `GET /feed?cursor&limit` | 游标分页 | 不含茶名或 `teaId` 的 `BlindCard[]` |
+| `GET /feed?cursor&limit` | 游标分页；默认 8 张 | 八款活动卡，包含稳定 `cardId`、`teaId/name/region/teaType/personalityKeywords` 和立体展示图 |
 | `POST /swipes` | `clientEventId`, `cardId`, `like/skip/save` | 幂等结果、Taste、可选 Reveal/推荐 |
-| `GET /teas/{teaId}` | 无 | 审核资料、冲泡指南、视觉、可空 `realmId` 及服务端派生的 `journey` |
+| `GET /teas/{teaId}` | 无 | 立体 `visual`、实拍 `detailVisual`、代表特点、香气滋味、性格关键词、结构化冲泡建议、资料依据、可空 `realmId` 及服务端派生的 `journey` |
+| `GET /media/details/{teaId}` | 无 | 对应茶的详情实拍 WebP；仅非商业演示，来源与权利状态见 `detailVisual` |
 | `POST /drink-feedback` | 茶、喜欢/中立/不喜欢、泡数 | Taste 和 Passport 更新 |
 | `POST /taste/normalize` | 茶、用户原话、泡数 | 允许列表标签、解释、AI/Mock 模式 |
 | `GET /me/passport` | 无 | 茶护照，包含茶境首次完成时间和数字标本 |
 | `PUT /me/passport/{teaId}` | 收藏、泡过、品过等部分更新 | 更新后的条目；不接受客户端写入 `realmUnlocked` |
-| `GET /me/tea-bti` | 无 | 状态、Code、Persona、四轴与证据 |
+| `GET /me/tea-bti` | 无 | 状态、Code、Persona Name、Persona Summary、形成进度、静态精神速写、最多三条结构化真实行为证据、四轴与兼容证据 |
 | `GET /capabilities` | 无 | `voice: real/mock/unavailable` 及缺失配置名，不含密钥 |
 
 Swipe 示例：
@@ -95,6 +101,12 @@ Swipe 示例：
 ## Tea Profile 与可撤销分享
 
 个人 Tea Profile 固定按 `IDENTITY → MY_TEA → MY_WORDS → TEA_PASSPORT` 聚合。`IDENTITY` 始终公开，其他 Block 默认关闭；本阶段不支持拖拽排序。Profile 编辑、创建/撤销分享、公开页浏览和 CTA 均不写入 Taste Vector，不改变推荐或 Tea-BTI 四轴。
+
+`TeaBtiResponse.formationProgress` 是必有的可空字段。`forming` 返回 `{ swipesCompleted, swipesRequired: 5, swipesRemaining, positiveSignalCompleted }`；`early / stable` 返回 `null`。正向信号来自喜欢、收藏或真实品饮，形成提示必须同时反映选择数和正向信号条件。
+
+`TeaBtiResponse.personaDetail` 是必有的可空字段；`forming` 为 `null`，`early / stable` 返回人工审核的暴击句、5 条习惯、4 组反差、3 个小剧场、3 个场景型天敌、名场面、千万别说和固定互配 CP。`behaviorEvidence` 始终为数组，最多三条，每条 `kind` 仅可为 `drink / like / save / skip`，并携带 `tea`、可空 `userWords` 和可空 `infusionNumber`。
+
+公开 Profile 的 `identity.teaBti` 使用独立白名单，只保留既有状态、Code、名称、简短气质、形成进度、四轴与兼容证据；不返回 `personaDetail` 或 `behaviorEvidence`，因此私有品饮原话不会因 Tea-BTI 详情扩展而被公开。
 
 | Method + Path | 鉴权 | 行为 |
 |---|---|---|
@@ -166,11 +178,14 @@ POST /voice/sessions
 |---|---|
 | `POST /voice/sessions` | `{ mode: "brew" | "taste", teaId }`；创建最长 10 分钟会话 |
 | `POST /voice/sessions/{id}/start` | 前端入房后启动 AI；重复调用幂等 |
-| `PATCH /voice/sessions/{id}/context` | 同步 `brewStage` 和 `infusionNumber`，不暗示视觉识别 |
+| `PATCH /voice/sessions/{id}/context` | 同步 `brewStage` 和 `infusionNumber`，或把 `userText` 作为用户当前发言送入实时茶伴；不暗示视觉识别 |
 | `POST /voice/sessions/{id}/turns` | 只提交最终字幕，`clientTurnId` 去重 |
 | `POST /voice/sessions/{id}/stop` | 停止 AI；返回 `experienceCompleted` 和最新 `journey`；Taste 模式可保存用户确认原话并返回归一化结果 |
+| `POST /voice/sessions/{id}/abort` | 自动接管或页面退出时中止会话；不写入 brewed/tasted，也不保存品饮原话 |
 
-状态只使用 `prepared / active / stopping / completed / failed / expired`。同一用户同时只允许一个活动语音会话。Brew 只在 `brewStage=complete` 时写入“已泡过”；Taste 只在存在用户确认原话时写入“已品过”。不保存原始音频；最终字幕是最多 24 小时的运行数据，用户确认的原话和归一化标签才进入 Passport。
+状态只使用 `prepared / starting / active / stopping / completed / failed / expired / cancelled`。同一用户同时只允许一个活动语音会话，供应商启停由短期数据库租约串行化。真实会话一旦选定 `volcengine_rtc`，运行故障不会降级成 Mock；`AI_MODE=auto` 仅在创建会话时因配置缺失选择明确标注的演示模式。
+
+`stop` 首次调用会固化结束输入和最终结果；远端停止成功先单独落库，再进行 Passport/品饮保存，因此本地保存重试不会重复停止远端。前端停止采集后等待最终字幕静默 600ms（最多 2.5 秒）再退出房间。页面退出使用 keepalive `abort`，后端同时周期性停止过期远端任务。Brew 只在 `brewStage=complete` 时写入“已泡过”；Taste 只在存在用户确认原话时写入“已品过”。不保存原始音频；最终字幕是最多 24 小时的运行数据，用户确认的原话和归一化标签才进入 Passport。
 
 ## 契约刷新
 

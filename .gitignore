@@ -1,6 +1,7 @@
 .DS_Store
 **/.DS_Store
 .env
+*.pem
 .data/
 *.db
 .cache/

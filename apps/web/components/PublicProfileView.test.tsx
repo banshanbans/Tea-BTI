@@ -17,7 +17,7 @@ const tea = { teaId: "duyun-maojian", name: "都匀毛尖", region: "贵州 · �
 const profile = {
   publicId: "public-id",
   publicBlockIds: ["IDENTITY", "MY_TEA"],
-  identity: { displayName: "山边喝茶的人", bio: "喜欢清鲜，也喜欢慢慢回甘。", teaBti: { state: "early", code: "FLSE", personaName: "山雾漫游者", axes: { freshMellow: .4, lightRich: .2, scentTaste: .1, explorerComfort: 1 }, evidence: [] } },
+  identity: { displayName: "山边喝茶的人", bio: "喜欢清鲜，也喜欢慢慢回甘。", teaBti: { state: "early", code: "FLSE", personaName: "山雾漫游者", personaSummary: "清鲜、轻盈，追着香气认识新茶", axes: { freshMellow: .4, lightRich: .2, scentTaste: .1, explorerComfort: 1 }, evidence: [] } },
   myTea: tea,
   myWords: null,
   teaPassport: null,
@@ -37,6 +37,8 @@ describe("PublicProfileView", () => {
   it("shows only public blocks and attributes CTA before forced onboarding", async () => {
     render(<PublicProfileView publicId="public-id" />);
     expect(await screen.findByRole("heading", { name: "山边喝茶的人" })).toBeInTheDocument();
+    expect(screen.getByText("清鲜、轻盈，追着香气认识新茶")).toBeInTheDocument();
+    expect(screen.getByLabelText("Tea-BTI 四轴")).toHaveTextContent("F清鲜M醇和L轻盈R浓郁S香气先行T滋味先行E尝新C守味");
     expect(screen.getByText("都匀毛尖")).toBeInTheDocument();
     expect(screen.queryByText("我怎么说这一口")).not.toBeInTheDocument();
 

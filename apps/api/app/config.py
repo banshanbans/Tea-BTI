@@ -1,4 +1,5 @@
 from functools import lru_cache
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -23,7 +24,12 @@ class Settings(BaseSettings):
     volc_secret_access_key: str = ""
     rtc_app_id: str = ""
     rtc_app_key: str = ""
-    rtc_api_version: str = "2024-12-01"
+    rtc_api_version: str = "2025-06-01"
+    rtc_voice_config_json: str = ""
+    rtc_voice_model_id: str = ""
+
+    # Deprecated direct-service fields retained for compatibility with old
+    # local env files. StartVoiceChat 2025-06-01 uses rtc_voice_config_json.
     doubao_speech_app_id: str = ""
     doubao_speech_access_token: str = ""
     doubao_asr_resource_id: str = ""
@@ -33,6 +39,7 @@ class Settings(BaseSettings):
 
     voice_session_ttl_seconds: int = 600
     transcript_ttl_hours: int = 24
+    voice_cleanup_interval_seconds: int = 60
 
     @property
     def repository_root(self) -> Path:
@@ -45,6 +52,10 @@ class Settings(BaseSettings):
     @property
     def mbti_seed_path(self) -> Path:
         return self.repository_root / "apps" / "api" / "data" / "mbti-seeds.json"
+
+    @property
+    def tea_bti_persona_path(self) -> Path:
+        return self.repository_root / "apps" / "api" / "data" / "tea-bti-personas.json"
 
     @property
     def realm_catalog_path(self) -> Path:
@@ -61,15 +72,29 @@ class Settings(BaseSettings):
             "VOLC_SECRET_ACCESS_KEY": self.volc_secret_access_key,
             "RTC_APP_ID": self.rtc_app_id,
             "RTC_APP_KEY": self.rtc_app_key,
-            "ARK_API_KEY": self.ark_api_key,
-            "ARK_VOICE_ENDPOINT_ID": self.ark_voice_endpoint_id,
-            "DOUBAO_SPEECH_APP_ID": self.doubao_speech_app_id,
-            "DOUBAO_SPEECH_ACCESS_TOKEN": self.doubao_speech_access_token,
-            "DOUBAO_TTS_RESOURCE_ID": self.doubao_tts_resource_id,
+            "RTC_VOICE_CONFIG_JSON": self.rtc_voice_config_json,
         }
-        if not self.doubao_asr_resource_id and not self.doubao_asr_cluster:
-            required["DOUBAO_ASR_RESOURCE_ID_OR_CLUSTER"] = ""
-        return [name for name, value in required.items() if not value]
+        missing = [name for name, value in required.items() if not value]
+        if self.rtc_api_version != "2025-06-01":
+            missing.append("RTC_API_VERSION_UNSUPPORTED")
+        if self.rtc_voice_config_json:
+            try:
+                template = json.loads(self.rtc_voice_config_json)
+                config = template.get("Config") if isinstance(template, dict) else None
+                llm = config.get("LLMConfig") if isinstance(config, dict) else None
+                asr = config.get("ASRConfig") if isinstance(config, dict) else None
+                tts = config.get("TTSConfig") if isinstance(config, dict) else None
+                if (
+                    not isinstance(config, dict)
+                    or not isinstance(asr, dict)
+                    or not isinstance(tts, dict)
+                    or not isinstance(llm, dict)
+                    or not llm.get("ModelName")
+                ):
+                    missing.append("RTC_VOICE_CONFIG_JSON_INVALID")
+            except (TypeError, ValueError, json.JSONDecodeError):
+                missing.append("RTC_VOICE_CONFIG_JSON_INVALID")
+        return missing
 
     @property
     def voice_real_enabled(self) -> bool:

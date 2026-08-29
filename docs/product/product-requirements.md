@@ -216,7 +216,7 @@ First 3 属于核心体验稳定后的第一项商业实验，不属于当前 48
 6. Tea Station 只在有预算、茶样和场地的合作机会中作为线下渠道；
 7. Taste Insights 与自营商城均留到远期。
 
-First 3 的关键指标不是 DAU 或 Swipe 数量，而是付费转化、到货激活、真实泡饮完成、Taste 反馈、正装成交意向和单盒贡献毛利。完整商业模型、单位经济、B 端收费结构、数据与合规护栏见 [`docs/business-model.md`](docs/business-model.md)。
+First 3 的关键指标不是 DAU 或 Swipe 数量，而是付费转化、到货激活、真实泡饮完成、Taste 反馈、正装成交意向和单盒贡献毛利。完整商业模型、单位经济、B 端收费结构、数据与合规护栏见 [`business-model.md`](business-model.md)。
 
 ---
 
@@ -453,7 +453,7 @@ Feed 主卡采用用户提供的完整立体设计图：
 
 立体图必须 `object-fit: contain`，不得裁掉图内茶名。详情页切换为逐图配置 `object-position` 的对应实拍图；MBTI、Feed、选择反馈、推荐、护照和个人主页继续使用立体图。所有素材的来源、尺寸、哈希、权利状态和编辑链必须可追溯。
 
-完整规则见：[Tea-BTI Tea Visual Grammar](docs/design/tea-visual-grammar.md)。
+完整规则见：[Tea-BTI Tea Visual Grammar](../design/tea-visual-grammar.md)。
 
 ---
 
@@ -1177,7 +1177,7 @@ Tea Realm 始终保留独立退出，并从第二幕开始提供“上一幕”�
 - 都匀毛尖《雾里一芽》入口；
 - 已解锁的茶境章节与数字标本；
 - 黔南区域点亮状态；
-- 完整贵州茶地图与多茶境留到后续扩展；地图方向采用“九市州地理底板 + 茶脉路线 + 个人茶足迹”，详见 [`docs/guizhou-tea-map-direction.md`](docs/guizhou-tea-map-direction.md)。
+- 完整贵州茶地图与多茶境留到后续扩展；地图方向采用“九市州地理底板 + 茶脉路线 + 个人茶足迹”，详见 [`guizhou-tea-map.md`](guizhou-tea-map.md)。
 
 ## 3. 我的
 

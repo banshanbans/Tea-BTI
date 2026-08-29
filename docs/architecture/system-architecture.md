@@ -472,7 +472,7 @@ Demo 规则：
 
 首批 Demo 的唯一配置源为 `assets/tea-visuals/manifest.json`，由 `manifest.schema.json` 校验；前端不得再维护一份手写映射。
 
-完整视觉规则与质量门槛见：[Tea-BTI Tea Visual Grammar](docs/design/tea-visual-grammar.md)。
+完整视觉规则与质量门槛见：[Tea-BTI Tea Visual Grammar](../design/tea-visual-grammar.md)。
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## Evidence
 
-- Source visual truth: `/Users/carrey/Desktop/贵客松/tea -Tpti/index.html` (read-only teammate prototype).
+- Source visual truth: the read-only teammate prototype formerly kept at `tea -Tpti/index.html`; that checkout was removed after handoff, while the comparison captures below remain as historical QA evidence.
 - Source captures: `docs/design/qa/tea-bti-h5/.design-qa-reference.png`, `docs/design/qa/tea-bti-h5/.design-qa-reference-feed.png`.
 - Final implementation captures: `docs/design/qa/tea-bti-h5/.design-qa-implementation-final.png`, `docs/design/qa/tea-bti-h5/.design-qa-implementation-feed-final.png`.
 - Full-view comparison evidence: `docs/design/qa/tea-bti-h5/.design-qa-launch-comparison-final.png`, `docs/design/qa/tea-bti-h5/.design-qa-feed-comparison-final.png`.

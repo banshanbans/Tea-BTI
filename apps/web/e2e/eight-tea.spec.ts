@@ -23,7 +23,7 @@ test("390×844 shows all eight identified teas, like/save and the fifth-swipe re
 
     const art = page.locator(".deck-motion .presentation-art");
     await expect(art).toBeVisible();
-    expect(await art.evaluate((element) => getComputedStyle(element).objectFit)).toBe("contain");
+    expect(await art.evaluate((element) => getComputedStyle(element).objectFit)).toBe("cover");
 
     if (index === 0) await page.getByRole("button", { name: "这杯想喝" }).click();
     else if (index === 1) await page.getByRole("button", { name: "先收藏" }).click();
@@ -54,10 +54,11 @@ test("green, black and matcha details use real photos and five information secti
     const photo = page.getByAltText(`${name}实拍参考图`);
     await expect(photo).toBeVisible();
     await expect(photo).toHaveAttribute("src", new RegExp(`/api/v1/media/details/${teaId}`));
+    await page.getByText("继续了解", { exact: true }).click();
     for (const heading of ["代表特点", "香气与滋味", "性格关键词", "冲泡建议"]) {
       await expect(page.getByRole("heading", { name: heading })).toBeVisible();
     }
-    await expect(page.getByText("查看公开来源与图片边界")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "公开来源与图片边界" })).toBeVisible();
     await expect(page.getByRole("link", { name: /开始陪泡/ })).toBeVisible();
     await page.getByText("想先去别处看看").click();
     await expect(page.getByRole("link", { name: "陪品" })).toBeVisible();

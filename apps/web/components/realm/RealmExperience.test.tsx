@@ -20,7 +20,7 @@ const detail = {
   definition: {
     realmId: "duyun-maojian-mist-bud", teaId: "duyun-maojian", title: "雾里一芽", subtitle: "七幕", regionId: "qiannan", regionLabel: "贵州 · 黔南",
     sceneOrder, scenes, specimen: { id: "duyun-maojian-pekoe" }, evidenceRefs: [],
-    assets: ["mountain_background", "mist_overlay", "workshop_background", "dry_tea_reveal", "specimen_card"].map((role) => ({ assetId: role, role, url: `/media/${role}`, sourceKind: role === "dry_tea_reveal" ? "open_access_figure" : "ai_generated", authenticityState: role === "dry_tea_reveal" ? "documentary" : "synthetic_demo", rightsState: role === "dry_tea_reveal" ? "open_license" : "demo_only", rightsNote: "test", evidenceRefIds: [] })),
+    assets: ["mountain_background", "mist_overlay", "workshop_background", "dry_tea_reveal", "specimen_card", "liquor_base", "liquor_ripple", "bud_single", "bud_leaf", "bud_open", "bud_stem"].map((role) => ({ assetId: role, role, url: `/media/${role}.webp`, sourceKind: role === "dry_tea_reveal" ? "open_access_figure" : "ai_generated", authenticityState: role === "dry_tea_reveal" ? "documentary" : "synthetic_demo", rightsState: role === "dry_tea_reveal" ? "open_license" : "demo_only", rightsNote: "test", evidenceRefIds: [] })),
   },
   progress: { ...progress("liquor-entry"), status: "available" as const, interactionMode: null },
   personalization: { source: "default" as const, introCopy: "想看看这一口怎么走进杯子里吗？", userWords: null, normalizedTags: [] },
@@ -68,8 +68,55 @@ describe("RealmExperience", () => {
     fireEvent.click(screen.getByRole("button", { name: "只有一枚芽" }));
     expect(screen.getByText("这一枚也在长大。再找找“一芽一叶”。")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "一芽一叶" }));
+    expect(screen.getByRole("button", { name: "一芽一叶" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "一芽一叶" })).toHaveClass("chosen");
     expect(await screen.findByText("1 / 53,000+", { exact: false })).toBeInTheDocument();
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith(expect.stringContaining("/progress"), expect.anything()));
+  });
+
+  it("loads liquor assets from the Realm response and only advances once after a repeated tap", async () => {
+    const { container } = render(<RealmExperience realmId="duyun-maojian-mist-bud" replay={false} />);
+    fireEvent.click(await screen.findByRole("button", { name: "进入茶境" }));
+    const button = await screen.findByRole("button", { name: "轻触茶汤" });
+
+    expect(screen.getByRole("img", { name: "生成的茶汤交互示意" })).toHaveAttribute("src", "/media/liquor_base.webp");
+    expect(container.querySelector(".realm-liquor-ripple")).toHaveAttribute("src", "/media/liquor_ripple.webp");
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    await screen.findByRole("group", { name: "拨开雾层" });
+    const progressCalls = vi.mocked(authenticated).mock.calls.filter(([path, init]) => String(path).endsWith("/progress") && init?.method === "PATCH");
+    expect(progressCalls).toHaveLength(1);
+    expect(JSON.parse(String(progressCalls[0][1]?.body))).toMatchObject({ completedScene: "liquor-entry" });
+  });
+
+  it("stays on the current scene after an API failure and can retry", async () => {
+    let progressAttempts = 0;
+    vi.mocked(authenticated).mockImplementation(async (path: string, init?: RequestInit) => {
+      if (path === "/realms/duyun-maojian-mist-bud") return detail as never;
+      if (path.endsWith("/events")) return { accepted: true, progress: progress("liquor-entry") } as never;
+      if (path.endsWith("/start")) return { accepted: true, progress: progress("liquor-entry") } as never;
+      if (path.endsWith("/progress")) {
+        progressAttempts += 1;
+        if (progressAttempts === 1) throw new Error("茶境进度保存失败");
+        const body = JSON.parse(String(init?.body));
+        const index = sceneOrder.indexOf(body.completedScene);
+        return { accepted: true, progress: progress(sceneOrder[index + 1], sceneOrder.slice(0, index + 1)) } as never;
+      }
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<RealmExperience realmId="duyun-maojian-mist-bud" replay={false} />);
+    fireEvent.click(await screen.findByRole("button", { name: "进入茶境" }));
+    fireEvent.click(await screen.findByRole("button", { name: "轻触茶汤" }));
+    expect(await screen.findByText("茶境进度保存失败")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "杯中起雾" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "轻触茶汤" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "在这一幕再试一次" }));
+    fireEvent.click(screen.getByRole("button", { name: "轻触茶汤" }));
+    await screen.findByRole("group", { name: "拨开雾层" });
+    expect(progressAttempts).toBe(2);
   });
 
   it.each([

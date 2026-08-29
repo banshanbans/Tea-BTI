@@ -65,13 +65,14 @@ test("core journey, editable Tea Profile and revocable public sharing", async ({
   await page.getByRole("link", { name: "返回刷茶" }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator(".deck-motion").getByRole("heading")).toHaveText(resumeCardTitle);
+  await page.waitForLoadState("networkidle");
   await page.goto(detailUrl);
   await expect(page.getByRole("heading", { name: "都匀毛尖" })).toBeVisible();
 
   await page.getByRole("link", { name: /开始陪泡/ }).click();
   await expect(page).toHaveURL(/\/brew\//);
   await page.getByRole("button", { name: "打开麦克风" }).click();
-  await expect(page.getByText("演示模式 · 正在陪伴").or(page.getByText("已连接"))).toBeVisible();
+  await expect(page.getByText(/正在陪伴|实时语音已连接|可使用文字输入/)).toBeVisible();
   await page.getByRole("button", { name: "完成" }).click();
   await page.getByRole("button", { name: "结束并记下这一泡" }).click();
   await expect(page.getByText("这一泡，记下了。")).toBeVisible();

@@ -368,7 +368,7 @@ a { color: inherit; text-decoration: none; }
 .realm-home-card { position: relative; min-height: 580px; border-radius: 30px; overflow: hidden; color: white; background: #52624f; box-shadow: 0 28px 60px rgba(28,39,29,.18); }
 .realm-home-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .realm-home-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,22,15,.08), rgba(12,22,15,.18) 32%, rgba(8,18,11,.9) 100%); }
-.realm-home-copy { position: absolute; z-index: 1; left: 22px; right: 22px; bottom: 24px; }
+.realm-home-copy { position: absolute; z-index: 1; left: 22px; right: 22px; bottom: 170px; }
 .realm-home-copy h2 { margin: 7px 0; font-size: 38px; letter-spacing: -.05em; }
 .realm-home-copy p { margin: 0 0 18px; color: rgba(255,255,255,.78); line-height: 1.6; }
 .realm-kicker { margin: 0; color: #dcebcf; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }

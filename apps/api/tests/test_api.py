@@ -61,6 +61,7 @@ def test_anonymous_session_and_bootstrap(client, auth):
     assert payload["swipeCount"] == 0
     assert set(payload["tasteProfile"]["vector"].values()) == {0.5}
     assert payload["capabilities"]["voice"] == "mock"
+    assert payload["capabilities"]["vision"] == "unavailable"
 
 
 def test_all_mbti_and_skip_return_three_stable_roles(client, auth):

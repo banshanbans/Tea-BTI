@@ -482,6 +482,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/voice/sessions/{session_id}/brew-state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Brew State */
+        get: operations["get_brew_state_api_v1_voice_sessions__session_id__brew_state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/voice/sessions/{session_id}/brew/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Brew Event */
+        post: operations["post_brew_event_api_v1_voice_sessions__session_id__brew_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/voice/sessions/{session_id}/vision/observations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Vision Observation */
+        post: operations["post_vision_observation_api_v1_voice_sessions__session_id__vision_observations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/voice/sessions/{session_id}/abort": {
         parameters: {
             query?: never;
@@ -546,6 +597,114 @@ export interface components {
             tasteProfile: components["schemas"]["TasteProfileResponse"];
             capabilities: components["schemas"]["CapabilitiesResponse"];
         };
+        /** BrewEventRequest */
+        BrewEventRequest: {
+            /** Clienteventid */
+            clientEventId: string;
+            /**
+             * Eventtype
+             * @enum {string}
+             */
+            eventType: "confirm_stage" | "decline_vision" | "timer_adjust" | "taste_feedback" | "next_infusion" | "complete";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "voice" | "camera_confirmed" | "touch";
+            /** Stage */
+            stage?: ("prepare" | "warm_vessel" | "add_leaves" | "pour" | "steep" | "decant" | "taste" | "complete") | null;
+            /** Seconds */
+            seconds?: number | null;
+            /** Feedback */
+            feedback?: ("too_light" | "balanced" | "too_strong" | "bitter" | "astringent" | "too_hot" | "too_cool" | "other") | null;
+            /** Userwords */
+            userWords?: string | null;
+        };
+        /** BrewEventResponse */
+        BrewEventResponse: {
+            /** Accepted */
+            accepted: boolean;
+            /** Message */
+            message: string;
+            brewState: components["schemas"]["BrewStateResponse"];
+        };
+        /** BrewInfusionResponse */
+        BrewInfusionResponse: {
+            /** Number */
+            number: number;
+            /** Plannedtemperaturec */
+            plannedTemperatureC?: number | null;
+            /** Planneddurationseconds */
+            plannedDurationSeconds: number;
+            /** Actualdurationseconds */
+            actualDurationSeconds?: number | null;
+            /** Feedback */
+            feedback?: ("too_light" | "balanced" | "too_strong" | "bitter" | "astringent" | "too_hot" | "too_cool" | "other") | null;
+            /** Userwords */
+            userWords?: string | null;
+            /** Adjustmenttype */
+            adjustmentType?: ("duration" | "temperature") | null;
+            /** Adjustmentvalue */
+            adjustmentValue?: number | null;
+            /** Adjustmentreason */
+            adjustmentReason?: string | null;
+        };
+        /** BrewSetupInput */
+        BrewSetupInput: {
+            /** Vessel */
+            vessel?: string | null;
+            /** Watervolumeml */
+            waterVolumeMl?: number | null;
+        };
+        /** BrewStateResponse */
+        BrewStateResponse: {
+            /** Runid */
+            runId: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "completed" | "cancelled";
+            /** Teaid */
+            teaId: string;
+            /** Vessel */
+            vessel: string;
+            /** Temperaturec */
+            temperatureC?: number | null;
+            /** Temperaturerange */
+            temperatureRange: string;
+            /** Teaamount */
+            teaAmount: string;
+            /** Watervolumeml */
+            waterVolumeMl: number;
+            /**
+             * Currentstage
+             * @enum {string}
+             */
+            currentStage: "prepare" | "warm_vessel" | "add_leaves" | "pour" | "steep" | "decant" | "taste" | "complete";
+            /** Infusionnumber */
+            infusionNumber: number;
+            /** Maxinfusions */
+            maxInfusions: number;
+            /** Planneddurationseconds */
+            plannedDurationSeconds: number;
+            /** Timerstartedat */
+            timerStartedAt?: string | null;
+            /** Deadlineat */
+            deadlineAt?: string | null;
+            /** Remainingseconds */
+            remainingSeconds?: number | null;
+            /** Pendingvisionevent */
+            pendingVisionEvent?: ("leaves_present" | "water_pouring" | "decanting") | null;
+            /** Cameraenabled */
+            cameraEnabled: boolean;
+            /** Ismatcha */
+            isMatcha: boolean;
+            /** Adjustmentmessage */
+            adjustmentMessage?: string | null;
+            /** Completedinfusions */
+            completedInfusions?: components["schemas"]["BrewInfusionResponse"][];
+        };
         /** BrewingGuideResponse */
         BrewingGuideResponse: {
             /** Vessel */
@@ -570,6 +729,11 @@ export interface components {
              * @enum {string}
              */
             voice: "real" | "mock" | "unavailable";
+            /**
+             * Vision
+             * @enum {string}
+             */
+            vision: "real" | "unavailable";
             /**
              * Tastenormalization
              * @enum {string}
@@ -1661,6 +1825,21 @@ export interface components {
             translation: string;
             visual: components["schemas"]["VisualResponse"];
         };
+        /** VisionObservationResponse */
+        VisionObservationResponse: {
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "leaves_present" | "water_pouring" | "decanting" | "occluded" | "none";
+            /** Candidate */
+            candidate: boolean;
+            /** Targetstage */
+            targetStage?: ("pour" | "steep" | "decant") | null;
+            /** Prompt */
+            prompt?: string | null;
+            brewState: components["schemas"]["BrewStateResponse"];
+        };
         /** VisualResponse */
         VisualResponse: {
             /** Url */
@@ -1704,6 +1883,12 @@ export interface components {
             mode: "brew" | "taste";
             /** Teaid */
             teaId: string;
+            /**
+             * Cameraenabled
+             * @default false
+             */
+            cameraEnabled: boolean;
+            brewSetup?: components["schemas"]["BrewSetupInput"] | null;
         };
         /** VoiceSessionResponse */
         VoiceSessionResponse: {
@@ -1727,6 +1912,7 @@ export interface components {
             /** Welcomemessage */
             welcomeMessage: string;
             rtc?: components["schemas"]["RtcJoinConfig"] | null;
+            brewState?: components["schemas"]["BrewStateResponse"] | null;
         };
         /** VoiceStopRequest */
         VoiceStopRequest: {
@@ -1772,6 +1958,9 @@ export interface components {
         VoiceTurnsResponse: {
             /** Acceptedcount */
             acceptedCount: number;
+            brewState?: components["schemas"]["BrewStateResponse"] | null;
+            /** Actionmessage */
+            actionMessage?: string | null;
         };
     };
     responses: never;
@@ -4088,6 +4277,247 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VoiceTurnsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_brew_state_api_v1_voice_sessions__session_id__brew_state_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrewStateResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    post_brew_event_api_v1_voice_sessions__session_id__brew_events_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BrewEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrewEventResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    post_vision_observation_api_v1_voice_sessions__session_id__vision_observations_post: {
+        parameters: {
+            query: {
+                stage: string;
+                infusionNumber: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisionObservationResponse"];
                 };
             };
             /** @description Bad Request */

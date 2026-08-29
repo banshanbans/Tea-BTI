@@ -3115,6 +3115,351 @@
         }
       }
     },
+    "/api/v1/voice/sessions/{session_id}/brew-state": {
+      "get": {
+        "summary": "Get Brew State",
+        "operationId": "get_brew_state_api_v1_voice_sessions__session_id__brew_state_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrewStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions/{session_id}/brew/events": {
+      "post": {
+        "summary": "Post Brew Event",
+        "operationId": "post_brew_event_api_v1_voice_sessions__session_id__brew_events_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrewEventRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrewEventResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/voice/sessions/{session_id}/vision/observations": {
+      "post": {
+        "summary": "Post Vision Observation",
+        "operationId": "post_vision_observation_api_v1_voice_sessions__session_id__vision_observations_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "stage",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Stage"
+            }
+          },
+          {
+            "name": "infusionNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Infusionnumber"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionObservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
     "/api/v1/voice/sessions/{session_id}/abort": {
       "post": {
         "summary": "Abort Voice Session",
@@ -3409,6 +3754,441 @@
         ],
         "title": "BootstrapResponse"
       },
+      "BrewEventRequest": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Clienteventid"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "confirm_stage",
+              "decline_vision",
+              "timer_adjust",
+              "taste_feedback",
+              "next_infusion",
+              "complete"
+            ],
+            "title": "Eventtype"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "voice",
+              "camera_confirmed",
+              "touch"
+            ],
+            "title": "Source"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "prepare",
+                  "warm_vessel",
+                  "add_leaves",
+                  "pour",
+                  "steep",
+                  "decant",
+                  "taste",
+                  "complete"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 300.0,
+                "minimum": -300.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seconds"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "too_light",
+                  "balanced",
+                  "too_strong",
+                  "bitter",
+                  "astringent",
+                  "too_hot",
+                  "too_cool",
+                  "other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback"
+          },
+          "userWords": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userwords"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "eventType",
+          "source"
+        ],
+        "title": "BrewEventRequest"
+      },
+      "BrewEventResponse": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "brewState": {
+            "$ref": "#/components/schemas/BrewStateResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "message",
+          "brewState"
+        ],
+        "title": "BrewEventResponse"
+      },
+      "BrewInfusionResponse": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "plannedTemperatureC": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plannedtemperaturec"
+          },
+          "plannedDurationSeconds": {
+            "type": "integer",
+            "title": "Planneddurationseconds"
+          },
+          "actualDurationSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actualdurationseconds"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "too_light",
+                  "balanced",
+                  "too_strong",
+                  "bitter",
+                  "astringent",
+                  "too_hot",
+                  "too_cool",
+                  "other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback"
+          },
+          "userWords": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userwords"
+          },
+          "adjustmentType": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "duration",
+                  "temperature"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjustmenttype"
+          },
+          "adjustmentValue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjustmentvalue"
+          },
+          "adjustmentReason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjustmentreason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "plannedDurationSeconds"
+        ],
+        "title": "BrewInfusionResponse"
+      },
+      "BrewSetupInput": {
+        "properties": {
+          "vessel": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vessel"
+          },
+          "waterVolumeMl": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 30.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watervolumeml"
+          }
+        },
+        "type": "object",
+        "title": "BrewSetupInput"
+      },
+      "BrewStateResponse": {
+        "properties": {
+          "runId": {
+            "type": "string",
+            "title": "Runid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Status"
+          },
+          "teaId": {
+            "type": "string",
+            "title": "Teaid"
+          },
+          "vessel": {
+            "type": "string",
+            "title": "Vessel"
+          },
+          "temperatureC": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperaturec"
+          },
+          "temperatureRange": {
+            "type": "string",
+            "title": "Temperaturerange"
+          },
+          "teaAmount": {
+            "type": "string",
+            "title": "Teaamount"
+          },
+          "waterVolumeMl": {
+            "type": "integer",
+            "title": "Watervolumeml"
+          },
+          "currentStage": {
+            "type": "string",
+            "enum": [
+              "prepare",
+              "warm_vessel",
+              "add_leaves",
+              "pour",
+              "steep",
+              "decant",
+              "taste",
+              "complete"
+            ],
+            "title": "Currentstage"
+          },
+          "infusionNumber": {
+            "type": "integer",
+            "title": "Infusionnumber"
+          },
+          "maxInfusions": {
+            "type": "integer",
+            "title": "Maxinfusions"
+          },
+          "plannedDurationSeconds": {
+            "type": "integer",
+            "title": "Planneddurationseconds"
+          },
+          "timerStartedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timerstartedat"
+          },
+          "deadlineAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadlineat"
+          },
+          "remainingSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remainingseconds"
+          },
+          "pendingVisionEvent": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "leaves_present",
+                  "water_pouring",
+                  "decanting"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pendingvisionevent"
+          },
+          "cameraEnabled": {
+            "type": "boolean",
+            "title": "Cameraenabled"
+          },
+          "isMatcha": {
+            "type": "boolean",
+            "title": "Ismatcha"
+          },
+          "adjustmentMessage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adjustmentmessage"
+          },
+          "completedInfusions": {
+            "items": {
+              "$ref": "#/components/schemas/BrewInfusionResponse"
+            },
+            "type": "array",
+            "title": "Completedinfusions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "runId",
+          "status",
+          "teaId",
+          "vessel",
+          "temperatureRange",
+          "teaAmount",
+          "waterVolumeMl",
+          "currentStage",
+          "infusionNumber",
+          "maxInfusions",
+          "plannedDurationSeconds",
+          "cameraEnabled",
+          "isMatcha"
+        ],
+        "title": "BrewStateResponse"
+      },
       "BrewingGuideResponse": {
         "properties": {
           "vessel": {
@@ -3472,6 +4252,14 @@
             ],
             "title": "Voice"
           },
+          "vision": {
+            "type": "string",
+            "enum": [
+              "real",
+              "unavailable"
+            ],
+            "title": "Vision"
+          },
           "tasteNormalization": {
             "type": "string",
             "enum": [
@@ -3491,6 +4279,7 @@
         "type": "object",
         "required": [
           "voice",
+          "vision",
           "tasteNormalization"
         ],
         "title": "CapabilitiesResponse"
@@ -6805,6 +7594,62 @@
         ],
         "title": "TeaSummaryResponse"
       },
+      "VisionObservationResponse": {
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": [
+              "leaves_present",
+              "water_pouring",
+              "decanting",
+              "occluded",
+              "none"
+            ],
+            "title": "Event"
+          },
+          "candidate": {
+            "type": "boolean",
+            "title": "Candidate"
+          },
+          "targetStage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pour",
+                  "steep",
+                  "decant"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetstage"
+          },
+          "prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt"
+          },
+          "brewState": {
+            "$ref": "#/components/schemas/BrewStateResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event",
+          "candidate",
+          "brewState"
+        ],
+        "title": "VisionObservationResponse"
+      },
       "VisualResponse": {
         "properties": {
           "url": {
@@ -6926,6 +7771,21 @@
           "teaId": {
             "type": "string",
             "title": "Teaid"
+          },
+          "cameraEnabled": {
+            "type": "boolean",
+            "title": "Cameraenabled",
+            "default": false
+          },
+          "brewSetup": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BrewSetupInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -6976,6 +7836,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/RtcJoinConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "brewState": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BrewStateResponse"
               },
               {
                 "type": "null"
@@ -7134,6 +8004,27 @@
           "acceptedCount": {
             "type": "integer",
             "title": "Acceptedcount"
+          },
+          "brewState": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BrewStateResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actionMessage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actionmessage"
           }
         },
         "type": "object",

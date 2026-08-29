@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BowlSteam, ChatCircleDots, CheckCircle, Microphone, PaperPlaneTilt, Pause, Play, StopCircle, Waveform } from "@phosphor-icons/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, ChatCircleDots, CheckCircle, Microphone, PaperPlaneTilt, Pause, Play, StopCircle, Waveform } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
 
 import { BackControl } from "@/components/BackControl";
 import { abortVoiceSessionBestEffort, authenticated, jsonBody } from "@/lib/api";
@@ -11,22 +11,8 @@ import { realmFromTeaHref, teaDetailHref, teaStepHref } from "@/lib/navigation";
 import type { TeaOrigin } from "@/lib/navigation";
 import { RtcVoiceClient } from "@/lib/rtc";
 import type { TranscriptTurn } from "@/lib/rtc";
-
-const STAGES = [
-  ["prepare", "准备"], ["warm_vessel", "温杯"], ["add_leaves", "投茶"], ["pour", "注水"],
-  ["steep", "浸泡"], ["decant", "出汤"], ["taste", "品饮"], ["complete", "完成"],
-] as const;
-
-const BREW_GUIDANCE: Record<string, string> = {
-  prepare: "把茶、器具和水放到手边。用量先看包装说明。",
-  warm_vessel: "用热水温一温器具，倒净，再等茶叶进来。",
-  add_leaves: "茶叶入器，先闻一闻。第一缕香气最轻，也最短。",
-  pour: "可以注水了。水温沿用包装建议，慢一点也没关系。",
-  steep: "先等短一点。滋味淡了，下一泡再多留几秒。",
-  decant: "把茶汤倒净，让这一泡停在刚好的地方。",
-  taste: "等它不烫口，喝一小口，说最先浮上来的感觉。",
-  complete: "这一泡走完了。把杯里的余味，也带去下一步。",
-};
+import { tasteTagLabel } from "@/lib/taste-language";
+import { BrewCompanionExperience } from "@/components/BrewCompanionExperience";
 
 type RecognitionLike = {
   lang: string; interimResults: boolean; continuous: boolean;
@@ -66,11 +52,15 @@ function journeyLabel(journey: TeaJourney): string {
 const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: string; mode: "brew" | "taste"; origin?: TeaOrigin }) {
+  if (mode === "brew") return <BrewCompanionExperience teaId={teaId} origin={origin} />;
+  return <TasteVoiceExperience teaId={teaId} origin={origin} />;
+}
+
+function TasteVoiceExperience({ teaId, origin = "swipe" }: { teaId: string; origin?: TeaOrigin }) {
   const [session, setSession] = useState<VoiceSession | null>(null);
   const [status, setStatus] = useState("尚未连接");
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
   const [text, setText] = useState("");
-  const [stage, setStage] = useState("prepare");
   const [infusionNumber, setInfusionNumber] = useState(1);
   const [busy, setBusy] = useState(false);
   const [listening, setListening] = useState(false);
@@ -91,13 +81,9 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
   const seenTurnIdsRef = useRef(new Set<string>());
   const active = session?.status === "active";
   const isMock = session?.providerMode === "browser_mock";
-  const title = mode === "brew" ? "陪你泡这杯" : "陪你说出这一口";
-  const description = mode === "brew" ? "" : "先说第一感觉，茶语稍后再慢慢认。";
-
-  const mockReply = useMemo(() => {
-    if (mode === "taste") return "这句话我先收好。结束时，再替它找到几枚茶语。";
-    return BREW_GUIDANCE[stage];
-  }, [mode, stage]);
+  const title = "陪你说出这一口";
+  const description = "先说第一感觉，茶语稍后再慢慢认。";
+  const mockReply = "这句话我先收好。结束时，再替它找到几枚茶语。";
 
   useEffect(() => () => {
     try { recognitionRef.current?.stop(); } catch {}
@@ -152,13 +138,13 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
 
   async function createPreparedSession(): Promise<VoiceSession> {
     try {
-      return await authenticated<VoiceSession>("/voice/sessions", { method: "POST", ...jsonBody({ mode, teaId }) });
+      return await authenticated<VoiceSession>("/voice/sessions", { method: "POST", ...jsonBody({ mode: "taste", teaId }) });
     } catch (cause) {
       const error = cause as ApiFailure;
       const existingId = error.code === "VOICE_SESSION_ACTIVE" ? error.details?.voiceSessionId : undefined;
       if (!existingId) throw cause;
       await authenticated(`/voice/sessions/${existingId}/abort`, { method: "POST", ...jsonBody({}) });
-      return authenticated<VoiceSession>("/voice/sessions", { method: "POST", ...jsonBody({ mode, teaId }) });
+      return authenticated<VoiceSession>("/voice/sessions", { method: "POST", ...jsonBody({ mode: "taste", teaId }) });
     }
   }
 
@@ -363,29 +349,12 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
     }
   }
 
-  async function changeStage(next: string) {
-    if (!session) return;
-    try {
-      await authenticated(`/voice/sessions/${session.voiceSessionId}/context`, { method: "PATCH", ...jsonBody({ brewStage: next, infusionNumber }) });
-      setStage(next);
-      if (isMock) {
-        speak(BREW_GUIDANCE[next]);
-      }
-    } catch { setError("这一步还没记下，再点一次。"); }
-  }
-
   async function stop() {
     if (!session) return;
     setBusy(true);
     setVoicePhase("finishing");
     setStatus("正在收好最后一句…");
     try {
-      if (mode === "brew" && stage !== "complete") {
-        await authenticated(`/voice/sessions/${session.voiceSessionId}/context`, {
-          method: "PATCH", ...jsonBody({ brewStage: "complete", infusionNumber }),
-        });
-        setStage("complete");
-      }
       try { recognitionRef.current?.stop(); } catch {}
       await rtcRef.current?.stopCaptureAndDrain();
       rtcRef.current = null;
@@ -394,7 +363,7 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
       await flushPendingTurns();
       if (turnPersistenceFailedRef.current) setTranscriptWarning("会话已保存，但有少量实时字幕未能写入短期记录。");
       const stopRequest = () => authenticated<VoiceStop>(`/voice/sessions/${session.voiceSessionId}/stop`, {
-        method: "POST", ...jsonBody({ saveUserText: mode === "taste" ? savedTextRef.current || undefined : undefined, infusionNumber }),
+        method: "POST", ...jsonBody({ saveUserText: savedTextRef.current || undefined, infusionNumber }),
       });
       let result: VoiceStop;
       try {
@@ -430,7 +399,6 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
     savedTextRef.current = "";
     turnPersistenceFailedRef.current = false;
     setTranscriptWarning("");
-    setStage("prepare");
     setInfusionNumber(1);
     pausedRef.current = false;
     setPaused(false);
@@ -445,20 +413,19 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
     <section className="voice-page voice-complete">
       <CheckCircle size={56} weight="duotone" />
       <p className="eyebrow">{completion.experienceCompleted ? "已经收好" : "本次已结束"}</p>
-      <h1 className="title">{completion.experienceCompleted ? (mode === "brew" ? "这一泡，记下了。" : "这一口，记下了。") : (mode === "brew" ? "还差最后一步。" : "还想听你说一句。")}</h1>
-      {completion.tasteResult ? <><p>你说：“{completion.tasteResult.userWords}”</p><div className="tags light-tags">{completion.tasteResult.normalizedTags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div><p className="subtitle">{completion.tasteResult.explanation}</p></> : null}
+      <h1 className="title">{completion.experienceCompleted ? "这一口，记下了。" : "还想听你说一句。"}</h1>
+      {completion.tasteResult ? <><p>你说：“{completion.tasteResult.userWords}”</p><div className="tags light-tags">{completion.tasteResult.normalizedTags.map((tag) => <span className="tag" key={tag}>{tasteTagLabel(tag)}</span>)}</div><p className="subtitle">{completion.tasteResult.explanation}</p></> : null}
       {transcriptWarning ? <p className="error">{transcriptWarning}</p> : null}
-      {completion.experienceCompleted ? <Link className="button primary block" href={journeyHref(completion.journey, origin)}>{journeyLabel(completion.journey)} <ArrowRight size={18} /></Link> : <button className="button primary block" onClick={resetExperience}>{mode === "brew" ? "继续陪泡" : "补充一句感受"} <ArrowRight size={18} /></button>}
+      {completion.experienceCompleted ? <Link className="button primary block" href={journeyHref(completion.journey, origin)}>{journeyLabel(completion.journey)} <ArrowRight size={18} /></Link> : <button className="button primary block" onClick={resetExperience}>补充一句感受 <ArrowRight size={18} /></button>}
       <Link className="voice-secondary-link" href={teaDetailHref(teaId, origin)}>返回茶详情</Link>
     </section>
   );
 
   return (
     <section className="voice-page" data-phase={voicePhase}>
-      <header className="voice-header"><BackControl href={teaDetailHref(teaId, origin)} ariaLabel="返回茶详情" /><span>Tea-BTI 茶伴</span><span className="voice-mode-icon">{mode === "brew" ? <BowlSteam size={21} /> : <ChatCircleDots size={21} />}</span></header>
+      <header className="voice-header"><BackControl href={teaDetailHref(teaId, origin)} ariaLabel="返回茶详情" /><span>Tea-BTI 茶伴</span><span className="voice-mode-icon"><ChatCircleDots size={21} /></span></header>
       <p className="eyebrow">茶伴</p><h1 className="title">{title}</h1>{description ? <p className="subtitle">{description}</p> : null}
       {session ? <p className={`voice-mode-badge ${isMock ? "mock" : "real"}`}>{isMock ? "演示模式" : "实时语音"}</p> : null}
-      {mode === "brew" && active ? <div className="stage-list">{STAGES.map(([value, label]) => <button disabled={busy || connectionIssue} key={value} className={`stage ${stage === value ? "active" : ""}`} onClick={() => void changeStage(value)}>{label}</button>)}</div> : null}
       {active ? <div className="stage-list" aria-label="当前泡数"><button disabled={busy || infusionNumber <= 1} onClick={() => setInfusionNumber((value) => Math.max(1, value - 1))}>上一泡</button><span className="status-pill">第 {infusionNumber} 泡</span><button disabled={busy || infusionNumber >= 20} onClick={() => setInfusionNumber((value) => Math.min(20, value + 1))}>下一泡</button></div> : null}
       <div className="voice-orb-wrap">
         {!active ? <button aria-label="点击中央麦克风打开" className="voice-orb" disabled={busy} onClick={startFromUserGesture}><Microphone size={40} weight="duotone" /></button> : <button aria-label={paused ? "继续聆听" : isMock && !listening ? "开始说话" : "暂停聆听"} className={`voice-orb ${paused ? "paused" : "active"}`} disabled={busy || connectionIssue} onClick={() => void toggleCapture()}>{paused ? <Play size={40} weight="fill" /> : isMock && listening ? <Waveform size={40} weight="bold" /> : isMock ? <Microphone size={40} weight="duotone" /> : <Pause size={40} weight="fill" />}</button>}
@@ -469,8 +436,7 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
       {active ? <div className="voice-composer"><textarea disabled={connectionIssue} className="text-input" value={text} onChange={(event) => setText(event.target.value)} placeholder="也可以写下这一口…" /><button className="button" aria-label="发送文字" disabled={busy || connectionIssue} onClick={() => void submitText()}><PaperPlaneTilt size={20} weight="fill" /></button></div> : null}
       {error ? <p className="error">{error}</p> : null}
       {active && !isMock && connectionIssue ? <button className="button block" disabled={busy} onClick={() => void reconnect()}>重新连接实时语音</button> : null}
-      <div className="voice-primary-action">{!active ? <button disabled={busy} className="button primary block" onClick={startFromUserGesture}><Microphone size={19} />{voicePhase === "requesting_permission" ? "正在申请权限…" : "打开麦克风"}</button> : <button disabled={busy} className="button warm block" onClick={() => void stop()}><StopCircle size={19} />{voicePhase === "finishing" ? "正在收好这一口…" : mode === "brew" ? "完成泡茶并进入品饮" : "完成品茶"}</button>}</div>
-      {mode === "brew" && active ? <p className="voice-save-hint">点击后会记下这一泡，并直接进入品饮。</p> : null}
+      <div className="voice-primary-action">{!active ? <button disabled={busy} className="button primary block" onClick={startFromUserGesture}><Microphone size={19} />{voicePhase === "requesting_permission" ? "正在申请权限…" : "打开麦克风"}</button> : <button disabled={busy} className="button warm block" onClick={() => void stop()}><StopCircle size={19} />{voicePhase === "finishing" ? "正在收好这一口…" : "完成品茶"}</button>}</div>
     </section>
   );
 }

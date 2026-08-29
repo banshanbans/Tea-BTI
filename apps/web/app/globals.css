@@ -806,6 +806,45 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .voice-page .text-input::placeholder { color: rgba(255,255,255,.35); }
 .voice-complete { justify-content: center; text-align: center; }
 .voice-complete .translation-card { color: var(--ink); }
+.brew-companion-page { padding-bottom: max(32px,env(safe-area-inset-bottom)); }
+.brew-setup-card { display: grid; gap: 15px; margin: 18px 0 4px; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 26px 26px 9px 26px; background: rgba(255,255,255,.065); }
+.brew-setup-card > p { margin: 0; color: rgba(255,255,255,.78); line-height: 1.65; }
+.brew-setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.brew-setup-grid > label, .brew-setup-grid > div { position: relative; display: grid; gap: 5px; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 17px; background: rgba(7,17,10,.16); }
+.brew-setup-grid span { color: rgba(255,255,255,.48); font-size: 10px; }
+.brew-setup-grid input { min-width: 0; padding: 0; border: 0; color: white; background: transparent; font: inherit; font-weight: 750; outline: none; }
+.brew-setup-grid small { position: absolute; right: 12px; bottom: 12px; color: rgba(255,255,255,.45); }
+.camera-choice { display: grid; grid-template-columns: 28px 1fr 20px; gap: 9px; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; color: rgba(255,255,255,.78); background: rgba(255,255,255,.04); text-align: left; }
+.camera-choice.selected { border-color: rgba(218,238,202,.35); background: rgba(136,174,111,.12); }
+.camera-choice span { display: grid; gap: 3px; }
+.camera-choice small { color: rgba(255,255,255,.46); font-size: 9px; }
+.brew-live-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin: 15px 0 10px; color: rgba(255,255,255,.55); font-size: 11px; }
+.brew-live-head strong { color: #edf5e7; font-family: var(--serif); font-size: 22px; }
+.brew-live-head span:last-child { text-align: right; }
+.brew-camera { position: relative; height: 176px; overflow: hidden; border: 1px solid rgba(255,255,255,.13); border-radius: 26px 26px 9px 26px; background: #0b1710; }
+.brew-camera video { width: 100%; height: 100%; object-fit: cover; }
+.brew-camera.fallback > div { height: 100%; display: grid; place-items: center; align-content: center; gap: 8px; color: rgba(255,255,255,.55); }
+.brew-camera-state { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 6px 9px; border-radius: 999px; color: #eff7e9; background: rgba(12,29,18,.68); font-size: 9px; backdrop-filter: blur(8px); }
+.brew-frame-guide { position: absolute; inset: 25px 45px; border: 1px solid rgba(233,244,223,.42); border-radius: 50%; pointer-events: none; }
+.vision-confirm-card { display: grid; gap: 11px; margin-top: 10px; padding: 14px; border: 1px solid rgba(222,237,207,.24); border-radius: 20px 20px 7px 20px; background: rgba(126,164,101,.16); }
+.vision-confirm-card p { margin: 0; line-height: 1.55; }
+.vision-confirm-card > div { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.brew-timer { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; margin-top: 12px; padding: 13px 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(255,255,255,.055); }
+.brew-timer.running { border-color: rgba(222,237,207,.26); background: rgba(115,154,92,.14); }
+.brew-timer > div { display: grid; gap: 2px; }
+.brew-timer span { color: rgba(255,255,255,.5); font-size: 10px; }
+.brew-timer strong { font-size: 25px; font-variant-numeric: tabular-nums; }
+.brew-timer button { display: inline-flex; align-items: center; gap: 3px; padding: 8px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; color: white; background: rgba(255,255,255,.07); }
+.brew-adjustment { margin: 10px 0 0; padding: 11px 13px; border-left: 2px solid #d9edca; color: rgba(255,255,255,.75); background: rgba(255,255,255,.04); font-size: 12px; line-height: 1.55; }
+.brew-companion-page .stage { cursor: default; }
+.brew-feedback { margin-top: 12px; padding: 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; background: rgba(255,255,255,.05); }
+.brew-feedback > p { margin: 0 0 10px; }
+.brew-feedback > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.brew-feedback button { padding: 8px 10px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; color: rgba(255,255,255,.78); background: rgba(255,255,255,.06); }
+.brew-controls { display: grid; gap: 8px; margin-top: 12px; }
+.compact-transcript { min-height: 0 !important; max-height: 180px !important; margin-top: 12px; }
+.brew-start { margin-top: 14px; }
+.voice-secondary-button { width: 100%; min-height: 42px; margin-top: 12px; border: 0; color: rgba(255,255,255,.55); background: transparent; text-decoration: underline; text-underline-offset: 4px; }
 
 /* Passport and Realm landing */
 .passport-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }

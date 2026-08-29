@@ -67,7 +67,7 @@ Authorization: Bearer <anonymousAccessToken>
 | `GET /me/passport` | 无 | 茶护照，包含茶境首次完成时间和数字标本 |
 | `PUT /me/passport/{teaId}` | 收藏、泡过、品过等部分更新 | 更新后的条目；不接受客户端写入 `realmUnlocked` |
 | `GET /me/tea-bti` | 无 | 状态、Code、Persona Name、Persona Summary、形成进度、静态精神速写、最多三条结构化真实行为证据、四轴与兼容证据 |
-| `GET /capabilities` | 无 | `voice: real/mock/unavailable` 及缺失配置名，不含密钥 |
+| `GET /capabilities` | 无 | `voice: real/mock/unavailable`、`vision: real/unavailable` 及缺失配置名，不含密钥 |
 
 Swipe 示例：
 
@@ -167,7 +167,7 @@ Swipe 示例：
 }
 ```
 
-## 语音会话
+## 语音与 AI 陪泡会话
 
 ```text
 POST /voice/sessions
@@ -182,16 +182,23 @@ POST /voice/sessions
 
 | Method + Path | 行为 |
 |---|---|
-| `POST /voice/sessions` | `{ mode: "brew" | "taste", teaId }`；创建最长 10 分钟会话 |
+| `POST /voice/sessions` | `{ mode, teaId, cameraEnabled?, brewSetup? }`；Taste 最长 10 分钟，Brew 最长 30 分钟；Brew 返回 `brewState` |
 | `POST /voice/sessions/{id}/start` | 前端入房后启动 AI；重复调用幂等 |
 | `PATCH /voice/sessions/{id}/context` | 同步 `brewStage` 和 `infusionNumber`，或把 `userText` 作为用户当前发言送入实时茶伴；不暗示视觉识别 |
-| `POST /voice/sessions/{id}/turns` | 只提交最终字幕，`clientTurnId` 去重 |
+| `POST /voice/sessions/{id}/turns` | 只提交最终字幕，`clientTurnId` 去重；Brew 对确定性命令优先解析，对自然品饮描述再结构化 |
+| `GET /voice/sessions/{id}/brew-state` | 刷新、断线或前后台切换后恢复当前泡数、阶段和绝对 `deadlineAt` |
+| `POST /voice/sessions/{id}/brew/events` | `clientEventId` 幂等提交阶段确认、拒绝视觉候选、时间调整、品饮反馈、下一泡或结束 |
+| `POST /voice/sessions/{id}/vision/observations` | 当前阶段的一张 JPEG（不超过 250KB）；只返回动作候选，永不直接推进阶段 |
 | `POST /voice/sessions/{id}/stop` | 停止 AI；返回 `experienceCompleted` 和最新 `journey`；Taste 模式可保存用户确认原话并返回归一化结果 |
-| `POST /voice/sessions/{id}/abort` | 自动接管或页面退出时中止会话；不写入 brewed/tasted，也不保存品饮原话 |
+| `POST /voice/sessions/{id}/abort` | 显式放弃或连接准备失败时中止会话；不写入 brewed/tasted，也不保存品饮原话 |
 
 状态只使用 `prepared / starting / active / stopping / completed / failed / expired / cancelled`。同一用户同时只允许一个活动语音会话，供应商启停由短期数据库租约串行化。真实会话一旦选定 `volcengine_rtc`，运行故障不会降级成 Mock；`AI_MODE=auto` 仅在创建会话时因配置缺失选择明确标注的演示模式。
 
-`stop` 首次调用会固化结束输入和最终结果；远端停止成功先单独落库，再进行 Passport/品饮保存，因此本地保存重试不会重复停止远端。前端停止采集后等待最终字幕静默 600ms（最多 2.5 秒）再退出房间。页面退出使用 keepalive `abort`，后端同时周期性停止过期远端任务。Brew 只在 `brewStage=complete` 时写入“已泡过”；Taste 只在存在用户确认原话时写入“已品过”。不保存原始音频；最终字幕是最多 24 小时的运行数据，用户确认的原话和归一化标签才进入 Passport。
+`stop` 首次调用会固化结束输入和最终结果；远端停止成功先单独落库，再进行 Passport/品饮保存，因此本地保存重试不会重复停止远端。前端停止采集后等待最终字幕静默 600ms（最多 2.5 秒）再退出房间。Brew 页面刷新时保留服务端 Run，并通过本地保存的会话 ID 恢复；后端周期性停止过期远端任务。Brew 只在确认完成时写入“已泡过”；Taste 只在存在用户确认原话时写入“已品过”。
+
+`BrewRun / BrewInfusion / BrewEvent` 分别持久化会话状态、每泡计划与实际计时、幂等动作。计时以 `deadlineAt` 为准；摄像头仅在投茶、注水、出汤窗口接受五类白名单结果，连续两张高置信同结果才形成候选，候选还需用户确认。原始 JPEG 只存在于单次请求内存，不写数据库或对象存储；摄像动作、计时和操作行为不写 Taste Vector，只有用户明确说出的品饮反馈会进入长期偏好。
+
+视觉识别使用独立方舟图片理解请求，不把摄像头并入 RTC 会话，也不判断水温、克数、水量、香气、滋味、品质或最佳出汤点。视觉不可用时只关闭动作候选，实时语音和本地绝对计时继续。
 
 ## 契约刷新
 

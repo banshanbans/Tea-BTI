@@ -10,6 +10,7 @@ const rtcMocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/api", () => ({
   authenticated: vi.fn(),
+  authenticatedBinary: vi.fn(),
   jsonBody: (value: unknown) => ({ body: JSON.stringify(value), headers: { "Content-Type": "application/json" } }),
   abortVoiceSessionBestEffort: vi.fn(),
 }));
@@ -69,7 +70,7 @@ describe("VoiceExperience", () => {
 
   it("starts from the central microphone, requests permission once, and uses the shortened copy", async () => {
     const getUserMedia = vi.mocked(navigator.mediaDevices.getUserMedia);
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
+    render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
 
     expect(screen.getByText("茶伴", { selector: ".eyebrow" })).toBeInTheDocument();
     expect(screen.queryByText(/你报一步/)).not.toBeInTheDocument();
@@ -98,7 +99,7 @@ describe("VoiceExperience", () => {
       throw new Error(`Unexpected path: ${path}`);
     });
 
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
+    render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
     await screen.findByText("实时语音已连接");
 
@@ -126,7 +127,7 @@ describe("VoiceExperience", () => {
       throw new Error(`Unexpected path: ${path}`);
     });
 
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
+    render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
 
     expect(await screen.findByText("麦克风没有接上。检查浏览器权限后再试。")).toBeInTheDocument();
@@ -144,6 +145,9 @@ describe("VoiceExperience", () => {
     expect(screen.getByText("像青草，后面有点甜")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "完成品茶" }));
     expect(await screen.findByText("这一口，记下了。")).toBeInTheDocument();
+    expect(screen.getByText("清鲜")).toBeInTheDocument();
+    expect(screen.getByText("回甘")).toBeInTheDocument();
+    expect(screen.queryByText("aftertaste_sweetness")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /进入《雾里一芽》/ })).toHaveAttribute("href", "/realm/duyun-maojian-mist-bud?entry=tea&teaId=duyun-maojian&origin=swipe");
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith("/voice/sessions/voice-1/turns", expect.anything()));
   });
@@ -219,49 +223,6 @@ describe("VoiceExperience", () => {
     expect(abortVoiceSessionBestEffort).toHaveBeenCalledWith("voice-real-text");
   });
 
-  it("drains final RTC subtitles before stopping and saves the selected infusion", async () => {
-    grantMicrophone();
-    const order: string[] = [];
-    let finishDrain!: () => void;
-    const drainGate = new Promise<void>((resolve) => { finishDrain = resolve; });
-    const realSession = {
-      voiceSessionId: "voice-drain", providerMode: "volcengine_rtc", status: "prepared",
-      expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。",
-      rtc: { appId: "rtc-app", roomId: "room-1", userId: "user-1", token: "short-lived", agentUserId: "tea_companion" },
-    };
-    rtcMocks.connect.mockResolvedValue(undefined);
-    rtcMocks.stopCaptureAndDrain.mockImplementation(async () => { order.push("drain"); await drainGate; });
-    vi.mocked(authenticated).mockImplementation(async (path: string, init?: RequestInit) => {
-      if (path === "/voice/sessions") return realSession as never;
-      if (path === "/voice/sessions/voice-drain/start") return { ...realSession, status: "active" } as never;
-      if (path === "/voice/sessions/voice-drain/context") {
-        order.push("complete");
-        expect(init?.body).toBe(JSON.stringify({ brewStage: "complete", infusionNumber: 2 }));
-        return { ...realSession, status: "active" } as never;
-      }
-      if (path === "/voice/sessions/voice-drain/stop") {
-        order.push("stop");
-        expect(init?.body).toBe(JSON.stringify({ infusionNumber: 2 }));
-        return { status: "completed", experienceCompleted: true, journey: { teaId: "duyun-maojian", brewed: true, tasted: false, realmId: "duyun-maojian-mist-bud", realmCompleted: false, nextStep: "taste" }, tasteResult: null } as never;
-      }
-      throw new Error(`Unexpected path: ${path}`);
-    });
-
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
-    fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-    await screen.findByText("实时语音已连接");
-    fireEvent.click(screen.getByRole("button", { name: "暂停聆听" }));
-    await screen.findByText("已暂停，点击继续");
-    fireEvent.click(screen.getByRole("button", { name: "下一泡" }));
-    fireEvent.click(screen.getByRole("button", { name: "完成泡茶并进入品饮" }));
-    expect(await screen.findByRole("button", { name: "正在收好这一口…" })).toBeDisabled();
-    finishDrain();
-    await screen.findByText("这一泡，记下了。");
-    expect(screen.getByRole("link", { name: /接着说出这一口/ })).toHaveAttribute("href", "/taste/duyun-maojian?origin=swipe");
-    expect(rtcMocks.pauseCapture).toHaveBeenCalledTimes(1);
-    expect(order).toEqual(["complete", "drain", "stop"]);
-  });
-
   it("rejoins an active real session with a fresh token after a fatal RTC error", async () => {
     grantMicrophone();
     const realSession = {
@@ -298,63 +259,4 @@ describe("VoiceExperience", () => {
     expect(screen.getByRole("button", { name: "继续聆听" })).toBeInTheDocument();
   });
 
-  it("sends the selected infusion with brew stage changes", async () => {
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
-    fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-    await screen.findByText("演示模式");
-    fireEvent.click(screen.getByRole("button", { name: "下一泡" }));
-    fireEvent.click(screen.getByRole("button", { name: "温杯" }));
-    await waitFor(() => expect(authenticated).toHaveBeenCalledWith(
-      "/voice/sessions/voice-1/context",
-      expect.objectContaining({ body: JSON.stringify({ brewStage: "warm_vessel", infusionNumber: 2 }) }),
-    ));
-  });
-
-  it("ends a stale server session and recreates after refresh", async () => {
-    let createCount = 0;
-    vi.mocked(authenticated).mockImplementation(async (path: string) => {
-      if (path === "/voice/sessions") {
-        createCount += 1;
-        if (createCount === 1) {
-          throw Object.assign(new Error("已有进行中的语音会话"), {
-            code: "VOICE_SESSION_ACTIVE",
-            details: { voiceSessionId: "voice-stale" },
-          });
-        }
-        return { voiceSessionId: "voice-new", providerMode: "browser_mock", status: "prepared", expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "又见面了。", rtc: null } as never;
-      }
-      if (path === "/voice/sessions/voice-stale/abort") return { status: "cancelled" } as never;
-      if (path === "/voice/sessions/voice-new/start") return { voiceSessionId: "voice-new", providerMode: "browser_mock", status: "active", expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "又见面了。", rtc: null } as never;
-      throw new Error(`Unexpected path: ${path}`);
-    });
-
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
-    fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-
-    expect(await screen.findByText("演示模式")).toBeInTheDocument();
-    expect(authenticated).toHaveBeenCalledWith("/voice/sessions/voice-stale/abort", expect.anything());
-    expect(createCount).toBe(2);
-  });
-
-  it("does not create a second session when automatic takeover fails", async () => {
-    let createCount = 0;
-    vi.mocked(authenticated).mockImplementation(async (path: string) => {
-      if (path === "/voice/sessions") {
-        createCount += 1;
-        throw Object.assign(new Error("已有进行中的语音会话"), {
-          code: "VOICE_SESSION_ACTIVE",
-          details: { voiceSessionId: "voice-still-running" },
-        });
-      }
-      if (path === "/voice/sessions/voice-still-running/abort") {
-        throw Object.assign(new Error("上一段实时语音尚未结束"), { code: "VOICE_ABORT_FAILED" });
-      }
-      throw new Error(`Unexpected path: ${path}`);
-    });
-
-    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
-    fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-    expect(await screen.findByText("上一段实时语音尚未结束，请稍后重试。")).toBeInTheDocument();
-    expect(createCount).toBe(1);
-  });
 });

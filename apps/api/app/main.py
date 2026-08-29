@@ -19,9 +19,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .catalog import catalog
+from .brew import (
+    BrewError, apply_brew_event, brew_state_response, brew_voice_reply, classify_voice_intent,
+    create_brew_run, current_infusion, register_vision_observation, require_brew_run,
+)
 from .config import get_settings
 from .db import Base, SessionLocal, engine, get_db
-from .models import AnonymousSession, AnonymousUser, PassportEntry, SwipeEvent, VoiceSession, VoiceTurn, utcnow
+from .models import AnonymousSession, AnonymousUser, BrewRun, PassportEntry, SwipeEvent, VoiceSession, VoiceTurn, utcnow
 from .profile import (
     ProfileError, create_profile_share, private_profile_response, public_profile_response,
     record_profile_event, require_public_share, revoke_profile_share, update_profile,
@@ -32,6 +36,7 @@ from .schemas import (
     DrinkFeedbackResponse, FeedResponse, PassportEntryResponse, PassportResponse, PassportUpdate,
     SeedBatchResponse, SeedRequest, SwipeRequest, SwipeResponse, TasteNormalizeRequest,
     TasteNormalizeResponse, TeaBtiResponse, TeaDetailResponse, VoiceContextUpdate, VoiceSessionCreate,
+    BrewEventRequest, BrewEventResponse, BrewStateResponse, VisionObservationResponse,
     VoiceAbortResponse, VoiceSessionResponse, VoiceStopRequest, VoiceStopResponse, VoiceTurnsRequest, VoiceTurnsResponse,
     ErrorResponse,
     RealmCompleteRequest, RealmCompleteResponse, RealmDetailResponse, RealmEventRequest,
@@ -45,6 +50,7 @@ from .taste import (
     mock_normalize, record_drink_feedback, record_swipe, swipe_count, tea_bti, tea_journey,
 )
 from .voice import ProviderError, taste_normalizer, voice_provider
+from .vision import vision_provider
 
 
 settings = get_settings()
@@ -174,6 +180,7 @@ def capabilities_payload() -> dict:
     real = settings.voice_real_enabled
     return {
         "voice": "real" if real else "unavailable" if settings.ai_mode == "volcengine" else "mock",
+        "vision": "real" if settings.vision_real_enabled else "unavailable",
         "tasteNormalization": "real" if settings.ai_mode != "mock" and bool(settings.ark_api_key) else "mock",
         "missingConfig": [] if real else settings.voice_missing_config,
     }
@@ -646,6 +653,10 @@ async def expire_voice_sessions(db: Session, user_id: str | None = None) -> None
                 voice_session = require_voice_session(db, voice_session.user_id, voice_session.id)
             voice_session.status = "expired"
             voice_session.completed_at = voice_session.completed_at or now
+            run = db.scalar(select(BrewRun).where(BrewRun.voice_session_id == voice_session.id))
+            if run and run.status == "active":
+                run.status = "expired"
+                run.completed_at = run.completed_at or now
     db.flush()
 
 
@@ -656,9 +667,9 @@ def prune_voice_turns(db: Session) -> None:
     db.flush()
 
 
-def voice_response(voice_session: VoiceSession, rtc: dict | None = None) -> dict:
-    welcome = "你好，我是茶伴。我们慢慢来，你现在走到哪一步了？" if voice_session.mode == "brew" else "先说第一感觉，哪怕只有一个字。"
-    return {
+def voice_response(voice_session: VoiceSession, rtc: dict | None = None, db: Session | None = None) -> dict:
+    welcome = "我们先这样泡，第一口喝完我再跟着你调。茶具摆好了吗？" if voice_session.mode == "brew" else "先说第一感觉，哪怕只有一个字。"
+    result = {
         "voiceSessionId": voice_session.id,
         "providerMode": voice_session.provider_mode,
         "status": voice_session.status,
@@ -666,6 +677,12 @@ def voice_response(voice_session: VoiceSession, rtc: dict | None = None) -> dict
         "welcomeMessage": welcome,
         "rtc": rtc,
     }
+    if db is not None and voice_session.mode == "brew":
+        run = db.scalar(select(BrewRun).where(BrewRun.voice_session_id == voice_session.id))
+        result["brewState"] = brew_state_response(db, run) if run else None
+    else:
+        result["brewState"] = None
+    return result
 
 
 def require_voice_session(db: Session, user_id: str, session_id: str) -> VoiceSession:
@@ -719,7 +736,8 @@ async def create_voice_session(payload: VoiceSessionCreate, user: CurrentUser, d
     if active:
         raise ApiError(409, "VOICE_SESSION_ACTIVE", "已有进行中的语音会话", details={"voiceSessionId": active.id})
     now = utcnow()
-    expires_at = now + timedelta(seconds=settings.voice_session_ttl_seconds)
+    ttl_seconds = settings.brew_voice_session_ttl_seconds if payload.mode == "brew" else settings.voice_session_ttl_seconds
+    expires_at = now + timedelta(seconds=ttl_seconds)
     provider_mode = "volcengine_rtc" if settings.voice_real_enabled else "browser_mock"
     session_id = str(uuid.uuid4())
     room_id = "tea_" + session_id.replace("-", "")[:20] if provider_mode == "volcengine_rtc" else None
@@ -731,6 +749,18 @@ async def create_voice_session(payload: VoiceSessionCreate, user: CurrentUser, d
         expires_at=expires_at,
     )
     db.add(voice_session)
+    db.flush()
+    if payload.mode == "brew" and settings.brew_companion_v2:
+        setup = payload.brew_setup
+        create_brew_run(
+            db,
+            voice_session_id=session_id,
+            user_id=user.id,
+            tea_id=payload.tea_id,
+            camera_enabled=payload.camera_enabled,
+            vessel=setup.vessel if setup else None,
+            water_volume_ml=setup.water_volume_ml if setup else None,
+        )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -750,7 +780,7 @@ async def create_voice_session(payload: VoiceSessionCreate, user: CurrentUser, d
     rtc = None
     if provider_mode == "volcengine_rtc":
         rtc = voice_provider.prepare(room_id, user.id, int(expires_at.timestamp()))
-    return voice_response(voice_session, rtc)
+    return voice_response(voice_session, rtc, db)
 
 
 @app.post(settings.api_prefix + "/voice/sessions/{session_id}/start", response_model=VoiceSessionResponse)
@@ -758,7 +788,7 @@ async def start_voice_session(session_id: str, user: CurrentUser, db: Db):
     voice_session = require_voice_session(db, user.id, session_id)
     if voice_session.status == "active":
         rtc = voice_provider.prepare(voice_session.room_id, user.id, int(voice_session.expires_at.timestamp())) if voice_session.provider_mode == "volcengine_rtc" else None
-        return voice_response(voice_session, rtc)
+        return voice_response(voice_session, rtc, db)
     if voice_session.status == "starting":
         raise ApiError(
             503,
@@ -772,7 +802,7 @@ async def start_voice_session(session_id: str, user: CurrentUser, db: Db):
     if voice_session.provider_mode == "browser_mock":
         voice_session.status = "active"
         db.commit()
-        return voice_response(voice_session)
+        return voice_response(voice_session, db=db)
 
     token = claim_voice_action(db, voice_session.id)
     db.refresh(voice_session)
@@ -805,7 +835,7 @@ async def start_voice_session(session_id: str, user: CurrentUser, db: Db):
     db.commit()
     release_voice_action(db, voice_session.id, token)
     rtc = voice_provider.prepare(voice_session.room_id, user.id, int(voice_session.expires_at.timestamp())) if voice_session.provider_mode == "volcengine_rtc" else None
-    return voice_response(voice_session, rtc)
+    return voice_response(voice_session, rtc, db)
 
 
 @app.patch(settings.api_prefix + "/voice/sessions/{session_id}/context", response_model=VoiceSessionResponse)
@@ -841,15 +871,22 @@ async def update_voice_context(session_id: str, payload: VoiceContextUpdate, use
             except ProviderError as exc:
                 raise ApiError(503, "VOICE_CONTEXT_UPDATE_FAILED", "语音上下文更新失败", retryable=True) from exc
     db.commit()
-    return voice_response(voice_session)
+    return voice_response(voice_session, db=db)
 
 
 @app.post(settings.api_prefix + "/voice/sessions/{session_id}/turns", response_model=VoiceTurnsResponse)
-def append_voice_turns(session_id: str, payload: VoiceTurnsRequest, user: CurrentUser, db: Db):
+async def append_voice_turns(session_id: str, payload: VoiceTurnsRequest, user: CurrentUser, db: Db):
     voice_session = require_voice_session(db, user.id, session_id)
     if voice_session.status not in {"starting", "active", "stopping"}:
         raise ApiError(409, "VOICE_SESSION_STATE", "语音会话不接受字幕")
     accepted = 0
+    action_message = None
+    run = None
+    if voice_session.mode == "brew" and settings.brew_companion_v2:
+        try:
+            run = require_brew_run(db, session_id, user.id)
+        except BrewError:
+            run = None
     for turn in payload.turns:
         try:
             with db.begin_nested():
@@ -861,8 +898,148 @@ def append_voice_turns(session_id: str, payload: VoiceTurnsRequest, user: Curren
             accepted += 1
         except IntegrityError:
             continue
+        if run is not None and turn.role == "user":
+            action_message = brew_voice_reply(turn.text, run, current_infusion(db, run)) or action_message
+            intent = classify_voice_intent(turn.text, run)
+            if intent is None and action_message is None and run.current_stage == "taste":
+                try:
+                    feedback = await taste_normalizer.normalize_brew_feedback(turn.text)
+                except ProviderError:
+                    feedback = "other"
+                intent = {"eventType": "taste_feedback", "feedback": feedback, "userWords": turn.text}
+            if intent:
+                try:
+                    _, action_message = apply_brew_event(
+                        db,
+                        run,
+                        client_event_id="voice-" + turn.client_turn_id,
+                        event_type=intent["eventType"],
+                        source="voice",
+                        stage=intent.get("stage"),
+                        seconds=intent.get("seconds"),
+                        feedback=intent.get("feedback"),
+                        user_words=intent.get("userWords"),
+                    )
+                    voice_session.brew_stage = run.current_stage
+                    voice_session.infusion_number = run.current_infusion
+                except BrewError:
+                    action_message = None
     db.commit()
-    return {"acceptedCount": accepted}
+    if action_message and voice_session.provider_mode == "volcengine_rtc":
+        try:
+            await voice_provider.update_context(
+                room_id=voice_session.room_id,
+                task_id=voice_session.task_id,
+                message=action_message + " 这是服务端确认后的陪泡状态，请据此简短回应。",
+            )
+        except ProviderError:
+            logger.warning("Failed to update voice context after brew intent session=%s", session_id)
+    return {
+        "acceptedCount": accepted,
+        "brewState": brew_state_response(db, run) if run else None,
+        "actionMessage": action_message,
+    }
+
+
+def raise_brew_error(exc: BrewError) -> None:
+    status = 404 if exc.code in {"BREW_RUN_NOT_FOUND", "BREW_INFUSION_NOT_FOUND"} else 409
+    raise ApiError(status, exc.code, str(exc)) from exc
+
+
+@app.get(settings.api_prefix + "/voice/sessions/{session_id}/brew-state", response_model=BrewStateResponse)
+def get_brew_state(session_id: str, user: CurrentUser, db: Db):
+    require_voice_session(db, user.id, session_id)
+    try:
+        return brew_state_response(db, require_brew_run(db, session_id, user.id))
+    except BrewError as exc:
+        raise_brew_error(exc)
+
+
+@app.post(settings.api_prefix + "/voice/sessions/{session_id}/brew/events", response_model=BrewEventResponse)
+async def post_brew_event(session_id: str, payload: BrewEventRequest, user: CurrentUser, db: Db):
+    voice_session = require_voice_session(db, user.id, session_id)
+    if voice_session.status not in {"prepared", "active"}:
+        raise ApiError(409, "VOICE_SESSION_STATE", "语音会话不接受陪泡动作")
+    try:
+        run = require_brew_run(db, session_id, user.id)
+        accepted, message = apply_brew_event(
+            db,
+            run,
+            client_event_id=payload.client_event_id,
+            event_type=payload.event_type,
+            source=payload.source,
+            stage=payload.stage,
+            seconds=payload.seconds,
+            feedback=payload.feedback,
+            user_words=payload.user_words,
+        )
+    except BrewError as exc:
+        raise_brew_error(exc)
+    voice_session.brew_stage = run.current_stage
+    voice_session.infusion_number = run.current_infusion
+    db.commit()
+    if accepted and voice_session.provider_mode == "volcengine_rtc" and voice_session.status == "active":
+        try:
+            await voice_provider.update_context(
+                room_id=voice_session.room_id,
+                task_id=voice_session.task_id,
+                message=message + " 这是用户或界面确认后的真实状态；不要声称是摄像头自行确认的。",
+            )
+        except ProviderError:
+            logger.warning("Failed to update voice context after brew event session=%s", session_id)
+    return {"accepted": accepted, "message": message, "brewState": brew_state_response(db, run)}
+
+
+@app.post(settings.api_prefix + "/voice/sessions/{session_id}/vision/observations", response_model=VisionObservationResponse)
+async def post_vision_observation(
+    session_id: str,
+    request: Request,
+    user: CurrentUser,
+    db: Db,
+    stage: Annotated[str, Query()],
+    infusion_number: Annotated[int, Query(alias="infusionNumber", ge=1, le=20)],
+):
+    voice_session = require_voice_session(db, user.id, session_id)
+    try:
+        run = require_brew_run(db, session_id, user.id)
+    except BrewError as exc:
+        raise_brew_error(exc)
+    if not run.camera_enabled or not settings.vision_real_enabled:
+        raise ApiError(503, "VISION_UNAVAILABLE", "摄像头判断暂不可用", retryable=True)
+    if stage != run.current_stage or infusion_number != run.current_infusion:
+        raise ApiError(409, "VISION_STATE_STALE", "画面对应的冲泡阶段已经变化")
+    content_type = request.headers.get("content-type", "")
+    if not content_type.startswith("image/jpeg"):
+        raise ApiError(422, "VISION_IMAGE_TYPE", "只接受 JPEG 画面")
+    image = await request.body()
+    if not image or len(image) > 250_000:
+        raise ApiError(413, "VISION_IMAGE_SIZE", "画面必须小于 250KB")
+    try:
+        event, confidence = await vision_provider.observe(image, stage)
+        if confidence < 0.72:
+            event = "none"
+        candidate, target, prompt = register_vision_observation(db, run, event)
+    except BrewError as exc:
+        raise_brew_error(exc)
+    except ProviderError as exc:
+        raise ApiError(503, "VISION_UNAVAILABLE", "摄像头判断暂不可用", retryable=True) from exc
+    db.commit()
+    if candidate and prompt and voice_session.provider_mode == "volcengine_rtc" and voice_session.status == "active":
+        try:
+            await voice_provider.update_context(
+                room_id=voice_session.room_id,
+                task_id=voice_session.task_id,
+                message=prompt + " 这只是视觉候选，必须等用户口头确认后才能推进阶段。",
+            )
+        except ProviderError:
+            logger.warning("Failed to announce vision candidate session=%s", session_id)
+    return {
+        "event": event,
+        "candidate": candidate,
+        "targetStage": target,
+        "prompt": prompt,
+        "brewState": brew_state_response(db, run),
+    }
 
 
 @app.post(settings.api_prefix + "/voice/sessions/{session_id}/abort", response_model=VoiceAbortResponse)
@@ -897,6 +1074,10 @@ async def abort_voice_session(session_id: str, user: CurrentUser, db: Db):
     voice_session.completion_result = None
     voice_session.action_lease_token = None
     voice_session.action_lease_until = None
+    run = db.scalar(select(BrewRun).where(BrewRun.voice_session_id == session_id))
+    if run and run.status == "active":
+        run.status = "cancelled"
+        run.completed_at = utcnow()
     db.commit()
     return {"status": "cancelled"}
 
@@ -962,10 +1143,16 @@ async def stop_voice_session(session_id: str, payload: VoiceStopRequest, user: C
             infusion_number,
             commit=False,
         )
-    if voice_session.mode == "brew" and voice_session.brew_stage == "complete":
-        entry = get_or_create_passport(db, user.id, voice_session.tea_id)
-        entry.brewed = True
-        entry.first_drunk_at = entry.first_drunk_at or utcnow()
+    if voice_session.mode == "brew":
+        run = db.scalar(select(BrewRun).where(BrewRun.voice_session_id == session_id))
+        completed_brew = voice_session.brew_stage == "complete" or bool(run and run.status == "completed")
+        if completed_brew:
+            entry = get_or_create_passport(db, user.id, voice_session.tea_id)
+            entry.brewed = True
+            entry.first_drunk_at = entry.first_drunk_at or utcnow()
+        elif run and run.status == "active":
+            run.status = "cancelled"
+            run.completed_at = utcnow()
     journey = tea_journey(db, user.id, voice_session.tea_id)
     result = {
         "status": "completed",

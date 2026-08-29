@@ -15,6 +15,10 @@ export type Passport = Schemas["PassportResponse"];
 export type TeaBti = Schemas["TeaBtiResponse"];
 export type VoiceSession = Schemas["VoiceSessionResponse"];
 export type VoiceStop = Schemas["VoiceStopResponse"];
+export type BrewState = Schemas["BrewStateResponse"];
+export type BrewEventResult = Schemas["BrewEventResponse"];
+export type VoiceTurnsResult = Schemas["VoiceTurnsResponse"];
+export type VisionObservation = Schemas["VisionObservationResponse"];
 export type TasteResult = Schemas["TasteNormalizeResponse"];
 export type RealmList = Schemas["RealmListResponse"];
 export type RealmDetail = Schemas["RealmDetailResponse"];
@@ -68,6 +72,35 @@ export async function authenticated<T>(path: string, init: RequestInit = {}): Pr
       clearToken();
       await ensureSession();
       return apiClient.request<T>(path, init);
+    }
+    throw error;
+  }
+}
+
+export async function authenticatedBinary<T>(path: string, body: Blob): Promise<T> {
+  await ensureSession();
+  const request = async () => {
+    const response = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken() || ""}`, "Content-Type": body.type || "application/octet-stream" },
+      body,
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null) as { error?: { code?: string; message?: string } } | null;
+      const error = new Error(payload?.error?.message || `HTTP ${response.status}`) as Error & { code?: string; status?: number };
+      error.code = payload?.error?.code;
+      error.status = response.status;
+      throw error;
+    }
+    return response.json() as Promise<T>;
+  };
+  try {
+    return await request();
+  } catch (error) {
+    if ((error as { status?: number }).status === 401) {
+      clearToken();
+      await ensureSession();
+      return request();
     }
     throw error;
   }

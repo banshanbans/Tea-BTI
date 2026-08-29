@@ -181,11 +181,18 @@ class VoiceProvider:
         )
         boundaries = (
             "你是 Tea-BTI 的茶伴，表达简短、温和、一次只给一到两个动作。"
-            "你没有摄像头，不能声称看到了茶具、动作、水温或茶叶克数；不能给出未经资料支持的精确值。"
+            "你不能直接看到摄像头画面；服务端可能告诉你一个尚未确认的动作候选，"
+            "你必须先询问用户并等待用户回答‘对’或‘开始’，才能把它当作已发生。"
+            "不能声称看到或知道水温、茶叶克数、水量、香气、滋味、茶叶品质或最佳出汤点；"
+            "不能给出未经资料支持的精确值。"
             "如用户提供的信息不足，要使用‘如果’‘大约’并请用户确认。"
         )
         if mode == "brew":
-            task = "陪用户按准备、温杯、投茶、注水、浸泡、出汤、品饮的顺序完成冲泡。"
+            task = (
+                "陪用户按准备、温杯、投茶、注水、浸泡、出汤或可以品饮、品饮反馈的顺序完成最多三泡。"
+                "用户说暂停时只暂停聆听，现实中的浸泡计时继续；需要改变时间时引导说延长或现在出汤。"
+                "每泡最多改变一个参数，并用自然语言说明这次为什么调整。"
+            )
         else:
             task = "先接住用户的自然语言感受，再解释它可能对应的茶语；不要说用户喝错了。"
         messages = [boundaries, factual_context, task]
@@ -304,6 +311,42 @@ class TasteNormalizer:
             kind = "unknown" if isinstance(exc, httpx.RequestError) else "definite"
             code = exc.__class__.__name__
             raise ProviderError("方舟茶语归一化暂不可用", kind=kind, code=code) from exc
+
+    async def normalize_brew_feedback(self, text: str) -> str:
+        allowed = ["too_light", "balanced", "too_strong", "bitter", "astringent", "too_hot", "too_cool", "other"]
+        if self.settings.ai_mode == "mock" or not self.settings.ark_api_key:
+            return "other"
+        payload = {
+            "model": self.settings.ark_text_model,
+            "temperature": 0,
+            "messages": [{
+                "role": "user",
+                "content": (
+                    "只返回 JSON 对象 {\"feedback\": string}。"
+                    f"feedback 只能从 {allowed} 中选择。"
+                    "一句话同时有多个感受时，优先级是温度、浓淡苦涩、其他；不要推断用户没有说出的感受。"
+                    f"用户原话：{text}"
+                ),
+            }],
+        }
+        try:
+            async with httpx.AsyncClient(timeout=12.0) as client:
+                response = await client.post(
+                    self.settings.ark_base_url.rstrip("/") + "/chat/completions",
+                    headers={"Authorization": f"Bearer {self.settings.ark_api_key}", "Content-Type": "application/json"},
+                    json=payload,
+                )
+            response.raise_for_status()
+            content = response.json()["choices"][0]["message"]["content"].strip()
+            if content.startswith("```"):
+                content = content.split("\n", 1)[1].rsplit("```", 1)[0]
+            feedback = json.loads(content).get("feedback")
+            if feedback not in allowed:
+                raise ValueError("模型未返回允许的陪泡反馈")
+            return feedback
+        except (httpx.HTTPError, KeyError, IndexError, ValueError, json.JSONDecodeError) as exc:
+            kind = "unknown" if isinstance(exc, httpx.RequestError) else "definite"
+            raise ProviderError("方舟陪泡反馈归一化暂不可用", kind=kind, code=exc.__class__.__name__) from exc
 
 
 voice_provider = VoiceProvider()

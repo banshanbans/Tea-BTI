@@ -43,6 +43,7 @@ class AnonymousSessionResponse(ApiModel):
 
 class CapabilitiesResponse(ApiModel):
     voice: Literal["real", "mock", "unavailable"]
+    vision: Literal["real", "unavailable"]
     taste_normalization: Literal["real", "mock"]
     missing_config: list[str] = Field(default_factory=list)
 
@@ -666,9 +667,51 @@ class ProfileShareMutationResponse(ApiModel):
     public_profile: PublicTeaProfileResponse | None = None
 
 
+class BrewSetupInput(ApiModel):
+    vessel: str | None = Field(default=None, max_length=80)
+    water_volume_ml: int | None = Field(default=None, ge=30, le=1000)
+
+
+class BrewInfusionResponse(ApiModel):
+    number: int
+    planned_temperature_c: int | None = None
+    planned_duration_seconds: int
+    actual_duration_seconds: int | None = None
+    feedback: Literal["too_light", "balanced", "too_strong", "bitter", "astringent", "too_hot", "too_cool", "other"] | None = None
+    user_words: str | None = None
+    adjustment_type: Literal["duration", "temperature"] | None = None
+    adjustment_value: int | None = None
+    adjustment_reason: str | None = None
+
+
+class BrewStateResponse(ApiModel):
+    run_id: str
+    status: Literal["active", "completed", "cancelled"]
+    tea_id: str
+    vessel: str
+    temperature_c: int | None = None
+    temperature_range: str
+    tea_amount: str
+    water_volume_ml: int
+    current_stage: Literal["prepare", "warm_vessel", "add_leaves", "pour", "steep", "decant", "taste", "complete"]
+    infusion_number: int
+    max_infusions: int
+    planned_duration_seconds: int
+    timer_started_at: datetime | None = None
+    deadline_at: datetime | None = None
+    remaining_seconds: int | None = None
+    pending_vision_event: Literal["leaves_present", "water_pouring", "decanting"] | None = None
+    camera_enabled: bool
+    is_matcha: bool
+    adjustment_message: str | None = None
+    completed_infusions: list[BrewInfusionResponse] = Field(default_factory=list)
+
+
 class VoiceSessionCreate(ApiModel):
     mode: Literal["brew", "taste"]
     tea_id: str
+    camera_enabled: bool = False
+    brew_setup: BrewSetupInput | None = None
 
 
 class RtcJoinConfig(ApiModel):
@@ -686,6 +729,7 @@ class VoiceSessionResponse(ApiModel):
     expires_at: datetime
     welcome_message: str
     rtc: RtcJoinConfig | None = None
+    brew_state: BrewStateResponse | None = None
 
 
 class VoiceContextUpdate(ApiModel):
@@ -708,6 +752,32 @@ class VoiceTurnsRequest(ApiModel):
 
 class VoiceTurnsResponse(ApiModel):
     accepted_count: int
+    brew_state: BrewStateResponse | None = None
+    action_message: str | None = None
+
+
+class BrewEventRequest(ApiModel):
+    client_event_id: str = Field(min_length=1, max_length=80)
+    event_type: Literal["confirm_stage", "decline_vision", "timer_adjust", "taste_feedback", "next_infusion", "complete"]
+    source: Literal["voice", "camera_confirmed", "touch"]
+    stage: Literal["prepare", "warm_vessel", "add_leaves", "pour", "steep", "decant", "taste", "complete"] | None = None
+    seconds: int | None = Field(default=None, ge=-300, le=300)
+    feedback: Literal["too_light", "balanced", "too_strong", "bitter", "astringent", "too_hot", "too_cool", "other"] | None = None
+    user_words: str | None = Field(default=None, max_length=500)
+
+
+class BrewEventResponse(ApiModel):
+    accepted: bool
+    message: str
+    brew_state: BrewStateResponse
+
+
+class VisionObservationResponse(ApiModel):
+    event: Literal["leaves_present", "water_pouring", "decanting", "occluded", "none"]
+    candidate: bool
+    target_stage: Literal["pour", "steep", "decant"] | None = None
+    prompt: str | None = None
+    brew_state: BrewStateResponse
 
 
 class VoiceStopRequest(ApiModel):

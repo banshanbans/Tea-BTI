@@ -164,6 +164,68 @@ class VoiceTurn(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class BrewRun(Base):
+    __tablename__ = "brew_runs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    voice_session_id: Mapped[str] = mapped_column(ForeignKey("voice_sessions.id"), unique=True, index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("anonymous_users.id"), index=True)
+    tea_id: Mapped[str] = mapped_column(String(80), index=True)
+    status: Mapped[str] = mapped_column(String(16), default="active")
+    vessel: Mapped[str] = mapped_column(String(80))
+    temperature_c: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    temperature_range: Mapped[str] = mapped_column(String(32))
+    tea_amount: Mapped[str] = mapped_column(String(40))
+    water_volume_ml: Mapped[int] = mapped_column(Integer)
+    current_stage: Mapped[str] = mapped_column(String(24), default="prepare")
+    current_infusion: Mapped[int] = mapped_column(Integer, default=1)
+    max_infusions: Mapped[int] = mapped_column(Integer, default=3)
+    camera_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    timer_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deadline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    pending_vision_event: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    vision_streak_event: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    vision_streak_count: Mapped[int] = mapped_column(Integer, default=0)
+    vision_cooldown_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    adjustment_message: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class BrewInfusion(Base):
+    __tablename__ = "brew_infusions"
+    __table_args__ = (UniqueConstraint("brew_run_id", "number", name="uq_brew_infusion_run_number"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    brew_run_id: Mapped[str] = mapped_column(ForeignKey("brew_runs.id"), index=True)
+    number: Mapped[int] = mapped_column(Integer)
+    planned_temperature_c: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    planned_duration_seconds: Mapped[int] = mapped_column(Integer)
+    actual_duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    feedback: Mapped[str | None] = mapped_column(String(24), nullable=True)
+    user_words: Mapped[str | None] = mapped_column(Text, nullable=True)
+    adjustment_type: Mapped[str | None] = mapped_column(String(24), nullable=True)
+    adjustment_value: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    adjustment_reason: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class BrewEvent(Base):
+    __tablename__ = "brew_events"
+    __table_args__ = (UniqueConstraint("brew_run_id", "client_event_id", name="uq_brew_event_run_client"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    brew_run_id: Mapped[str] = mapped_column(ForeignKey("brew_runs.id"), index=True)
+    client_event_id: Mapped[str] = mapped_column(String(80))
+    event_type: Mapped[str] = mapped_column(String(32))
+    source: Mapped[str] = mapped_column(String(24))
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 class RealmProgress(Base):
     __tablename__ = "realm_progress"
     __table_args__ = (UniqueConstraint("user_id", "realm_id", name="uq_realm_progress_user_realm"),)

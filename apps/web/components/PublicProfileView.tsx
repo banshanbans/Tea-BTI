@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { jsonBody, mediaUrl, publicRequest } from "@/lib/api";
 import type { PublicTeaProfile } from "@/lib/api";
 import { TEA_BTI_AXES } from "@/lib/copy";
+import { tasteTagLabel } from "@/lib/taste-language";
 
 function eventId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
@@ -93,7 +94,7 @@ export function PublicProfileView({ publicId }: { publicId: string }) {
         <section className="public-profile-block public-words-block">
           <p className="eyebrow">我的话</p><h2>我怎么说这一口</h2>
           <blockquote>“{profile.myWords.text}”</blockquote>
-          <p>{profile.myWords.tea.name} · {profile.myWords.normalizedTags.join(" / ") || "自己的话"}</p>
+          <p>{profile.myWords.tea.name} · {profile.myWords.normalizedTags.map(tasteTagLabel).join(" / ") || "自己的话"}</p>
         </section>
       ) : null}
 

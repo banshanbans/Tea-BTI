@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     ark_base_url: str = "https://ark.cn-beijing.volces.com/api/v3"
     ark_api_key: str = ""
     ark_text_model: str = "doubao-seed-2-0-lite-260215"
+    ark_vision_model: str = ""
     ark_voice_endpoint_id: str = ""
 
     volc_access_key_id: str = ""
@@ -38,8 +39,10 @@ class Settings(BaseSettings):
     doubao_tts_voice_type: str = "BV001_streaming"
 
     voice_session_ttl_seconds: int = 600
+    brew_voice_session_ttl_seconds: int = 1800
     transcript_ttl_hours: int = 24
     voice_cleanup_interval_seconds: int = 60
+    brew_companion_v2: bool = True
 
     @property
     def repository_root(self) -> Path:
@@ -99,6 +102,10 @@ class Settings(BaseSettings):
     @property
     def voice_real_enabled(self) -> bool:
         return self.ai_mode != "mock" and not self.voice_missing_config
+
+    @property
+    def vision_real_enabled(self) -> bool:
+        return self.brew_companion_v2 and self.ai_mode != "mock" and bool(self.ark_api_key and self.ark_vision_model)
 
 
 @lru_cache

@@ -1,4 +1,4 @@
-# Tea-BTI one-click start (Windows / Docker Desktop)
+﻿# Tea-BTI one-click start (Windows / Docker Desktop)
 # 单实例保证：重复执行只会复用/启动同一组容器，不会产生多个实例。
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File scripts/dev.ps1            # 前台（首次启动时跟随日志）

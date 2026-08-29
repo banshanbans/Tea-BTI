@@ -1,7 +1,7 @@
 """add Realm reading completion channels
 
 Revision ID: e9c4b7a1d2f3
-Revises: d4b58e90c721
+Revises: e5c91a32b804
 """
 
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 revision: str = "e9c4b7a1d2f3"
-down_revision: Union[str, None] = "d4b58e90c721"
+down_revision: Union[str, None] = "e5c91a32b804"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

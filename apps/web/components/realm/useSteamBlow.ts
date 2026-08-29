@@ -12,6 +12,8 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
 }) {
   const [state, setState] = useState<SteamState>(reducedMotion ? "fallback" : "idle");
   const [mode, setMode] = useState<SteamMode | null>(null);
+  const stateRef = useRef<SteamState>(state);
+  stateRef.current = state;
   const resourcesRef = useRef<{ stream?: MediaStream; context?: AudioContext; frame?: number; timeout?: number }>({});
   const fallbackRef = useRef(onFallback);
   fallbackRef.current = onFallback;
@@ -91,10 +93,12 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
     if (!active) cleanup();
   }, [active, cleanup]);
   useEffect(() => {
-    const visibility = () => { if (document.hidden) cleanup(); };
+    const visibility = () => {
+      if (document.hidden && stateRef.current === "listening") fallback("microphone_error");
+    };
     document.addEventListener("visibilitychange", visibility);
     return () => { document.removeEventListener("visibilitychange", visibility); cleanup(); };
-  }, [cleanup]);
+  }, [cleanup, fallback]);
 
   return { state, mode, start, chooseWipe, wipe: () => clearWith("wipe"), keyboard: () => clearWith(reducedMotion ? "reducedMotion" : "keyboard"), cleanup };
 }

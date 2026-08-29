@@ -144,19 +144,25 @@ Swipe 示例：
 
 | Method + Path | 行为 |
 |---|---|
-| `GET /realms` | 返回茶境列表、进度、标本与已点亮区域 |
-| `GET /realms/{realmId}` | 返回静态 Definition、当前进度和个性化开场；无 Taste 原话时只用审核默认文案 |
-| `POST /realms/{realmId}/start` | 记录 `interactionMode`、降级原因与重玩；`clientEventId` 幂等 |
-| `PATCH /realms/{realmId}/progress` | 提交一幕完成与耗时；只允许按 Definition 顺序推进 |
+| `GET /realms` | 返回茶境列表、聚合进度、标本、最近结局与已点亮区域 |
+| `GET /realms/{realmId}` | 返回静态 Definition、聚合进度、最近 Run / Outcome 和个性化开场；无 Taste 原话时只用审核默认文案 |
+| `POST /realms/{realmId}/start` | 记录 `interactionMode`、降级原因与重玩；创建或恢复 Run；`clientEventId` 幂等 |
+| `PATCH /realms/{realmId}/progress` | 提交 `runId`、一幕完成、白名单 `sceneResult` 与耗时；只允许当前 Run 按 Definition 顺序推进 |
 | `POST /realms/{realmId}/events` | 只接受预告打开、交互降级与真实资产 Reveal 三类客户端事件 |
-| `POST /realms/{realmId}/complete` | 前六幕完成后，原子写入完成进度、“白毫”标本、Passport 和黔南点亮状态 |
+| `POST /realms/{realmId}/complete` | 提交 `runId`；前六幕完成后由服务端生成确定性 Outcome，并原子写入完成进度、“白毫”标本、Passport 和黔南点亮状态 |
 
-进度状态为 `available / in_progress / completed`；交互模式为 `orientation / pointer / reducedMotion`。完成写入和标本发放均幂等，重玩不清除首次完成时间。Tea Realm 不写入 Taste Vector，不改变 Tea-BTI 。
+进度状态为 `available / in_progress / completed`；交互模式为 `orientation / pointer / reducedMotion`。`run_state` 只保存当前 Run 的幕序、白名单行为摘要和耗时；`latest_outcome` 只保存服务端审核模板结果。完成写入和标本发放均幂等；同一 `runId` 重复完成 `accepted=false`，新重玩完成 `accepted=true / specimenAwarded=false`。重玩不清除首次完成时间。Tea Realm 不写入 Taste Vector，不改变 Tea-BTI，也不进入公开 Profile 白名单。
 
 ```json
 {
   "clientEventId": "0eff22bc-27d0-4e2a-85d4-13639fc909cf",
-  "completedScene": "mist-mountain",
+  "runId": "6ddc11d0-77ab-4b83-84ab-7dcb0ea7054b",
+  "completedScene": "human-judgment",
+  "sceneResult": {
+    "kind": "human-judgment",
+    "maturityLevel": 3,
+    "stopWindow": "balanced"
+  },
   "elapsedMs": 8400
 }
 ```

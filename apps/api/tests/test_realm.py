@@ -80,6 +80,18 @@ def test_realm_is_freely_available_and_assets_keep_fact_boundaries(client, auth)
         assert assets[role]["url"].startswith("/api/v1/media/realm/")
 
 
+def test_preview_event_does_not_start_a_realm_run(client, auth):
+    event = client.post(f"/api/v1/realms/{REALM_ID}/events", headers=auth, json={
+        "clientEventId": "realm-preview-only", "eventType": "realm_preview_opened", "sceneId": None,
+    })
+    assert event.status_code == 200
+    assert event.json()["progress"]["status"] == "available"
+    assert event.json()["run"] is None
+    detail = client.get(f"/api/v1/realms/{REALM_ID}", headers=auth).json()
+    assert detail["progress"]["status"] == "available"
+    assert detail["run"] is None
+
+
 def test_realm_personalization_uses_confirmed_taste_words(client, auth):
     client.post("/api/v1/taste/normalize", headers=auth, json={
         "teaId": "duyun-maojian", "text": "像雨后的青草，尾巴有一点甜", "infusionNumber": 2,

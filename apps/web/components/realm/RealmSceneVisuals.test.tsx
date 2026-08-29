@@ -86,4 +86,28 @@ describe("Realm scene visual controllers", () => {
     expect(onFallback).toHaveBeenCalledWith("microphone_unsupported");
     expect(screen.getByRole("button", { name: "左右擦开蒸汽" })).toBeInTheDocument();
   });
+
+  it("releases microphone and AudioContext on page hide, then offers the wipe fallback", async () => {
+    const stop = vi.fn();
+    const close = vi.fn().mockResolvedValue(undefined);
+    const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop }] });
+    Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: { getUserMedia } });
+    Object.defineProperty(window, "AudioContext", { configurable: true, value: class {
+      state = "running";
+      createAnalyser() { return { fftSize: 512, getByteTimeDomainData(values: Uint8Array) { values.fill(128); } }; }
+      createMediaStreamSource() { return { connect: vi.fn() }; }
+      close = close;
+    } });
+    const onFallback = vi.fn();
+    render(<WokCraftVisual animated={false} busy={false} mode="pointer" gamma={0} tiltRef={{ current: { x: 0, y: 0 } }} onFallback={onFallback} onTone={vi.fn()} onAdvance={vi.fn().mockResolvedValue(true)} />);
+    fireEvent.click(screen.getByRole("button", { name: "吹开蒸汽" }));
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalledOnce());
+    Object.defineProperty(document, "hidden", { configurable: true, value: true });
+    fireEvent(document, new Event("visibilitychange"));
+    await waitFor(() => expect(stop).toHaveBeenCalledOnce());
+    expect(close).toHaveBeenCalledOnce();
+    expect(onFallback).toHaveBeenCalledWith("microphone_error");
+    expect(screen.getByRole("button", { name: "左右擦开蒸汽" })).toBeInTheDocument();
+    Object.defineProperty(document, "hidden", { configurable: true, value: false });
+  });
 });

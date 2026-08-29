@@ -94,7 +94,7 @@ def _run_response(progress: RealmProgress | None) -> dict[str, Any] | None:
     return dict(progress.run_state) if progress and progress.run_state else None
 
 
-def _mutation_response(realm: dict[str, Any], progress: RealmProgress, *, accepted: bool) -> dict[str, Any]:
+def _mutation_response(realm: dict[str, Any], progress: RealmProgress | None, *, accepted: bool) -> dict[str, Any]:
     return {"accepted": accepted, "progress": _progress_response(realm, progress), "run": _run_response(progress)}
 
 
@@ -257,7 +257,7 @@ def record_realm_event(db: Session, user_id: str, realm_id: str, *, client_event
         realm = catalog.require_realm(realm_id)
     except KeyError as exc:
         raise RealmError(404, "REALM_NOT_FOUND", "茶境不存在") from exc
-    progress = _get_or_create_progress(db, user_id, realm)
+    progress = _find_progress(db, user_id, realm_id)
     accepted = _record_event(db, user_id, client_event_id, event_type, {"realmId": realm_id, **payload})
     db.commit()
     return _mutation_response(realm, progress, accepted=accepted)

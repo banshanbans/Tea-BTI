@@ -43,3 +43,14 @@ No actionable P0, P1, or P2 differences remain for the requested change.
 - [x] 390 × 700 and 320 × 700 no-scroll checks
 
 final result: passed
+
+# Tea Realm V2 Design QA
+
+- Responsive evidence: `output/audit/tea-realm-v2-2026-08-30/realm-home-320.png`, `realm-home-390.png`, `realm-home-430.png`.
+- Tea craftswoman intervention: `output/audit/tea-realm-v2-2026-08-30/teacher-correction-390.png`.
+- Seven-scene overflow checks pass at 320, 390 and 430 CSS px. The Realm action remains above the fixed bottom navigation after entry motion settles.
+- Chromium covers local microphone success, synthetic orientation input, four independent craft gestures, all three valid outcomes, replay and refresh recovery. WebKit covers denied orientation and microphone permissions through the complete fallback journey.
+- API: 93 passed. Web: 90 passed. Chromium/WebKit E2E: 27 passed, 5 browser-specific skips. Production build and brand audit pass.
+- Real-device iPhone Safari and Android Chrome checks remain pending and are not represented as automated proof.
+
+final result: automated and desktop browser QA passed; real-device QA pending

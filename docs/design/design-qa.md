@@ -64,7 +64,7 @@ Post-fix evidence: `docs/design/qa/tea-bti-h5/.design-qa-feed-comparison-final.p
 - MBTI skip → three Seed cards → identified eight-tea Feed.
 - Tea detail routes and Brew/Taste/Realm entry affordances.
 - Mock-capable immersive voice pre-connection state.
-- Realm home and seven-scene experience shell; seven progress dots present, with no camera or microphone dependency.
+- Realm home and seven-scene V2 experience shell; seven progress dots present, no camera dependency, and optional local microphone volume detection always has a complete wipe fallback.
 - Four-block Tea Profile layout and persistent navigation.
 
 ## Follow-up Polish
@@ -72,3 +72,16 @@ Post-fix evidence: `docs/design/qa/tea-bti-h5/.design-qa-feed-comparison-final.p
 - No P3 item blocks this handoff. Future visual changes can follow the later high-fidelity prototype without changing the current service-backed boundaries.
 
 final result: passed
+
+## Tea Realm V2《雾里一芽》验收补充（2026-08-30）
+
+- 视觉证据：`output/audit/tea-realm-v2-2026-08-30/realm-home-320.png`、`realm-home-390.png`、`realm-home-430.png` 和 `teacher-correction-390.png`。
+- 320、390、430px 均完成七幕横向溢出检查；首页主按钮与底部导航在入场动画稳定后无重叠。
+- Chromium 完成真实指针轨迹的杀青、揉捻、搓团与单指提毫降级，并以合成方向事件验证方向数据进入杀青，以本地合成音量验证吹气成功。
+- WebKit 完成方向权限拒绝、麦克风拒绝后的触控降级旅程；Reduced Motion、刷新恢复、上一幕、重玩、重复完成和安全返回路径均保留。
+- 茶师傅素材为根据参考重新生成的原创演示素材，原参考图未进入仓库；服饰不声明为任何特定民族的真实复原。三张运行 WebP 均为 720×1080，实际文件总量约 235KB，并通过 Manifest/API 按需读取。
+- 自动化结果：品牌检查通过，API 93 项通过，Web 90 项通过，生产构建通过，Chromium/WebKit E2E 27 项通过、5 项按浏览器职责跳过。
+- 浏览器控制台仅记录既有的 `/favicon.ico` 404；未发现 Tea Realm 运行时错误。
+- iPhone Safari 与 Android Chrome 的方向灵敏度、真实吹气阈值、双指提毫和生命周期释放仍需真机验收，自动化结果不替代这四项。
+
+Tea Realm V2 自动化与桌面双浏览器验收：passed；真机验收：pending。

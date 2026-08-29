@@ -98,17 +98,22 @@ test("core journey, editable Tea Profile and revocable public sharing", async ({
   const mist = page.getByRole("group", { name: "拨开雾层" });
   await mist.press("Enter"); await mist.press("Enter"); await mist.press("Enter");
   await page.getByRole("button", { name: "山出现了" }).click();
-  await page.getByRole("button", { name: "一芽一叶" }).click();
+  await page.getByRole("button", { name: "一芽一叶" }).press("Enter");
   await page.getByRole("button", { name: "把它带去锅边" }).click();
+  await page.getByRole("button", { name: "改用手指擦开" }).click();
+  await page.getByRole("button", { name: "左右擦开蒸汽" }).press("Enter");
   const craft = page.getByRole("button", { name: "制茶手势区域" });
-  for (let index = 0; index < 4; index += 1) await craft.press("Enter");
+  for (let index = 0; index < 4; index += 1) {
+    await craft.press("Enter");
+    await page.waitForTimeout(120);
+  }
   await page.getByRole("button", { name: "去做最后的判断" }).click();
   for (let index = 0; index < 3; index += 1) await page.getByRole("button", { name: "再试一手" }).click();
   await page.getByRole("button", { name: "现在停" }).click();
   await page.getByRole("button", { name: "回到真实干茶" }).click();
   await page.getByRole("button", { name: "收下这一芽" }).click();
   await page.getByRole("button", { name: "收进茶护照" }).click();
-  await expect(page.getByRole("heading", { name: "白毫" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "清鲜的白毫" })).toBeVisible();
   await page.getByRole("link", { name: "查看茶护照" }).click();
   await expect(page).toHaveURL(/\/passport$/);
   await expect(page.getByText("像青草，喝完有一点甜和回甘", { exact: false })).toBeVisible();

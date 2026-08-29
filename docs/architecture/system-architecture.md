@@ -93,12 +93,16 @@ Swipe 的下一张 `cardId` 只保存在当前前端 Zustand 内存中，用于�
 
 # 3. Tea Realm《雾里一芽》
 
-首版不引入 Canvas、Three.js、Phaser 或游戏引擎。七幕交互使用与业务页相同的技术边界：
+V2 不引入 Canvas、Three.js、Phaser 或游戏引擎。七幕交互使用与业务页相同的技术边界：
 
 - React 19 组件与显式状态机；
 - Pointer Events 和键盘事件；
 - SVG / CSS 轮廓与层次；
 - Framer Motion 进入、Reveal 与标本收集过渡。
+- `useRealmOrientation` 统一校准、低通过滤与方向生命周期；
+- `useWokPhysics` 接收过滤后的 X/Y 加速度，负责叶片碰撞、锅边反弹和页面隐藏清理；
+- `craftGestureRecognizer` / `useCraftController` 将杀青、揉捻、搓团和提毫拆成独立纯函数与控制器；
+- `useSteamBlow` 在用户点击后创建短生命周期 AudioContext，仅用 AnalyserNode 计算本地 RMS 音量。
 
 ## 七幕状态机
 
@@ -112,7 +116,7 @@ liquor-entry
   → passport-specimen
 ```
 
-每幕完成都先写入后端，服务端确认后才前进。刷新时从 `currentScene` 恢复；网络失败保留当前交互状态。已完成用户重玩只增加 `replayCount`，不改写首次完成时间。
+每幕完成都先写入后端，服务端确认后才前进。刷新时从最近 `run_state.currentScene` 恢复；网络失败保留当前交互结果并使用同一 `runId` 重试。已完成用户重玩创建新 Run、增加 `replayCount`、更新最近结局，但不改写首次完成时间或重复发标本。
 
 ## 设备能力降级
 
@@ -124,7 +128,7 @@ else 用户点击“进入茶境”后请求方向权限
   → pointer（拒绝 / 不支持 / 桌面端 / 异常）
 ```
 
-茶境不请求摄像头或麦克风，不声称识别现实中的芽叶、锅温或手势。
+茶境不请求摄像头。麦克风只在“吹开蒸汽”按钮的用户手势中请求，400ms 校准后使用 `max(0.06, baseline×2.2)` 阈值并累计 250ms；8 秒超时或失败转为擦拭。音轨、AudioContext、方向监听、动画帧与定时器在切幕、隐藏或卸载时释放。屏幕手势只驱动互动，不声称识别现实芽叶、锅温、茶叶质量或专业制茶能力。
 
 ## 资产分层
 
@@ -1142,7 +1146,7 @@ Hackathon 中国现场建议：
 
 ## Tea Realm
 
-视觉和手势本地运行，每幕进度依赖轻量 API 确认。断网时停留在当前幕并提供重试，不调用 LLM 或外部模型。
+视觉、方向、音量阈值和屏幕手势识别全部在浏览器本地运行，每幕只把白名单后的粗粒度结果交给轻量 API 确认。断网时停留在当前幕并提供重试，不调用 LLM 或外部模型。
 
 只有：
 

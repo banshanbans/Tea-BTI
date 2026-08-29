@@ -123,7 +123,12 @@ export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, fe
   onAdvance: () => Promise<boolean>;
 }) {
   const [shaking, setShaking] = useState<string | null>(null);
-  const holdRef = useRef<{ id: string; y: number; startedAt: number } | null>(null);
+  const [lifting, setLifting] = useState<{ id: string; offset: number } | null>(null);
+  const holdRef = useRef<{ id: string; pointerId: number; y: number; startedAt: number } | null>(null);
+  const resetLift = () => {
+    holdRef.current = null;
+    setLifting(null);
+  };
   const choose = (id: string, inputMode: "pointer" | "keyboard" | "reducedMotion") => {
     if (id !== "bud-leaf") {
       setShaking(id);
@@ -137,18 +142,33 @@ export function BudPickerVisual({ assetUrls, observerUrl, teacherUrl, chosen, fe
       {budOptions.map(({ id, role, label }) => {
         const selected = chosen && id === "bud-leaf";
         const assetUrl = assetUrls.get(role);
-        return <button key={id} aria-pressed={selected} className={`realm-bud ${selected ? "chosen lifted" : ""} ${shaking === id ? "shake" : ""}`}
-          onPointerDown={(event) => { holdRef.current = { id, y: event.clientY, startedAt: performance.now() }; event.currentTarget.setPointerCapture?.(event.pointerId); }}
+        const liftOffset = lifting?.id === id ? lifting.offset : 0;
+        return <button key={id} aria-pressed={selected} className={`realm-bud ${selected ? "chosen lifted" : ""} ${shaking === id ? "shake" : ""} ${lifting?.id === id ? "dragging" : ""}`}
+          style={liftOffset ? { transform: `translateY(${liftOffset}px)` } : undefined}
+          onPointerDown={(event) => {
+            if (busy || chosen || (event.pointerType === "mouse" && event.button !== 0)) return;
+            event.preventDefault();
+            holdRef.current = { id, pointerId: event.pointerId, y: event.clientY, startedAt: performance.now() };
+            setLifting({ id, offset: 0 });
+            event.currentTarget.setPointerCapture?.(event.pointerId);
+          }}
+          onPointerMove={(event) => {
+            const hold = holdRef.current;
+            if (!hold || hold.id !== id || hold.pointerId !== event.pointerId) return;
+            event.preventDefault();
+            setLifting({ id, offset: Math.max(-96, Math.min(0, event.clientY - hold.y)) });
+          }}
           onPointerUp={(event) => {
             const hold = holdRef.current;
-            holdRef.current = null;
-            if (!hold || hold.id !== id) return;
+            resetLift();
+            if (!hold || hold.id !== id || hold.pointerId !== event.pointerId) return;
             const valid = isBudLift(hold.y, event.clientY, performance.now() - hold.startedAt, reducedMotion);
             if (valid) choose(id, reducedMotion ? "reducedMotion" : "pointer");
           }}
-          onPointerCancel={() => { holdRef.current = null; }}
+          onPointerCancel={resetLift}
           onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(id, reducedMotion ? "reducedMotion" : "keyboard"); } }}
-          onClick={(event) => event.preventDefault()}>
+          onClick={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}>
           {assetUrl ? <img className="realm-bud-img" src={assetUrl} alt="" /> : <Leaf className="realm-bud-fallback" size={48} weight="duotone" aria-hidden="true" />}
           <span className="realm-bud-label">{label}</span>
         </button>;

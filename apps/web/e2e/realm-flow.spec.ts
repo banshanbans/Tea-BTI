@@ -32,6 +32,19 @@ async function chooseBudWithKeyboard(page: Page, label: string) {
   await page.getByRole("button", { name: label }).press("Enter");
 }
 
+async function chooseBudByLifting(page: Page, label: string) {
+  const bud = page.getByRole("button", { name: label });
+  const box = await bud.boundingBox();
+  if (!box) throw new Error(`Bud option ${label} has no bounding box`);
+  expect(await bud.evaluate((element) => getComputedStyle(element).touchAction)).toBe("none");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.8);
+  await page.mouse.down();
+  await page.waitForTimeout(200);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.2, { steps: 8 });
+  await expect(bud).toHaveClass(/dragging/);
+  await page.mouse.up();
+}
+
 async function clearSteamByWiping(page: Page) {
   await page.getByRole("button", { name: "改用手指擦开" }).click();
   await page.getByRole("button", { name: "左右擦开蒸汽" }).press("Enter");
@@ -106,7 +119,7 @@ async function completeSevenScenes(page: Page, options: { reviewPrevious?: boole
   await chooseBudWithKeyboard(page, "只有一枚芽");
   await expect(page.getByText("这个还嫩了点。", { exact: false })).toBeVisible();
   await expect(page.getByText("茶师傅")).toBeVisible();
-  await chooseBudWithKeyboard(page, "一芽一叶");
+  await chooseBudByLifting(page, "一芽一叶");
   await expect(page.getByText("1 / 53,000+", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: "一芽一叶" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "把它带去锅边" }).click();

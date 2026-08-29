@@ -41,6 +41,24 @@ describe("Realm scene visual controllers", () => {
     expect(screen.getByText("这个还嫩了点。")).toBeInTheDocument();
   });
 
+  it("keeps the bud under the finger and completes an upward pointer lift", () => {
+    const onChoose = vi.fn();
+    const now = vi.spyOn(performance, "now");
+    now.mockReturnValue(100);
+    render(<BudPickerVisual assetUrls={new Map()} chosen={false} feedback="" teacherMessage="" busy={false} reducedMotion={false} onChoose={onChoose} onAdvance={vi.fn().mockResolvedValue(true)} />);
+    const bud = screen.getByRole("button", { name: "一芽一叶" });
+
+    fireEvent(bud, new MouseEvent("pointerdown", { bubbles: true, cancelable: true, button: 0, clientY: 240 }));
+    fireEvent(bud, new MouseEvent("pointermove", { bubbles: true, cancelable: true, clientY: 164 }));
+    expect(bud).toHaveClass("dragging");
+    expect(bud).toHaveStyle({ transform: "translateY(-76px)" });
+    now.mockReturnValue(310);
+    fireEvent(bud, new MouseEvent("pointerup", { bubbles: true, cancelable: true, clientY: 164 }));
+
+    expect(onChoose).toHaveBeenCalledWith("bud-leaf", "pointer");
+    expect(bud).not.toHaveClass("dragging");
+  });
+
   it("keeps human judgment manual without an automatic countdown", () => {
     vi.useFakeTimers();
     const onTry = vi.fn();

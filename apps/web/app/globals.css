@@ -444,10 +444,12 @@ a { color: inherit; text-decoration: none; }
 .realm-mist-ui { position: absolute; z-index: 3; left: 0; right: 0; bottom: max(24px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 26px; }
 .realm-mist-ui small { color: #f5f8f0; font-weight: 650; text-shadow: 0 1px 2px rgba(0,0,0,.55); }
 
-.realm-buds { flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 10px; }
+.realm-buds { position: relative; flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 10px; }
 .realm-bud { min-height: 150px; padding: 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 24px; color: rgba(255,255,255,.8); background: rgba(26,48,31,.36); backdrop-filter: blur(8px); cursor: pointer; transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease; }
 .realm-bud:active { transform: scale(.97); }
 .realm-bud.chosen { border-color: #dceccb; background: rgba(63,102,69,.68); box-shadow: 0 0 0 4px rgba(220,236,203,.12); transform: translateY(-8px); }
+.realm-bud.lifted { animation: realm-lift .38s ease-out; }
+@keyframes realm-lift { from { transform: translateY(0); } to { transform: translateY(-8px); } }
 .realm-bud-img { width: 100%; height: clamp(78px, 14vh, 108px); display: block; margin: 0 auto 7px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,.4)); }
 .realm-bud-fallback { display: block; margin: 18px auto 25px; color: #dcebcf; }
 .realm-bud-label { display: block; color: #fff; font-size: 12px; font-weight: 750; }
@@ -458,6 +460,12 @@ a { color: inherit; text-decoration: none; }
 .leaf-mark.open { width: 38px; transform: rotate(60deg); }
 .leaf-mark.stem { height: 72px; border-width: 1px; }
 .realm-feedback { grid-column: 1 / -1; min-height: 44px; margin: 3px 0; color: #e4f0d8; font-size: 13px; line-height: 1.5; text-align: center; }
+.realm-bud-guide { grid-column: 1 / -1; margin: 0; color: rgba(255,255,255,.62); font-size: 11px; text-align: center; }
+.realm-teacher-observer { position: absolute; z-index: 3; top: -66px; right: -10px; width: 82px; height: 122px; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0,0,0,.3)); pointer-events: none; }
+.realm-teacher { position: absolute; z-index: 5; left: 2px; right: 2px; bottom: 62px; min-height: 118px; display: grid; grid-template-columns: 92px 1fr; align-items: end; gap: 8px; padding: 10px 13px 10px 5px; border: 1px solid rgba(227,241,215,.28); border-radius: 22px; background: rgba(18,39,25,.9); backdrop-filter: blur(12px); box-shadow: 0 16px 35px rgba(0,0,0,.25); pointer-events: none; }
+.realm-teacher img { width: 92px; height: 112px; object-fit: contain; object-position: center bottom; }
+.realm-teacher p { align-self: center; margin: 0; color: rgba(255,255,255,.86); font-size: 12px; line-height: 1.55; }
+.realm-teacher strong { display: block; margin-bottom: 4px; color: #dceccb; }
 .realm-buds > .button { grid-column: 1 / -1; justify-self: center; }
 
 .realm-craft { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
@@ -487,7 +495,12 @@ a { color: inherit; text-decoration: none; }
 .realm-craft-list p { margin: 0; font-size: 12px; }
 .realm-craft-list small { display: block; margin-top: 3px; color: rgba(255,255,255,.56); line-height: 1.35; }
 .realm-craft > .button { align-self: center; }
-.realm-judgment { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; text-align: center; }
+.realm-steam-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center; }
+.realm-steam-actions small { grid-column: 1 / -1; color: rgba(255,255,255,.58); font-size: 10px; }
+.realm-steam-wipe { min-height: 66px; display: grid; place-items: center; border: 1px dashed rgba(226,241,212,.55); border-radius: 18px; color: #e2f0d6; background: rgba(28,53,34,.56); touch-action: none; outline: none; }
+.realm-steam-wipe:focus-visible { box-shadow: 0 0 0 3px rgba(220,236,203,.5); }
+.realm-judgment { position: relative; flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; text-align: center; }
+.realm-teacher-explain { position: absolute; z-index: 0; top: 0; right: -16px; width: 106px; height: 155px; object-fit: contain; opacity: .82; filter: drop-shadow(0 10px 20px rgba(0,0,0,.28)); pointer-events: none; }
 .realm-leaf-mass { flex: 0 0 230px; height: 230px; display: grid; place-items: center; border-radius: 50%; color: #dcebcf; background: radial-gradient(circle, rgba(93,127,79,.58), rgba(28,48,30,.14) 62%, transparent 64%); font-size: 34px; letter-spacing: 8px; }
 .realm-judgment .realm-meter { flex-basis: 80%; }
 .realm-judgment p { flex-basis: 100%; margin: 6px 0; color: rgba(255,255,255,.74); line-height: 1.6; }
@@ -515,6 +528,7 @@ a { color: inherit; text-decoration: none; }
 .realm-specimen-large { width: min(270px,75vw); max-height: 380px; border-radius: 28px; object-fit: cover; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
 .realm-complete-screen h1 { margin: 14px 0 6px; font-size: 48px; }
 .realm-complete-stage > p:not(.eyebrow) { max-width: 310px; color: rgba(255,255,255,.72); line-height: 1.6; }
+.realm-outcome-note { max-width: 310px; margin-top: 8px; color: rgba(255,255,255,.5); font-size: 10px; line-height: 1.55; }
 .realm-complete-actions { display: flex; gap: 10px; margin-top: 12px; }
 .skip-animations *, .skip-animations *::before, .skip-animations *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 
@@ -529,6 +543,10 @@ a { color: inherit; text-decoration: none; }
   .realm-scene { padding-inline: 16px; }
   .realm-bud { min-height: 130px; }
   .realm-bud-img { height: 78px; }
+  .realm-teacher { grid-template-columns: 76px 1fr; }
+  .realm-teacher img { width: 76px; height: 100px; }
+  .realm-steam-actions { grid-template-columns: 1fr; }
+  .realm-steam-actions small { grid-column: auto; }
 }
 
 /* Tea-BTI H5 visual system ------------------------------------------------ */
@@ -791,6 +809,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .realm-home-copy h2 { margin: 6px 0; font-family: var(--serif); font-size: 35px; }
 .realm-home-copy p { color: rgba(255,255,255,.76); line-height: 1.65; }
 .realm-home-meta { display: flex; gap: 10px; color: rgba(255,255,255,.64); font-size: 11px; }
+.realm-home-outcome { display: grid; gap: 4px; margin: 12px 0; padding: 11px 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 16px; background: rgba(17,35,23,.35); }
+.realm-home-outcome span { color: rgba(255,255,255,.76); font-size: 11px; line-height: 1.5; }
+.realm-home-outcome small { color: rgba(255,255,255,.48); font-size: 9px; line-height: 1.45; }
+.passport-realm-outcome { display: grid; gap: 5px; margin: 0 16px 14px; padding: 14px; border-radius: 18px; color: var(--ink); background: #edf2e8; }
+.passport-realm-outcome span { color: var(--muted); font-size: 12px; line-height: 1.55; }
+.passport-realm-outcome small { color: var(--muted); font-size: 9px; line-height: 1.45; }
 
 /* Tea Profile sharing and public profile */
 .profile-share-card .eyebrow { color: #dceccb; }

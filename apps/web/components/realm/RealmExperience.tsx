@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BackControl } from "@/components/BackControl";
 import {
   BudPickerVisual,
-  craftSteps,
   HumanJudgmentVisual,
   LiquorEntryVisual,
   MistMountainVisual,
@@ -17,13 +16,14 @@ import {
   SpecimenCollectVisual,
   WokCraftVisual,
 } from "@/components/realm/RealmSceneVisuals";
+import { useRealmOrientation } from "@/components/realm/useRealmOrientation";
 import { authenticated, jsonBody, mediaUrl } from "@/lib/api";
 import type { RealmComplete, RealmDetail, RealmMutation } from "@/lib/api";
 import { realmExitHref } from "@/lib/navigation";
 import type { RealmEntry, TeaOrigin } from "@/lib/navigation";
 
 type InteractionMode = "orientation" | "pointer" | "reducedMotion";
-type FallbackReason = "permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error";
+type FallbackReason = "permission_denied" | "unsupported" | "desktop" | "reduced_motion" | "sensor_error" | "sensor_timeout" | "microphone_denied" | "microphone_unsupported" | "microphone_error" | "microphone_timeout" | "multitouch_unsupported";
 
 function eventId(prefix: string) {
   const suffix = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
@@ -65,24 +65,41 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const [mistScore, setMistScore] = useState(0);
   const [mistDirection, setMistDirection] = useState<1 | -1>(1);
   const [wrongBud, setWrongBud] = useState("");
+  const [wrongSelections, setWrongSelections] = useState<string[]>([]);
+  const [teacherMessage, setTeacherMessage] = useState("");
+  const [pickInputMode, setPickInputMode] = useState<"pointer" | "keyboard" | "reducedMotion">("pointer");
   const [budChosen, setBudChosen] = useState(false);
-  const [craftIndex, setCraftIndex] = useState(0);
-  const [craftDistance, setCraftDistance] = useState(0);
   const [maturity, setMaturity] = useState(0);
   const [realRevealed, setRealRevealed] = useState(false);
   const [completion, setCompletion] = useState<RealmComplete | null>(null);
   const sceneStartedRef = useRef(Date.now());
   const experienceStartedRef = useRef(Date.now());
 
+  const recordFallback = useCallback((reason: FallbackReason) => {
+    if (reason === "sensor_timeout") {
+      setMode("pointer");
+      setNotice("没有收到方向数据，已切换为触控操作。");
+    } else if (reason.startsWith("microphone")) {
+      setNotice("没有使用麦克风，改用手指擦开蒸汽。");
+    } else if (reason === "multitouch_unsupported") {
+      setNotice("当前设备不支持双指识别，提毫可用单指短距离往复完成。");
+    }
+    void authenticated<RealmMutation>(`/realms/${realmId}/events`, {
+      method: "POST",
+      ...jsonBody({ clientEventId: eventId("realm-fallback"), eventType: "realm_interaction_fallback_used", interactionMode: mode, fallbackReason: reason, sceneId: screen }),
+    }).catch(() => undefined);
+  }, [mode, realmId, screen]);
+  const orientation = useRealmOrientation({ active: started && mode === "orientation", onSignalLost: () => recordFallback("sensor_timeout") });
+
   const load = useCallback(async () => {
     setError("");
     try {
       const response = await authenticated<RealmDetail>(`/realms/${realmId}`);
       setDetail(response);
-      const initial = replay ? response.definition.sceneOrder[0] : response.progress.currentScene;
+      const initial = replay ? response.definition.sceneOrder[0] : response.run?.currentScene || response.progress.currentScene;
       setScreen(initial);
-      setMode(response.progress.interactionMode || "pointer");
-      if (response.progress.status === "in_progress" || (response.progress.status === "completed" && !replay)) setStarted(true);
+      setMode(response.run?.interactionMode || response.progress.interactionMode || "pointer");
+      if (response.run && !response.run.completedAt && !replay) setStarted(true);
       void authenticated<RealmMutation>(`/realms/${realmId}/events`, {
         method: "POST",
         ...jsonBody({ clientEventId: eventId("realm-preview"), eventType: "realm_preview_opened" }),
@@ -96,17 +113,10 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   useEffect(() => { sceneStartedRef.current = Date.now(); setNotice(""); }, [screen]);
 
   useEffect(() => {
-    if (mode !== "orientation" || screen !== "mist-mountain") return;
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      const gamma = event.gamma;
-      if (typeof gamma === "number") {
-        if (Math.abs(gamma) > 2) setMistDirection(gamma > 0 ? 1 : -1);
-        setMistScore((value) => Math.min(100, value + Math.abs(gamma) / 6));
-      }
-    };
-    window.addEventListener("deviceorientation", handleOrientation);
-    return () => window.removeEventListener("deviceorientation", handleOrientation);
-  }, [mode, screen]);
+    if (mode !== "orientation" || screen !== "mist-mountain" || Math.abs(orientation.gamma) < 3) return;
+    setMistDirection(orientation.gamma > 0 ? 1 : -1);
+    setMistScore((value) => Math.min(100, value + Math.abs(orientation.gamma) / 6));
+  }, [mode, orientation.gamma, screen]);
 
   const assets = useMemo(() => new Map(detail?.definition.assets.map((asset) => [asset.role, asset]) || []), [detail]);
   const sceneIndex = detail ? detail.definition.sceneOrder.indexOf(screen) : 0;
@@ -118,6 +128,9 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const specimen = assets.get("specimen_card");
   const liquor = assets.get("liquor_base");
   const ripple = assets.get("liquor_ripple");
+  const teacherCorrection = assets.get("teacher_correction");
+  const teacherObserve = assets.get("teacher_observe");
+  const teacherExplain = assets.get("teacher_explain");
   const budAssetUrls = useMemo(() => {
     const urls = new Map<string, string>();
     for (const role of ["bud_single", "bud_leaf", "bud_open", "bud_stem"]) {
@@ -162,8 +175,8 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
         ...jsonBody({ clientEventId: eventId("realm-start"), interactionMode: selected.interactionMode, fallbackReason: selected.fallbackReason, replay }),
       });
       setMode(selected.interactionMode);
-      setDetail({ ...detail, progress: response.progress });
-      setScreen(replay ? detail.definition.sceneOrder[0] : response.progress.currentScene);
+      setDetail({ ...detail, progress: response.progress, run: response.run });
+      setScreen(response.run?.currentScene || response.progress.currentScene);
       setStarted(true);
       experienceStartedRef.current = Date.now();
       if (selected.fallbackReason) setNotice("已自动切换为拖拽操作，不影响体验。");
@@ -173,11 +186,11 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     } finally { setBusy(false); }
   }
 
-  async function advance(): Promise<boolean> {
-    if (!detail || !scene || busy) return false;
+  async function advance(sceneResult?: Record<string, unknown>): Promise<boolean> {
+    if (!detail || !detail.run || !scene || busy) return false;
     const next = detail.definition.sceneOrder[sceneIndex + 1];
     if (!next) return false;
-    if (detail.progress.completedScenes.includes(scene.id)) {
+    if (detail.run.completedScenes.includes(scene.id)) {
       setScreen(next);
       tone(soundOn, 560 + sceneIndex * 30);
       return true;
@@ -186,10 +199,10 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     try {
       const response = await authenticated<RealmMutation>(`/realms/${realmId}/progress`, {
         method: "PATCH",
-        ...jsonBody({ clientEventId: eventId(`realm-scene-${scene.id}`), completedScene: scene.id, elapsedMs: Date.now() - sceneStartedRef.current }),
+        ...jsonBody({ clientEventId: eventId(`realm-scene-${scene.id}`), runId: detail.run.runId, completedScene: scene.id, sceneResult, elapsedMs: Date.now() - sceneStartedRef.current }),
       });
-      setDetail({ ...detail, progress: response.progress });
-      setScreen(replay ? next : response.progress.currentScene);
+      setDetail({ ...detail, progress: response.progress, run: response.run });
+      setScreen(response.run?.currentScene || next);
       tone(soundOn, 560 + sceneIndex * 30);
       return true;
     } catch (cause) {
@@ -208,15 +221,15 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   }
 
   async function collect() {
-    if (!detail || busy) return;
+    if (!detail?.run || busy) return;
     setBusy(true); setError("");
     try {
       const response = await authenticated<RealmComplete>(`/realms/${realmId}/complete`, {
         method: "POST",
-        ...jsonBody({ clientEventId: eventId("realm-complete"), totalElapsedMs: Date.now() - experienceStartedRef.current, interactionMode: mode }),
+        ...jsonBody({ clientEventId: eventId("realm-complete"), runId: detail.run.runId, totalElapsedMs: Date.now() - experienceStartedRef.current, interactionMode: mode }),
       });
       setCompletion(response);
-      setDetail({ ...detail, progress: response.progress });
+      setDetail({ ...detail, progress: response.progress, run: response.run, outcome: response.outcome });
       tone(soundOn, 720);
     } catch (cause) {
       setError((cause as Error).message);
@@ -228,24 +241,22 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     setMistScore((value) => Math.min(100, value + distance / 3));
   }
 
-  function handleCraftDistance(distance: number) {
-    if (craftIndex >= craftSteps.length) return;
-    const next = craftDistance + distance;
-    if (next >= 105) {
-      setCraftIndex((value) => Math.min(craftSteps.length, value + 1));
-      setCraftDistance(0);
-      tone(soundOn, 430 + craftIndex * 50);
-    } else setCraftDistance(next);
-  }
-
-  function chooseBud(id: string) {
+  function chooseBud(id: string, inputMode: "pointer" | "keyboard" | "reducedMotion") {
     if (id === "bud-leaf") {
       setBudChosen(true);
+      setPickInputMode(inputMode);
       setWrongBud("");
       tone(soundOn, 590);
       return;
     }
-    setWrongBud("这一枚也在长大。再找找“一芽一叶”。");
+    const copy: Record<string, string> = {
+      "bud-single": "这个还嫩了点。",
+      "bud-open": "这片已经舒展开了，再找更嫩的一芽一叶。",
+      "bud-stem": "梗长了些，再看看芽和第一片叶靠得更近的。",
+    };
+    setWrongSelections((value) => [...value, id]);
+    if (wrongSelections.length === 0) setTeacherMessage(copy[id] || "再观察一下芽与第一片叶。");
+    else setWrongBud(copy[id] || "再找找一芽一叶。");
     tone(soundOn, 220);
   }
 
@@ -254,7 +265,6 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
     const previous = detail.definition.sceneOrder[sceneIndex - 1];
     if (previous === "mist-mountain") setMistScore((value) => Math.max(value, 100));
     if (previous === "pick-bud") { setBudChosen(true); setWrongBud(""); }
-    if (previous === "wok-craft") { setCraftIndex(craftSteps.length); setCraftDistance(0); }
     if (previous === "human-judgment") setMaturity((value) => Math.max(value, 3));
     if (previous === "real-tea-reveal") setRealRevealed(true);
     setScreen(previous);
@@ -268,13 +278,15 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
   const completedAlready = detail.progress.status === "completed" && !replay;
   if (completedAlready || completion) {
     const collected = completion?.specimen;
+    const outcome = completion?.outcome || detail.outcome;
     return (
       <section className="realm-complete-screen">
         <motion.div className="realm-complete-stage" initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}>
           {specimen ? <motion.div className="realm-specimen-wrap realm-specimen-large-wrap" variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}><img className="realm-specimen-large" src={mediaUrl(specimen.url)} alt="白毫数字标本" /><span className="realm-specimen-shine" aria-hidden="true" /></motion.div> : null}
           <motion.p className="eyebrow" variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>已收进茶护照</motion.p>
-          <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>白毫</motion.h1>
-          <motion.p variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>{collected?.description || "一枚来自《雾里一芽》的数字标本。"}</motion.p>
+          <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>{outcome?.title || "白毫"}</motion.h1>
+          <motion.p variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>{outcome?.summary || collected?.description || "一枚来自《雾里一芽》的数字标本。"}</motion.p>
+          {outcome ? <motion.small className="realm-outcome-note" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>{outcome.disclaimer}</motion.small> : null}
           <motion.div className="realm-complete-actions" variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}>
             <Link className="button primary" href="/passport">查看茶护照</Link>
             <Link className="button" href={exitHref}>{entry === "tea" ? "返回茶详情" : "回到茶境"}</Link>
@@ -333,11 +345,11 @@ export function RealmExperience({ realmId, replay, entry = "realm", origin = "sw
 
             {screen === "mist-mountain" ? <MistMountainVisual mistUrl={mist ? mediaUrl(mist.url) : undefined} score={mistScore} direction={mistDirection} mode={mode} busy={busy} onMove={handleMistMovement} onKeyboard={() => setMistScore((value) => Math.min(100, value + 25))} onAdvance={advance} /> : null}
 
-            {screen === "pick-bud" ? <BudPickerVisual assetUrls={budAssetUrls} chosen={budChosen} feedback={wrongBud} busy={busy} onChoose={chooseBud} onAdvance={advance} /> : null}
+            {screen === "pick-bud" ? <BudPickerVisual assetUrls={budAssetUrls} observerUrl={teacherObserve ? mediaUrl(teacherObserve.url) : undefined} teacherUrl={teacherCorrection ? mediaUrl(teacherCorrection.url) : undefined} chosen={budChosen} feedback={wrongBud} teacherMessage={teacherMessage} busy={busy} reducedMotion={mode === "reducedMotion"} onChoose={chooseBud} onAdvance={() => advance({ kind: "pick-bud", selectedBud: "bud-leaf", wrongSelections, teacherShown: wrongSelections.length > 0, inputMode: pickInputMode })} /> : null}
 
-            {screen === "wok-craft" ? <WokCraftVisual craftIndex={craftIndex} animated={!skipAnimations && mode !== "reducedMotion"} busy={busy} onDistance={handleCraftDistance} onKeyboardStep={() => setCraftIndex((value) => Math.min(craftSteps.length, value + 1))} onAdvance={advance} /> : null}
+            {screen === "wok-craft" ? <WokCraftVisual animated={!skipAnimations && mode !== "reducedMotion"} busy={busy} mode={mode} gamma={orientation.gamma} tiltRef={orientation.tiltRef} onFallback={(reason) => recordFallback(reason as FallbackReason)} onTone={(index) => tone(soundOn, 430 + index * 50)} onAdvance={advance} /> : null}
 
-            {screen === "human-judgment" ? <HumanJudgmentVisual maturity={maturity} onTry={() => { setMaturity((value) => Math.min(4, value + 1)); tone(soundOn, 470 + maturity * 25); }} onStop={() => maturity >= 3 ? void advance() : setNotice("还有一点青气，别急，再试一手。")} /> : null}
+            {screen === "human-judgment" ? <HumanJudgmentVisual teacherUrl={teacherExplain ? mediaUrl(teacherExplain.url) : undefined} maturity={maturity} onTry={() => { setMaturity((value) => Math.min(5, value + 1)); tone(soundOn, 470 + maturity * 25); }} onStop={(stopWindow) => void advance({ kind: "human-judgment", maturityLevel: maturity, stopWindow })} /> : null}
 
             {screen === "real-tea-reveal" ? <RealTeaRevealVisual dryTeaUrl={dryTea ? mediaUrl(dryTea.url) : undefined} revealed={realRevealed} userWords={detail.personalization.userWords} busy={busy} onReveal={() => void revealRealTea()} onAdvance={advance} /> : null}
 

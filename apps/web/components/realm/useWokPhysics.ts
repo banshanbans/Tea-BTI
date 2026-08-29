@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import type { MutableRefObject } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 
 const LEAF_COUNT = 14;
@@ -25,7 +26,7 @@ type DragState = {
   active: boolean;
 };
 
-function stepPhysics(wok: HTMLDivElement, leaves: WokLeaf[], drag: DragState) {
+function stepPhysics(wok: HTMLDivElement, leaves: WokLeaf[], drag: DragState, tilt: { x: number; y: number }) {
   const rect = wok.getBoundingClientRect();
   const width = rect.width;
   const height = rect.height;
@@ -45,8 +46,8 @@ function stepPhysics(wok: HTMLDivElement, leaves: WokLeaf[], drag: DragState) {
       leaf.vy += drag.vy * influence * 0.35;
       leaf.angularVelocity += ((dx * drag.vy) - (dy * drag.vx)) / (distance * distance) * 0.06;
     }
-    leaf.vx *= 0.955;
-    leaf.vy = leaf.vy * 0.955 + GRAVITY;
+    leaf.vx = leaf.vx * 0.955 + tilt.x * 0.014;
+    leaf.vy = leaf.vy * 0.955 + GRAVITY + tilt.y * 0.008;
     leaf.angularVelocity *= 0.97;
     leaf.x += leaf.vx;
     leaf.y += leaf.vy;
@@ -94,14 +95,15 @@ function stepPhysics(wok: HTMLDivElement, leaves: WokLeaf[], drag: DragState) {
   }
 }
 
-export function useWokPhysics({ active, onDistance }: { active: boolean; onDistance: (distance: number) => void }) {
+export function useWokPhysics({ active, tiltRef }: {
+  active: boolean;
+  tiltRef: MutableRefObject<{ x: number; y: number }>;
+}) {
   const wokRef = useRef<HTMLDivElement>(null);
   const leafElementsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const leavesRef = useRef<WokLeaf[]>([]);
   const dragRef = useRef<DragState>({ x: 0, y: 0, vx: 0, vy: 0, active: false });
   const pointerRef = useRef<{ x: number; y: number } | null>(null);
-  const distanceCallbackRef = useRef(onDistance);
-  distanceCallbackRef.current = onDistance;
 
   useEffect(() => {
     if (!active) return;
@@ -120,7 +122,7 @@ export function useWokPhysics({ active, onDistance }: { active: boolean; onDista
           animationFrame = 0;
           return;
         }
-        stepPhysics(wok, leavesRef.current, dragRef.current);
+        stepPhysics(wok, leavesRef.current, dragRef.current, tiltRef.current);
         animationFrame = window.requestAnimationFrame(tick);
       };
       animationFrame = window.requestAnimationFrame(tick);
@@ -160,7 +162,7 @@ export function useWokPhysics({ active, onDistance }: { active: boolean; onDista
       leavesRef.current = [];
       dragRef.current.active = false;
     };
-  }, [active]);
+  }, [active, tiltRef]);
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const wok = wokRef.current;
@@ -174,7 +176,7 @@ export function useWokPhysics({ active, onDistance }: { active: boolean; onDista
       vy: 0,
       active: true,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
   }, []);
 
   const onPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -182,7 +184,6 @@ export function useWokPhysics({ active, onDistance }: { active: boolean; onDista
     const wok = wokRef.current;
     if (!previous || !wok) return;
     const rect = wok.getBoundingClientRect();
-    const distance = Math.hypot(event.clientX - previous.x, event.clientY - previous.y);
     pointerRef.current = { x: event.clientX, y: event.clientY };
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -190,7 +191,6 @@ export function useWokPhysics({ active, onDistance }: { active: boolean; onDista
     dragRef.current.vy = y - dragRef.current.y;
     dragRef.current.x = x;
     dragRef.current.y = y;
-    distanceCallbackRef.current(distance);
   }, []);
 
   const onPointerUp = useCallback(() => {

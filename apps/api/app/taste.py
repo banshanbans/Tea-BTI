@@ -81,6 +81,9 @@ def record_swipe(db: Session, user_id: str, client_event_id: str, card_id: str, 
     )
     db.add(event)
     profile = apply_signal(db, user_id, card.tea_id, event.weight)
+    if action == "save":
+        entry = get_or_create_passport(db, user_id, card.tea_id)
+        entry.saved = True
     db.flush()
     return event, True, profile
 

@@ -97,6 +97,43 @@ describe("HomeExperience", () => {
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith("/swipes", expect.anything()));
   });
 
+  it("saves a tea, advances the deck and does not open the reveal sheet", async () => {
+    vi.mocked(authenticated).mockImplementation(async (path: string, init?: RequestInit) => {
+      if (path === "/bootstrap") return {
+        userId: "returning-user", mbti: null, onboardingCompleted: true, swipeCount: 1,
+        recommendationReady: false, tasteProfile: { vector: {}, sampleCount: 1, confidenceState: "forming" },
+        capabilities: { voice: "mock", tasteNormalization: "mock", missingConfig: [] },
+      } as never;
+      if (path.startsWith("/feed")) return {
+        items: [
+          { cardId: "first-card", teaId: "tea-1", name: "第一杯", region: "贵州", teaType: "绿茶", personalityKeywords: ["轻盈"], headline: "第一张", body: "第一杯", tags: ["清鲜"], scene: "早晨", visual },
+          { cardId: "second-card", teaId: "tea-2", name: "第二杯", region: "贵州", teaType: "红茶", personalityKeywords: ["温暖"], headline: "第二张", body: "第二杯", tags: ["温润"], scene: "午后", visual },
+        ],
+      } as never;
+      if (path === "/swipes") {
+        expect(JSON.parse(String(init?.body))).toMatchObject({ cardId: "first-card", action: "save" });
+        return {
+          accepted: true, tasteProfile: { vector: {}, sampleCount: 2, confidenceState: "forming" },
+          recommendationReady: false, recommendation: null,
+          reveal: { teaId: "tea-1", name: "第一杯", region: "贵州", teaType: "绿茶", professionalTags: ["清鲜"], personalityKeywords: ["轻盈"], translation: "测试", visual },
+        } as never;
+      }
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<HomeExperience />);
+    expect(await screen.findByRole("heading", { name: "第一张" })).toBeInTheDocument();
+    const card = screen.getByRole("button", { name: "查看第一杯完整茶叶卡" });
+    fireEvent.pointerDown(card, { pointerId: 1, clientX: 180, clientY: 360 });
+    fireEvent.pointerMove(card, { pointerId: 1, clientX: 198, clientY: 362 });
+    fireEvent.pointerUp(card, { pointerId: 1, clientX: 198, clientY: 362 });
+    expect(screen.queryByRole("dialog", { name: "第一杯完整茶叶卡" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "先收藏" }));
+    expect(await screen.findByRole("status")).toHaveTextContent("第一杯已加入收藏");
+    expect(await screen.findByRole("heading", { name: "第二张" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "喜欢的茶已揭晓" })).not.toBeInTheDocument();
+  });
+
   it("reopens the three-cup icebreaker from a shared profile without clearing existing state", async () => {
     vi.mocked(authenticated).mockImplementation(async (path: string) => {
       if (path === "/bootstrap") return {

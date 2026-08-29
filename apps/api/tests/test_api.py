@@ -171,6 +171,9 @@ def test_legacy_card_ids_remain_resolvable_but_inactive(client, auth):
     })
     assert response.status_code == 200
     assert response.json()["accepted"] is True
+    assert response.json()["reveal"] is None
+    passport = client.get("/api/v1/me/passport", headers=auth).json()["items"]
+    assert next(item for item in passport if item["tea"]["teaId"] == historical.tea_id)["saved"] is True
     assert all(item["cardId"] != historical.card_id for item in client.get("/api/v1/feed", headers=auth).json()["items"])
 
 
@@ -323,6 +326,21 @@ def test_taste_normalize_updates_passport_in_mock_mode(client, auth):
     passport = client.get("/api/v1/me/passport", headers=auth).json()["items"]
     assert passport[0]["tasted"] is True
     assert passport[0]["favoriteInfusion"] == 2
+
+
+def test_taste_normalize_saves_with_local_fallback_when_provider_fails(client, auth, monkeypatch):
+    from app.voice import ProviderError
+
+    async def fail_provider(*_args, **_kwargs):
+        raise ProviderError("provider down", code="UpstreamUnavailable")
+
+    monkeypatch.setattr("app.main.taste_normalizer.normalize", fail_provider)
+    response = client.post("/api/v1/taste/normalize", headers=auth, json={
+        "teaId": "duyun-maojian", "text": "像青草，后面有点甜", "infusionNumber": 2,
+    })
+    assert response.status_code == 200
+    assert response.json()["providerMode"] == "server_mock"
+    assert response.json()["passportEntry"]["tasted"] is True
 
 
 def test_mock_voice_lifecycle_and_turn_deduplication(client, auth):

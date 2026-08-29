@@ -712,6 +712,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .swipe-action:disabled { opacity: .42; }
 .swipe-action > span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .swipe-error { position: absolute; z-index: 9; left: 18px; right: 18px; bottom: 91px; margin: 0; text-align: center; box-shadow: 0 12px 30px rgba(39,28,22,.16); }
+.swipe-notice { position: absolute; z-index: 9; left: 50%; bottom: 96px; max-width: calc(100% - 36px); margin: 0; padding: 9px 15px; border-radius: 999px; color: white; background: rgba(38,76,49,.92); font-size: 12px; font-weight: 750; white-space: nowrap; transform: translateX(-50%); box-shadow: 0 10px 25px rgba(31,49,35,.2); }
 .sheet-screen { position: fixed; z-index: 50; inset: 0; display: flex; align-items: flex-end; justify-content: center; background: rgba(18,29,21,.15); }
 .sheet-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(10,19,13,.56); backdrop-filter: blur(5px); cursor: pointer; }
 .bottom-sheet { position: relative; z-index: 1; width: min(100%,430px); max-height: 91dvh; padding: 10px 20px max(24px, env(safe-area-inset-bottom)); border-radius: 32px 32px 0 0; background: var(--paper); overflow: auto; box-shadow: 0 -28px 70px rgba(13,24,16,.28); }

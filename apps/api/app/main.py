@@ -42,7 +42,7 @@ from .schemas import (
 )
 from .taste import (
     get_or_create_passport, get_or_create_profile, passport_response, profile_response, recommendation,
-    record_drink_feedback, record_swipe, swipe_count, tea_bti, tea_journey,
+    mock_normalize, record_drink_feedback, record_swipe, swipe_count, tea_bti, tea_journey,
 )
 from .voice import ProviderError, taste_normalizer, voice_provider
 
@@ -287,7 +287,7 @@ def swipe(payload: SwipeRequest, user: CurrentUser, db: Db):
         raise ApiError(404, "CARD_NOT_FOUND", "卡片不存在") from exc
     db.commit()
     count = swipe_count(db, user.id)
-    reveal = catalog.tea_summary(event.tea_id) if event.action in {"like", "save"} else None
+    reveal = catalog.tea_summary(event.tea_id) if event.action == "like" else None
     current_recommendation = recommendation(db, user.id) if count >= 5 else None
     return {
         "accepted": accepted,
@@ -416,18 +416,13 @@ async def normalize_and_save(
         tags, explanation, provider_mode = await taste_normalizer.normalize(tea_id, text)
     except ProviderError as exc:
         logger.warning(
-            "Taste provider failed code=%s request_id=%s uncertain=%s",
+            "Taste provider failed; saving with local fallback code=%s request_id=%s uncertain=%s",
             exc.code,
             exc.request_id,
             exc.outcome_unknown,
         )
-        raise ApiError(
-            503,
-            "TASTE_PROVIDER_UNAVAILABLE",
-            "茶语整理服务暂不可用，请稍后重试",
-            retryable=True,
-            details={"providerRequestId": exc.request_id} if exc.request_id else None,
-        ) from exc
+        tags, explanation = mock_normalize(text)
+        provider_mode = "server_mock"
     profile, entry = record_drink_feedback(db, user_id, tea_id, "neutral", text, infusion_number, tags)
     result = {
         "userWords": text,

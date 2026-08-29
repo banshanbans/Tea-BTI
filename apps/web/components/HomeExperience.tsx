@@ -169,6 +169,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [seedIndex, setSeedIndex] = useState(0);
   const [seedTransitioning, setSeedTransitioning] = useState(false);
   const [cardPreview, setCardPreview] = useState<TeaCardPreviewData | null>(null);
@@ -177,6 +178,8 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   const [mbtiAxes, setMbtiAxes] = useState<MbtiAxisSelection>(["I", "N", "F", "J"]);
   const seedTransitioningRef = useRef(false);
   const dragStartPointX = useRef<number | null>(null);
+  const previewPointerStart = useRef<{ x: number; y: number } | null>(null);
+  const previewDragged = useRef(false);
   const onboardingChoiceShownRef = useRef(false);
   const onboardingAlreadyCompletedRef = useRef(false);
   const mbtiScreenRef = useRef<HTMLElement>(null);
@@ -318,7 +321,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
   async function swipe(action: "like" | "skip" | "save", direction?: -1 | 1) {
     const card = cards[cardIndex];
     if (!card || busy) return;
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setNotice("");
     try {
       const request = authenticated<SwipeResult>("/swipes", {
         method: "POST",
@@ -333,7 +336,12 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
       if (nextCard) useAppStore.getState().setFeedResumeCardId(nextCard.cardId);
       setRecommendation(result.recommendation ?? null);
       cardX.set(0);
-      if (result.reveal) { setReveal(result.reveal); setScreen("reveal"); }
+      if (action === "save") {
+        setNotice(`${card.name}已加入收藏`);
+        if (result.recommendation) setScreen("recommendation");
+        else setCardIndex((index) => (index + 1) % cards.length);
+      }
+      else if (result.reveal) { setReveal(result.reveal); setScreen("reveal"); }
       else if (result.recommendation) setScreen("recommendation");
       else setCardIndex((index) => (index + 1) % cards.length);
     } catch {
@@ -504,13 +512,24 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
             dragElastic={0.86}
             dragMomentum={false}
             style={{ x: cardX, rotate: reducedMotion ? 0 : cardRotation }}
-            onTap={() => setCardPreview({
-              name: deckCard.name,
-              imageUrl: mediaUrl(deckCard.visual.url),
-              eyebrow: `${deckCard.region} · ${deckCard.teaType}`,
-              description: deckCard.headline,
-              tags: deckCard.personalityKeywords,
-            })}
+            onPointerDown={(event) => {
+              previewPointerStart.current = { x: event.clientX, y: event.clientY };
+              previewDragged.current = false;
+            }}
+            onPointerMove={(event) => {
+              const start = previewPointerStart.current;
+              if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) previewDragged.current = true;
+            }}
+            onTap={() => {
+              if (previewDragged.current) return;
+              setCardPreview({
+                name: deckCard.name,
+                imageUrl: mediaUrl(deckCard.visual.url),
+                eyebrow: `${deckCard.region} · ${deckCard.teaType}`,
+                description: deckCard.headline,
+                tags: deckCard.personalityKeywords,
+              });
+            }}
             onKeyDown={(event) => {
               if (event.key !== "Enter" && event.key !== " ") return;
               event.preventDefault();
@@ -550,6 +569,7 @@ export function HomeExperience({ forceOnboarding = false }: { forceOnboarding?: 
         <motion.button disabled={busy} className="swipe-action like" aria-label="这杯想喝" style={{ scale: likeScale, opacity: likeOpacity, boxShadow: likeGlow }} onClick={() => void swipe("like", 1)}><Heart size={27} weight="fill" /><span>想喝</span></motion.button>
       </div>
       {error ? <p className="error swipe-error" role="alert">{error}</p> : null}
+      {notice ? <p className="swipe-notice" role="status">{notice}</p> : null}
       {cardPreview ? <TeaCardPreview card={cardPreview} onClose={() => setCardPreview(null)} /> : null}
     </section></AppShell>
   ) : <AppShell active="swipe"><div className="empty"><button className="button" onClick={() => void loadFeed()}>重新装一组卡片</button></div></AppShell>;

@@ -29,9 +29,12 @@ test("390×844 shows all eight identified teas, like/save and the fifth-swipe re
     else await page.getByRole("button", { name: "这杯不对胃" }).click();
 
     const feedback = page.getByRole("dialog", { name: "喜欢的茶已揭晓" });
-    if (index < 2) {
+    if (index === 0) {
       await expect(feedback).toBeVisible();
       await feedback.getByRole("button", { name: "继续刷" }).click();
+    } else if (index === 1) {
+      await expect(feedback).not.toBeVisible();
+      await expect(page.getByRole("status")).toContainText("已加入收藏");
     }
 
     const recommendation = page.getByText("这一杯，想让你先喝。", { exact: false });

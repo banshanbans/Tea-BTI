@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, BowlSteam, ChatCircleDots, Check, Heart, MinusCircle, Mountains, ThumbsDown } from "@phosphor-icons/react";
+import { ArrowRight, BookOpen, BowlSteam, CaretDown, ChatCircleDots, Check, Heart, MinusCircle, Mountains, ThumbsDown } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 import { BackControl } from "@/components/BackControl";
@@ -62,19 +62,6 @@ export function TeaDetailView({ teaId, origin = "swipe" }: { teaId: string; orig
         <div className="detail-copy"><span className="eyebrow">{tea.region}</span><h1>{tea.name}</h1><div className="tags">{tea.professionalTags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div></div>
       </div>
       <p className="detail-intro">{tea.officialDescription}</p>
-      <section className="panel tea-character" aria-labelledby="representative-features-title">
-        <p className="eyebrow">这杯茶的样子</p><h2 id="representative-features-title" className="section-title">代表特点</h2>
-        <p className="detail-section-copy">{tea.representativeFeatures}</p>
-        {tea.process.length ? <p className="detail-process"><span>有资料依据的工艺线索</span>{tea.process.join(" · ")}</p> : null}
-      </section>
-      <section className="panel tea-character" aria-labelledby="aroma-taste-title">
-        <p className="eyebrow">闻香与入口</p><h2 id="aroma-taste-title" className="section-title">香气与滋味</h2>
-        <p className="detail-section-copy">{tea.aromaAndTaste}</p>
-      </section>
-      <section className="panel tea-character" aria-labelledby="personality-keywords-title">
-        <p className="eyebrow">Tea-BTI 破冰语言</p><h2 id="personality-keywords-title" className="section-title">性格关键词</h2>
-        <div className="personality-keywords" aria-label="Tea-BTI 性格关键词">{tea.personalityKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div>
-      </section>
       <section className="tea-journey" aria-labelledby="tea-journey-title">
         <div className="tea-journey-head"><div><p className="eyebrow">这一杯的路</p><h2 id="tea-journey-title">接着往下走</h2></div><span>{journeySteps.filter((step) => step.complete).length} / {journeySteps.length}</span></div>
         <ol className="journey-rail">{journeySteps.map((step) => {
@@ -91,25 +78,43 @@ export function TeaDetailView({ teaId, origin = "swipe" }: { teaId: string; orig
           <Link href="/passport"><BookOpen size={16} />护照</Link>
         </div></details>
       </section>
-      <section className="panel detail-facts">
-        <p className="eyebrow">泡法</p><h2 className="section-title">冲泡建议</h2>
-        <dl>
-          <div><dt>器具</dt><dd>{tea.brewingGuide.vessel}</dd></div>
-          <div><dt>水温</dt><dd>{tea.brewingGuide.temperatureRange}</dd></div>
-          <div><dt>茶量</dt><dd>{tea.brewingGuide.teaAmount}</dd></div>
-          <div><dt>水量</dt><dd>{tea.brewingGuide.waterVolume}</dd></div>
-          <div><dt>方式</dt><dd>{tea.brewingGuide.method}</dd></div>
-          {tea.brewingGuide.steepTime ? <div><dt>时间</dt><dd>{tea.brewingGuide.steepTime}</dd></div> : null}
-        </dl>
-        <div className="fact-notes">{tea.brewingGuide.notes.map((note) => <p key={note}>{note}</p>)}</div>
+      <section className="panel tea-character detail-core" aria-labelledby="representative-features-title">
+        <p className="eyebrow">这杯茶的样子</p><h2 id="representative-features-title" className="section-title">代表特点</h2>
+        <p className="detail-section-copy">{tea.representativeFeatures}</p>
+        {tea.process.length ? <p className="detail-process"><span>有资料依据的工艺线索</span>{tea.process.join(" · ")}</p> : null}
       </section>
-      <details className="panel evidence-panel">
-        <summary><span><span className="eyebrow">资料依据</span><strong>查看公开来源与图片边界</strong></span></summary>
-        <div className="evidence-list">
-          {tea.evidenceRefs.map((source) => <a key={source.id} href={source.url} target="_blank" rel="noreferrer"><strong>{source.label}</strong><span>{source.supports.join(" · ")}</span></a>)}
-          <a href={tea.detailVisual.sourceUrl} target="_blank" rel="noreferrer"><strong>详情实拍图来源页</strong><span>{tea.detailVisual.credit}</span></a>
+      <details className="panel detail-more">
+        <summary><span><span className="eyebrow">继续了解</span><strong>更多茶品资料</strong><small>香气滋味 · 性格关键词 · 冲泡建议 · 资料依据</small></span><CaretDown size={18} weight="bold" aria-hidden="true" /></summary>
+        <div className="detail-more-body">
+          <section className="detail-more-section" aria-labelledby="aroma-taste-title">
+            <p className="eyebrow">闻香与入口</p><h2 id="aroma-taste-title" className="section-title">香气与滋味</h2>
+            <p className="detail-section-copy">{tea.aromaAndTaste}</p>
+          </section>
+          <section className="detail-more-section" aria-labelledby="personality-keywords-title">
+            <p className="eyebrow">Tea-BTI 破冰语言</p><h2 id="personality-keywords-title" className="section-title">性格关键词</h2>
+            <div className="personality-keywords" aria-label="Tea-BTI 性格关键词">{tea.personalityKeywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div>
+          </section>
+          <section className="detail-more-section detail-facts" aria-labelledby="brewing-guide-title">
+            <p className="eyebrow">泡法</p><h2 id="brewing-guide-title" className="section-title">冲泡建议</h2>
+            <dl>
+              <div><dt>器具</dt><dd>{tea.brewingGuide.vessel}</dd></div>
+              <div><dt>水温</dt><dd>{tea.brewingGuide.temperatureRange}</dd></div>
+              <div><dt>茶量</dt><dd>{tea.brewingGuide.teaAmount}</dd></div>
+              <div><dt>水量</dt><dd>{tea.brewingGuide.waterVolume}</dd></div>
+              <div><dt>方式</dt><dd>{tea.brewingGuide.method}</dd></div>
+              {tea.brewingGuide.steepTime ? <div><dt>时间</dt><dd>{tea.brewingGuide.steepTime}</dd></div> : null}
+            </dl>
+            <div className="fact-notes">{tea.brewingGuide.notes.map((note) => <p key={note}>{note}</p>)}</div>
+          </section>
+          <section className="detail-more-section" aria-labelledby="evidence-title">
+            <p className="eyebrow">资料依据</p><h2 id="evidence-title" className="section-title">公开来源与图片边界</h2>
+            <div className="evidence-list">
+              {tea.evidenceRefs.map((source) => <a key={source.id} href={source.url} target="_blank" rel="noreferrer"><strong>{source.label}</strong><span>{source.supports.join(" · ")}</span></a>)}
+              <a href={tea.detailVisual.sourceUrl} target="_blank" rel="noreferrer"><strong>详情实拍图来源页</strong><span>{tea.detailVisual.credit}</span></a>
+            </div>
+            <p className="rights-note">{tea.detailVisual.rightsNote}</p>
+          </section>
         </div>
-        <p className="rights-note">{tea.detailVisual.rightsNote}</p>
       </details>
       <section className="panel feedback-panel">
         <p className="eyebrow">喝过再说</p><h2 className="section-title">这一口，合拍吗？</h2>

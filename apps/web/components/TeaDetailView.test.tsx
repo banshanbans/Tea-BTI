@@ -46,12 +46,23 @@ describe("TeaDetailView guided journey", () => {
     expect(primary).toHaveAttribute("href", href);
     expect(screen.getByText("顺着喝，也可以随时去茶境看看。")).toBeInTheDocument();
     expect(screen.getByAltText("都匀毛尖实拍参考图")).toHaveAttribute("src", "/detail.jpg");
+    expect(screen.getByText("贵州 · 黔南")).toHaveClass("eyebrow");
     expect(screen.getByText("条索紧细卷曲，白毫明显。")).toBeInTheDocument();
     for (const heading of ["代表特点", "香气与滋味", "性格关键词", "冲泡建议"]) {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     }
     expect(screen.queryByText(/性格关键词只用于探索与破冰/)).not.toBeInTheDocument();
-    expect(screen.getByText("查看公开来源与图片边界")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "公开来源与图片边界" })).toBeInTheDocument();
+
+    const journey = primary.closest(".tea-journey");
+    const representative = screen.getByRole("heading", { name: "代表特点" }).closest("section");
+    const more = screen.getByText("更多茶品资料").closest("details");
+    expect(journey).not.toBeNull();
+    expect(representative).not.toBeNull();
+    expect(more).not.toBeNull();
+    expect(journey!.compareDocumentPosition(representative!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(representative!.compareDocumentPosition(more!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(more).not.toHaveAttribute("open");
   });
 
   it.each([

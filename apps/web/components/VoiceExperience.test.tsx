@@ -4,7 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { VoiceExperience } from "./VoiceExperience";
 import { abortVoiceSessionBestEffort, authenticated } from "@/lib/api";
 
-const rtcMocks = vi.hoisted(() => ({ connect: vi.fn(), disconnect: vi.fn(), stopCaptureAndDrain: vi.fn() }));
+const rtcMocks = vi.hoisted(() => ({
+  connect: vi.fn(), disconnect: vi.fn(), pauseCapture: vi.fn(), resumeCapture: vi.fn(), stopCaptureAndDrain: vi.fn(),
+}));
 
 vi.mock("@/lib/api", () => ({
   authenticated: vi.fn(),
@@ -16,14 +18,25 @@ vi.mock("@/lib/rtc", () => ({
   RtcVoiceClient: class {
     connect = rtcMocks.connect;
     disconnect = rtcMocks.disconnect;
+    pauseCapture = rtcMocks.pauseCapture;
+    resumeCapture = rtcMocks.resumeCapture;
     stopCaptureAndDrain = rtcMocks.stopCaptureAndDrain;
   },
 }));
+
+function grantMicrophone() {
+  const stop = vi.fn();
+  const getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop }] });
+  Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: { getUserMedia } });
+  return { getUserMedia, stop };
+}
 
 describe("VoiceExperience", () => {
   beforeEach(() => {
     rtcMocks.connect.mockReset();
     rtcMocks.disconnect.mockReset().mockResolvedValue(undefined);
+    rtcMocks.pauseCapture.mockReset().mockResolvedValue(undefined);
+    rtcMocks.resumeCapture.mockReset().mockResolvedValue(undefined);
     rtcMocks.stopCaptureAndDrain.mockReset().mockResolvedValue(undefined);
     vi.mocked(abortVoiceSessionBestEffort).mockReset();
     Object.defineProperty(navigator, "mediaDevices", {
@@ -54,7 +67,54 @@ describe("VoiceExperience", () => {
     });
   });
 
+  it("starts from the central microphone, requests permission once, and uses the shortened copy", async () => {
+    const getUserMedia = vi.mocked(navigator.mediaDevices.getUserMedia);
+    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
+
+    expect(screen.getByText("茶伴", { selector: ".eyebrow" })).toBeInTheDocument();
+    expect(screen.queryByText(/你报一步/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/连上以后/)).not.toBeInTheDocument();
+
+    const central = screen.getByRole("button", { name: "点击中央麦克风打开" });
+    fireEvent.click(central);
+    fireEvent.click(central);
+
+    expect(await screen.findByText("演示模式")).toBeInTheDocument();
+    expect(getUserMedia).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(authenticated).mock.calls.filter(([path]) => path === "/voice/sessions")).toHaveLength(1);
+  });
+
+  it("pauses and resumes real capture without restarting or stopping the provider", async () => {
+    grantMicrophone();
+    const realSession = {
+      voiceSessionId: "voice-pause", providerMode: "volcengine_rtc", status: "prepared",
+      expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。",
+      rtc: { appId: "rtc-app", roomId: "room-1", userId: "user-1", token: "short-lived", agentUserId: "tea_companion" },
+    };
+    rtcMocks.connect.mockResolvedValue(undefined);
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/voice/sessions") return realSession as never;
+      if (path === "/voice/sessions/voice-pause/start") return { ...realSession, status: "active" } as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
+    fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
+    await screen.findByText("实时语音已连接");
+
+    fireEvent.click(screen.getByRole("button", { name: "暂停聆听" }));
+    expect(await screen.findByText("已暂停，点击继续")).toBeInTheDocument();
+    expect(rtcMocks.pauseCapture).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "继续聆听" }));
+    expect((await screen.findAllByText("正在聆听，直接说话")).length).toBeGreaterThan(0);
+    expect(rtcMocks.resumeCapture).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(authenticated).mock.calls.filter(([path]) => String(path).endsWith("/start"))).toHaveLength(1);
+    expect(vi.mocked(authenticated).mock.calls.some(([path]) => String(path).endsWith("/stop"))).toBe(false);
+  });
+
   it("releases a prepared real session when microphone connection fails", async () => {
+    grantMicrophone();
     rtcMocks.connect.mockRejectedValue(new Error("permission timeout"));
     vi.mocked(authenticated).mockImplementation(async (path: string) => {
       if (path === "/voice/sessions") return {
@@ -77,7 +137,8 @@ describe("VoiceExperience", () => {
   it("falls back to labeled text-capable demo mode when microphone access is denied", async () => {
     render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-    expect(await screen.findByText("演示模式 · 正在陪伴")).toBeInTheDocument();
+    expect(await screen.findByText("演示模式")).toBeInTheDocument();
+    expect(screen.getByText("可使用文字输入")).toBeInTheDocument();
     fireEvent.change(screen.getByPlaceholderText("也可以写下这一口…"), { target: { value: "像青草，后面有点甜" } });
     fireEvent.click(screen.getByRole("button", { name: "发送文字" }));
     expect(screen.getByText("像青草，后面有点甜")).toBeInTheDocument();
@@ -96,7 +157,7 @@ describe("VoiceExperience", () => {
     });
     render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-    await screen.findByText("演示模式 · 正在陪伴");
+    await screen.findByText("演示模式");
     fireEvent.click(screen.getByRole("button", { name: "结束并保存" }));
     expect(await screen.findByText("还想听你说一句。")).toBeInTheDocument();
     expect(screen.queryByText("这句话，收好了。")).not.toBeInTheDocument();
@@ -104,6 +165,7 @@ describe("VoiceExperience", () => {
   });
 
   it("sends typed text into the real companion context", async () => {
+    grantMicrophone();
     const realSession = {
       voiceSessionId: "voice-real-text", providerMode: "volcengine_rtc", status: "prepared",
       expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。",
@@ -133,14 +195,17 @@ describe("VoiceExperience", () => {
   });
 
   it("drains final RTC subtitles before stopping and saves the selected infusion", async () => {
+    grantMicrophone();
     const order: string[] = [];
+    let finishDrain!: () => void;
+    const drainGate = new Promise<void>((resolve) => { finishDrain = resolve; });
     const realSession = {
       voiceSessionId: "voice-drain", providerMode: "volcengine_rtc", status: "prepared",
       expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。",
       rtc: { appId: "rtc-app", roomId: "room-1", userId: "user-1", token: "short-lived", agentUserId: "tea_companion" },
     };
     rtcMocks.connect.mockResolvedValue(undefined);
-    rtcMocks.stopCaptureAndDrain.mockImplementation(async () => { order.push("drain"); });
+    rtcMocks.stopCaptureAndDrain.mockImplementation(async () => { order.push("drain"); await drainGate; });
     vi.mocked(authenticated).mockImplementation(async (path: string, init?: RequestInit) => {
       if (path === "/voice/sessions") return realSession as never;
       if (path === "/voice/sessions/voice-drain/start") return { ...realSession, status: "active" } as never;
@@ -155,20 +220,27 @@ describe("VoiceExperience", () => {
     render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
     await screen.findByText("实时语音已连接");
+    fireEvent.click(screen.getByRole("button", { name: "暂停聆听" }));
+    await screen.findByText("已暂停，点击继续");
     fireEvent.click(screen.getByRole("button", { name: "下一泡" }));
-    fireEvent.click(screen.getByRole("button", { name: "先停在这里" }));
+    fireEvent.click(screen.getByRole("button", { name: "结束本次陪泡" }));
+    expect(await screen.findByRole("button", { name: "正在收好最后一句…" })).toBeDisabled();
+    finishDrain();
     await screen.findByText("还差最后一步。");
+    expect(rtcMocks.pauseCapture).toHaveBeenCalledTimes(1);
     expect(order).toEqual(["drain", "stop"]);
   });
 
   it("rejoins an active real session with a fresh token after a fatal RTC error", async () => {
+    grantMicrophone();
     const realSession = {
       voiceSessionId: "voice-reconnect", providerMode: "volcengine_rtc", status: "prepared",
       expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。",
       rtc: { appId: "rtc-app", roomId: "room-1", userId: "user-1", token: "token-1", agentUserId: "tea_companion" },
     };
+    let reportFatal: ((message: string) => void) | undefined;
     rtcMocks.connect
-      .mockImplementationOnce(async (_session, _onTurn, _onStatus, onFatal) => { onFatal("实时语音发生错误，可以重新连接或结束本次陪伴。"); })
+      .mockImplementationOnce(async (_session, _onTurn, _onStatus, onFatal) => { reportFatal = onFatal; })
       .mockResolvedValueOnce(undefined);
     let startCount = 0;
     vi.mocked(authenticated).mockImplementation(async (path: string) => {
@@ -182,17 +254,23 @@ describe("VoiceExperience", () => {
 
     render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
+    await screen.findByText("实时语音已连接");
+    fireEvent.click(screen.getByRole("button", { name: "暂停聆听" }));
+    await screen.findByText("已暂停，点击继续");
+    reportFatal?.("实时语音发生错误，可以重新连接或结束本次陪伴。");
     expect(await screen.findByRole("button", { name: "重新连接实时语音" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "重新连接实时语音" }));
     await waitFor(() => expect(rtcMocks.connect).toHaveBeenCalledTimes(2));
     expect(startCount).toBe(2);
     expect(rtcMocks.connect.mock.calls[1][0].rtc.token).toBe("token-3");
+    expect(rtcMocks.pauseCapture).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole("button", { name: "继续聆听" })).toBeInTheDocument();
   });
 
   it("sends the selected infusion with brew stage changes", async () => {
     render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
-    await screen.findByText("演示模式 · 正在陪伴");
+    await screen.findByText("演示模式");
     fireEvent.click(screen.getByRole("button", { name: "下一泡" }));
     fireEvent.click(screen.getByRole("button", { name: "温杯" }));
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith(
@@ -222,7 +300,7 @@ describe("VoiceExperience", () => {
     render(<VoiceExperience teaId="duyun-maojian" mode="brew" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
 
-    expect(await screen.findByText("演示模式 · 正在陪伴")).toBeInTheDocument();
+    expect(await screen.findByText("演示模式")).toBeInTheDocument();
     expect(authenticated).toHaveBeenCalledWith("/voice/sessions/voice-stale/abort", expect.anything());
     expect(createCount).toBe(2);
   });

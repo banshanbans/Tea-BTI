@@ -73,6 +73,7 @@ export class RtcVoiceClient {
   private reconnectTimer: number | undefined;
   private lastFinalTurnAt = 0;
   private seenTurnIds = new Set<string>();
+  private captureActive = false;
 
   async connect(
     session: VoiceSession,
@@ -164,6 +165,7 @@ export class RtcVoiceClient {
         "进入 RTC 房间超时",
       );
       await withTimeout(this.engine.startAudioCapture(), RTC_CONNECTION_TIMEOUT_MS, "启动麦克风超时");
+      this.captureActive = true;
       onStatus("正在聆听，直接说话", "listening");
     } catch (error) {
       await this.disconnect();
@@ -171,9 +173,25 @@ export class RtcVoiceClient {
     }
   }
 
+  async pauseCapture(): Promise<void> {
+    if (!this.engine || !this.captureActive) return;
+    await this.engine.stopAudioCapture();
+    this.captureActive = false;
+  }
+
+  async resumeCapture(): Promise<void> {
+    if (!this.engine) throw new Error("RTC 语音房间尚未连接");
+    if (this.captureActive) return;
+    await this.engine.startAudioCapture();
+    this.captureActive = true;
+  }
+
   async stopCaptureAndDrain(): Promise<void> {
     if (!this.engine) return;
-    try { await this.engine.stopAudioCapture(); } catch {}
+    if (this.captureActive) {
+      try { await this.engine.stopAudioCapture(); } catch {}
+      this.captureActive = false;
+    }
     const startedAt = Date.now();
     let observedFinalTurnAt = this.lastFinalTurnAt;
     let quietStartedAt = startedAt;
@@ -190,7 +208,10 @@ export class RtcVoiceClient {
 
   async disconnect(): Promise<void> {
     if (!this.engine) return;
-    try { await this.engine.stopAudioCapture(); } catch {}
+    if (this.captureActive) {
+      try { await this.engine.stopAudioCapture(); } catch {}
+      this.captureActive = false;
+    }
     await this.leaveAndDestroy();
   }
 
@@ -201,5 +222,6 @@ export class RtcVoiceClient {
     try { await this.engine.leaveRoom(); } catch {}
     this.vertc?.destroyEngine(this.engine);
     this.engine = undefined;
+    this.captureActive = false;
   }
 }

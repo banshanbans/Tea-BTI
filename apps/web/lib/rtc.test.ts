@@ -43,6 +43,7 @@ describe("RTC transport helpers", () => {
       stopAudioCapture: vi.fn(async () => { order.push("capture"); }),
       leaveRoom: vi.fn(async () => { order.push("leave"); }),
     };
+    client.captureActive = true;
     client.vertc = { destroyEngine: vi.fn(() => { order.push("destroy"); }) };
     const pending = client.stopCaptureAndDrain();
     await vi.advanceTimersByTimeAsync(500);
@@ -53,5 +54,25 @@ describe("RTC transport helpers", () => {
     await pending;
     expect(order).toEqual(["capture", "leave", "destroy"]);
     vi.useRealTimers();
+  });
+
+  it("pauses and resumes capture idempotently without leaving the room", async () => {
+    const client = new RtcVoiceClient() as any;
+    client.engine = {
+      stopAudioCapture: vi.fn().mockResolvedValue(undefined),
+      startAudioCapture: vi.fn().mockResolvedValue(undefined),
+      leaveRoom: vi.fn().mockResolvedValue(undefined),
+    };
+    client.captureActive = true;
+
+    await client.pauseCapture();
+    await client.pauseCapture();
+    expect(client.engine.stopAudioCapture).toHaveBeenCalledTimes(1);
+    expect(client.engine.leaveRoom).not.toHaveBeenCalled();
+
+    await client.resumeCapture();
+    await client.resumeCapture();
+    expect(client.engine.startAudioCapture).toHaveBeenCalledTimes(1);
+    expect(client.engine.leaveRoom).not.toHaveBeenCalled();
   });
 });

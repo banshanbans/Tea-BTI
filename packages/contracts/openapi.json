@@ -6174,7 +6174,7 @@
           },
           "swipesRequired": {
             "type": "integer",
-            "const": 5,
+            "const": 2,
             "title": "Swipesrequired"
           },
           "swipesRemaining": {

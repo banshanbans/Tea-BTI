@@ -39,7 +39,7 @@ def test_tea_bti_contract_exposes_the_reviewed_persona_summary():
     assert properties["formationProgress"]["anyOf"][-1]["type"] == "null"
     assert properties["personaDetail"]["anyOf"][-1]["type"] == "null"
     progress = app.openapi()["components"]["schemas"]["TeaBtiFormationProgress"]
-    assert progress["properties"]["swipesRequired"]["const"] == 5
+    assert progress["properties"]["swipesRequired"]["const"] == 2
     detail = app.openapi()["components"]["schemas"]["TeaBtiPersonaDetail"]["properties"]
     assert {"punchline", "symptoms", "contrasts", "scenes", "enemies", "signatureMoment", "neverSay", "chemistry"} == set(detail)
     behavior = app.openapi()["components"]["schemas"]["TeaBtiBehaviorEvidence"]["properties"]

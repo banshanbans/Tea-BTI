@@ -48,7 +48,7 @@ function profile(code: string | null, state: "forming" | "early" | "stable" = "e
     code,
     personaName: code ? `人格 ${code}` : null,
     personaSummary: code ? "当前人格的简短气质" : null,
-    formationProgress: state === "forming" ? { swipesCompleted: 3, swipesRequired: 5, swipesRemaining: 2, positiveSignalCompleted: false } : null,
+    formationProgress: state === "forming" ? { swipesCompleted: 0, swipesRequired: 2, swipesRemaining: 2, positiveSignalCompleted: false } : null,
     personaDetail: code ? personaDetail : null,
     behaviorEvidence: code ? [{ kind: "drink", tea, userWords: "像雨后的青草。", infusionNumber: 2 }] : [],
     axes: { freshMellow: -0.5, lightRich: 0.6, scentTaste: -0.7, explorerComfort: 0.8 },
@@ -87,7 +87,7 @@ describe("TeaBtiDetailView", () => {
     vi.mocked(authenticated).mockResolvedValue(profile(null, "forming") as never);
     render(<TeaBtiDetailView />);
     expect(await screen.findByText("待形成")).toBeInTheDocument();
-    expect(screen.getByText("身份正在形成 · 再留下 2 次选择，并留一次喜欢、收藏或真实品饮")).toBeInTheDocument();
+    expect(screen.getByText("身份正在形成 · 再留下 2 次选择，就会初步形成")).toBeInTheDocument();
     expect(screen.queryByText("你可能有这些茶桌习惯")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("四轴人格解读")).not.toBeInTheDocument();
     expect(screen.queryByText(/茶桌 CP/)).not.toBeInTheDocument();
@@ -126,9 +126,9 @@ describe("TeaBtiDetailView", () => {
     expect(screen.getByText("这次想分享什么")).toBeInTheDocument();
   });
 
-  it("combines both formation conditions without hiding either requirement", () => {
-    expect(teaBtiStatusCopy(profile(null, "forming") as never)).toBe("身份正在形成 · 再留下 2 次选择，并留一次喜欢、收藏或真实品饮");
-    expect(teaBtiStatusCopy({ ...profile(null, "forming"), formationProgress: { swipesCompleted: 5, swipesRequired: 5, swipesRemaining: 0, positiveSignalCompleted: false } } as never)).toBe("身份正在形成 · 留下一次喜欢、收藏或真实品饮");
-    expect(teaBtiStatusCopy({ ...profile(null, "forming"), formationProgress: { swipesCompleted: 2, swipesRequired: 5, swipesRemaining: 3, positiveSignalCompleted: true } } as never)).toBe("身份正在形成 · 再留下 3 次选择会更清晰");
+  it("shows the two-choice initial formation threshold", () => {
+    expect(teaBtiStatusCopy(profile(null, "forming") as never)).toBe("身份正在形成 · 再留下 2 次选择，就会初步形成");
+    expect(teaBtiStatusCopy({ ...profile(null, "forming"), formationProgress: { swipesCompleted: 1, swipesRequired: 2, swipesRemaining: 1, positiveSignalCompleted: false } } as never)).toBe("身份正在形成 · 再留下 1 次选择，就会初步形成");
+    expect(teaBtiStatusCopy({ ...profile(null, "forming"), formationProgress: { swipesCompleted: 2, swipesRequired: 2, swipesRemaining: 0, positiveSignalCompleted: false } } as never)).toBe("初步轮廓已经形成 · 后续选择会继续校准");
   });
 });

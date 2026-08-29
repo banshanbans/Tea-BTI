@@ -242,7 +242,7 @@ export function WokCraftVisual({ animated, busy, mode, gamma, tiltRef, onFallbac
         {steam.state === "cleared" ? <strong>{craftDone ? "四手已经做完" : craftSteps[craftIndex].gesture}</strong> : <strong>{steam.state === "listening" ? (steam.calibrating ? "先保持安静半秒" : "对着手机轻轻吹气") : "先把蒸汽散开"}</strong>}
       </div>
       {steam.state === "idle" ? <div className="realm-steam-actions"><button className="button primary" onClick={() => void steam.start()}>吹开蒸汽</button><button className="button" onClick={steam.chooseWipe}>改用手指擦开</button><small>只在本机检测音量变化，不录音、不上传。</small></div> : null}
-      {steam.state === "listening" ? <div className="realm-steam-listening"><p className="realm-feedback" role="status">{steam.calibrating ? "正在校准环境音，提示变化后再吹气…" : "现在轻轻吹气；也可以直接在锅面左右擦动。"}</p><button className="button" onClick={steam.chooseWipe}>改用手指擦开</button></div> : null}
+      {steam.state === "listening" ? <div className="realm-steam-listening"><p className="realm-feedback" role="status">{steam.calibrating ? "可以直接开始吹，不必等校准结束。" : "对着手机底部麦克风连续吹气；也可以直接擦动锅面。"}</p><div className="realm-blow-meter" aria-label={`吹气强度 ${Math.round(steam.level * 100)}%`}><span style={{ width: `${Math.max(4, steam.level * 100)}%` }} /></div><small>吹气时，上方强度条会变长。</small><button className="button" onClick={steam.chooseWipe}>改用手指擦开</button></div> : null}
       {steam.state === "fallback" ? <div className="realm-steam-wipe" tabIndex={0} role="button" aria-label="左右擦开蒸汽"
         onPointerDown={steamPointerDown} onPointerMove={steamPointerMove}
         onPointerUp={steamPointerEnd} onPointerCancel={steamPointerEnd}

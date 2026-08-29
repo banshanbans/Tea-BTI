@@ -293,14 +293,14 @@ def tea_bti(db: Session, user_id: str) -> dict:
     drink_count = int(db.scalar(select(func.count()).select_from(DrinkFeedback).where(DrinkFeedback.user_id == user_id)) or 0)
     has_positive = bool(positive_tea_ids) or drink_count > 0
     behavior_evidence = tea_bti_behavior_evidence(db, user_id)
-    swipes_required = 5
+    swipes_required = 2
     axes = {
         "freshMellow": round(vector["freshness"] - (vector["body"] + vector["roast"]) / 2, 4),
         "lightRich": round(0.5 - vector["body"], 4),
         "scentTaste": round((vector["floral"] + vector["fruity"] + vector["freshness"]) / 3 - (vector["sweetness"] + vector["body"] + vector["aftertaste"]) / 3, 4),
         "explorerComfort": 1.0 if len(positive_tea_ids) >= 2 else -1.0,
     }
-    if len(swipes) < 5 or not has_positive:
+    if len(swipes) < swipes_required:
         return {
             "state": "forming",
             "code": None,
@@ -315,7 +315,7 @@ def tea_bti(db: Session, user_id: str) -> dict:
             "personaDetail": None,
             "behaviorEvidence": behavior_evidence,
             "axes": axes,
-            "evidence": ["再刷满 5 杯，留下一次喜欢、收藏或真实品饮"],
+            "evidence": ["刷满 2 杯后先形成初步轮廓，后续选择会继续校准"],
         }
     code = "".join([
         "F" if axes["freshMellow"] >= 0 else "M",

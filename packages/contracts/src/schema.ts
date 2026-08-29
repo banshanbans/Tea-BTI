@@ -1475,7 +1475,7 @@ export interface components {
              * Swipesrequired
              * @constant
              */
-            swipesRequired: 5;
+            swipesRequired: 2;
             /** Swipesremaining */
             swipesRemaining: number;
             /** Positivesignalcompleted */

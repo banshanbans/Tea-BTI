@@ -455,7 +455,7 @@ class TasteNormalizeResponse(ApiModel):
 
 class TeaBtiFormationProgress(ApiModel):
     swipes_completed: int
-    swipes_required: Literal[5]
+    swipes_required: Literal[2]
     swipes_remaining: int
     positive_signal_completed: bool
 

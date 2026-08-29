@@ -121,14 +121,14 @@ describe("ProfileView", () => {
         teaBti: {
           ...initialProfile.teaBti,
           state: "forming", code: null, personaName: null, personaSummary: null,
-          formationProgress: { swipesCompleted: 3, swipesRequired: 5, swipesRemaining: 2, positiveSignalCompleted: false },
+          formationProgress: { swipesCompleted: 1, swipesRequired: 2, swipesRemaining: 1, positiveSignalCompleted: false },
         },
       } as never;
       if (path === "/me/profile/events") return { accepted: true } as never;
       throw new Error(`Unexpected path: ${path}`);
     });
     render(<ProfileView />);
-    expect(await screen.findByText("身份正在形成 · 再留下 2 次选择，并留一次喜欢、收藏或真实品饮")).toBeInTheDocument();
+    expect(await screen.findByText("身份正在形成 · 再留下 1 次选择，就会初步形成")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /身份正在形成/ })).toHaveAttribute("href", "/");
   });
 

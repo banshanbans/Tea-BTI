@@ -18,13 +18,10 @@ export function teaBtiAxisPercent(score: number): number {
 export function teaBtiStatusCopy(profile: TeaBti): string {
   const progress = profile.formationProgress;
   if (progress) {
-    if (progress.swipesRemaining > 0 && !progress.positiveSignalCompleted) {
-      return `身份正在形成 · 再留下 ${progress.swipesRemaining} 次选择，并留一次喜欢、收藏或真实品饮`;
-    }
     if (progress.swipesRemaining > 0) {
-      return `身份正在形成 · 再留下 ${progress.swipesRemaining} 次选择会更清晰`;
+      return `身份正在形成 · 再留下 ${progress.swipesRemaining} 次选择，就会初步形成`;
     }
-    return "身份正在形成 · 留下一次喜欢、收藏或真实品饮";
+    return "初步轮廓已经形成 · 后续选择会继续校准";
   }
   return profile.state === "stable"
     ? "逐渐稳定 · 下一杯仍会让身份继续生长"

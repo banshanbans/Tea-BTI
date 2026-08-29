@@ -23,7 +23,7 @@ const profile = {
     { blockId: "MY_WORDS", title: "我的原话", isPublic: false, isComplete: false },
     { blockId: "TEA_PASSPORT", title: "茶护照", isPublic: true, isComplete: true },
   ],
-  teaBti: { state: "forming", code: null, personaName: null, personaSummary: null, formationProgress: { swipesCompleted: 2, swipesRequired: 5, swipesRemaining: 3, positiveSignalCompleted: false }, axes: {}, evidence: [] },
+  teaBti: { state: "forming", code: null, personaName: null, personaSummary: null, formationProgress: { swipesCompleted: 1, swipesRequired: 2, swipesRemaining: 1, positiveSignalCompleted: false }, axes: {}, evidence: [] },
   selectedTea: null,
   teaCandidates: [{ tea, evidenceReasons: ["刷茶时喜欢过"], evidenceScore: 2 }],
   quoteCandidates: [{ feedbackId: "feedback-1", tea, text: "像雨后的青草，尾巴有一点甜", normalizedTags: ["fresh"], infusionNumber: 2 }],

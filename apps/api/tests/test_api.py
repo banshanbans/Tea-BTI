@@ -209,7 +209,7 @@ def test_swipe_is_idempotent_and_fifth_swipe_recommends(client, auth):
     assert client.get("/api/v1/bootstrap", headers=auth).json()["swipeCount"] == 5
 
 
-def test_tea_bti_requires_five_swipes_and_positive_signal(client, auth):
+def test_tea_bti_forms_an_initial_profile_after_two_swipes(client, auth):
     cards = client.get("/api/v1/feed", headers=auth).json()["items"]
     forming = client.get("/api/v1/me/tea-bti", headers=auth).json()
     assert forming["state"] == "forming"
@@ -220,13 +220,13 @@ def test_tea_bti_requires_five_swipes_and_positive_signal(client, auth):
     assert forming["behaviorEvidence"] == []
     assert forming["formationProgress"] == {
         "swipesCompleted": 0,
-        "swipesRequired": 5,
-        "swipesRemaining": 5,
+        "swipesRequired": 2,
+        "swipesRemaining": 2,
         "positiveSignalCompleted": False,
     }
-    for index, card in enumerate(cards[:5]):
+    for index, card in enumerate(cards[:2]):
         client.post("/api/v1/swipes", headers=auth, json={
-            "clientEventId": str(uuid.uuid4()), "cardId": card["cardId"], "action": "like" if index < 2 else "skip",
+            "clientEventId": str(uuid.uuid4()), "cardId": card["cardId"], "action": "skip",
         })
     result = client.get("/api/v1/me/tea-bti", headers=auth).json()
     assert result["state"] == "early"
@@ -238,7 +238,7 @@ def test_tea_bti_requires_five_swipes_and_positive_signal(client, auth):
     assert result["personaDetail"]["punchline"] == persona["detail"]["punchline"]
     partner_code = persona["detail"]["chemistry"]["partnerCode"]
     assert result["personaDetail"]["chemistry"]["partnerName"] == catalog.require_tea_bti_persona(partner_code)["name"]
-    assert len(result["behaviorEvidence"]) == 3
+    assert len(result["behaviorEvidence"]) == 2
 
 
 def test_tea_bti_behavior_evidence_prioritizes_real_words_positive_and_skip(client, auth):
@@ -272,39 +272,30 @@ def test_tea_bti_behavior_evidence_prioritizes_real_words_positive_and_skip(clie
     assert len({item["tea"]["teaId"] for item in evidence}) == 3
 
 
-def test_tea_bti_formation_progress_tracks_both_requirements(client, auth):
+def test_tea_bti_formation_progress_only_requires_two_choices(client, auth):
     cards = client.get("/api/v1/feed", headers=auth).json()["items"]
-    for index, card in enumerate(cards[:3]):
+    for index, card in enumerate(cards[:1]):
         client.post("/api/v1/swipes", headers=auth, json={
             "clientEventId": f"forming-skip-{index}", "cardId": card["cardId"], "action": "skip",
         })
     partial = client.get("/api/v1/me/tea-bti", headers=auth).json()
     assert partial["formationProgress"] == {
-        "swipesCompleted": 3,
-        "swipesRequired": 5,
-        "swipesRemaining": 2,
+        "swipesCompleted": 1,
+        "swipesRequired": 2,
+        "swipesRemaining": 1,
         "positiveSignalCompleted": False,
     }
 
-    for index, card in enumerate(cards[3:5], start=3):
-        client.post("/api/v1/swipes", headers=auth, json={
-            "clientEventId": f"forming-skip-{index}", "cardId": card["cardId"], "action": "skip",
-        })
-    no_positive = client.get("/api/v1/me/tea-bti", headers=auth).json()
-    assert no_positive["state"] == "forming"
-    assert no_positive["formationProgress"]["swipesRemaining"] == 0
-    assert no_positive["formationProgress"]["positiveSignalCompleted"] is False
-
-    client.post("/api/v1/taste/normalize", headers=auth, json={
-        "teaId": "duyun-maojian", "text": "清鲜，喝完有一点回甘", "infusionNumber": 2,
+    client.post("/api/v1/swipes", headers=auth, json={
+        "clientEventId": "forming-skip-1", "cardId": cards[1]["cardId"], "action": "skip",
     })
     formed = client.get("/api/v1/me/tea-bti", headers=auth).json()
     assert formed["state"] == "early"
     assert formed["formationProgress"] is None
 
 
-@pytest.mark.parametrize("swipe_count", range(6))
-def test_tea_bti_formation_progress_counts_every_swipe_from_zero_through_five(client, auth, swipe_count):
+@pytest.mark.parametrize("swipe_count", range(2))
+def test_tea_bti_formation_progress_counts_zero_and_one_swipe(client, auth, swipe_count):
     cards = client.get("/api/v1/feed", headers=auth).json()["items"]
     for index, card in enumerate(cards[:swipe_count]):
         response = client.post("/api/v1/swipes", headers=auth, json={
@@ -315,8 +306,8 @@ def test_tea_bti_formation_progress_counts_every_swipe_from_zero_through_five(cl
     assert tea_bti["state"] == "forming"
     assert tea_bti["formationProgress"] == {
         "swipesCompleted": swipe_count,
-        "swipesRequired": 5,
-        "swipesRemaining": 5 - swipe_count,
+        "swipesRequired": 2,
+        "swipesRemaining": 2 - swipe_count,
         "positiveSignalCompleted": False,
     }
 

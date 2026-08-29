@@ -93,7 +93,7 @@ export function TeaBtiDetailView() {
         <section className="tea-bti-forming-hero">
           <p className="tea-bti-state-label">待形成</p>
           <h2>你的茶桌轮廓还在路上</h2>
-          <p>每一次真实选择都算数。再喝、再选几杯，轮廓会慢慢清楚。</p>
+          <p>完成两次刷茶就会先出现初步轮廓，之后每一次真实选择都会继续校准。</p>
         </section>
         <section className="tea-bti-detail-section">
           <p className="eyebrow">已经留下的线索</p><h2>先看看你做过的选择</h2>

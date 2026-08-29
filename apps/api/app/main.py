@@ -951,6 +951,13 @@ async def stop_voice_session(session_id: str, payload: VoiceStopRequest, user: C
     taste_result = None
     save_user_text = completion_request.get("saveUserText")
     infusion_number = completion_request.get("infusionNumber")
+    if voice_session.mode == "taste" and not save_user_text:
+        persisted_user_turns = db.scalars(
+            select(VoiceTurn.text)
+            .where(VoiceTurn.voice_session_id == session_id, VoiceTurn.role == "user")
+            .order_by(VoiceTurn.created_at)
+        ).all()
+        save_user_text = "。".join(text.strip() for text in persisted_user_turns if text.strip())[:500] or None
     if voice_session.mode == "taste" and save_user_text:
         taste_result = await normalize_and_save(
             db,

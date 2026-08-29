@@ -44,7 +44,9 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
     setState("listening");
     setCalibrating(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      });
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextClass) {
         stream.getTracks().forEach((track) => track.stop());
@@ -57,7 +59,7 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
       analyser.fftSize = 512;
       context.createMediaStreamSource(stream).connect(analyser);
       const values = new Uint8Array(analyser.fftSize);
-      const baselineUntil = performance.now() + 600;
+      const baselineUntil = performance.now() + 350;
       const baselineValues: number[] = [];
       let baseline = 0;
       let calibrated = false;
@@ -76,16 +78,19 @@ export function useSteamBlow({ active, reducedMotion, onFallback }: {
             calibrated = true;
             setCalibrating(false);
           }
-          const threshold = Math.max(0.025, baseline + 0.018, baseline * 1.55);
-          aboveSince = rms >= threshold ? (aboveSince || now) : 0;
-          if (aboveSince && now - aboveSince >= 180) {
+          let peak = 0;
+          for (const value of values) peak = Math.max(peak, Math.abs((value - 128) / 128));
+          const threshold = Math.max(0.012, baseline + 0.008, baseline * 1.3);
+          const detected = rms >= threshold || peak >= Math.max(0.055, baseline * 2.2);
+          aboveSince = detected ? (aboveSince || now) : 0;
+          if (aboveSince && now - aboveSince >= 90) {
             cleanup(); setMode("microphone"); setState("cleared"); return;
           }
         }
         resourcesRef.current.frame = window.requestAnimationFrame(sample);
       };
       resourcesRef.current.frame = window.requestAnimationFrame(sample);
-      resourcesRef.current.timeout = window.setTimeout(() => fallback("microphone_timeout"), 8000);
+      resourcesRef.current.timeout = window.setTimeout(() => fallback("microphone_timeout"), 6000);
     } catch (error) {
       const denied = error instanceof DOMException && (error.name === "NotAllowedError" || error.name === "PermissionDeniedError");
       fallback(denied ? "microphone_denied" : "microphone_error");

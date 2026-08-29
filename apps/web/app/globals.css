@@ -504,6 +504,7 @@ a { color: inherit; text-decoration: none; }
 .realm-craft > .button { align-self: center; }
 .realm-steam-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center; }
 .realm-steam-actions small { grid-column: 1 / -1; color: rgba(255,255,255,.58); font-size: 10px; }
+.realm-steam-listening { display: grid; gap: 8px; text-align: center; }
 .realm-steam-wipe { min-height: 66px; display: grid; place-items: center; border: 1px dashed rgba(226,241,212,.55); border-radius: 18px; color: #e2f0d6; background: rgba(28,53,34,.56); touch-action: none; outline: none; }
 .realm-steam-wipe:focus-visible { box-shadow: 0 0 0 3px rgba(220,236,203,.5); }
 .realm-judgment { position: relative; flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 12px; text-align: center; }

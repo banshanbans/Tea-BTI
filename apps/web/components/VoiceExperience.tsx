@@ -60,8 +60,10 @@ function journeyHref(journey: TeaJourney, origin: TeaOrigin): string {
 }
 
 function journeyLabel(journey: TeaJourney): string {
-  return { brew: "回到陪泡", taste: "接着说出这一口", realm: "进入《雾里一芽》", passport: "查看茶护照" }[journey.nextStep];
+  return { brew: "回到陪泡", taste: "接着说出这一口", realm: "带着这一口进入《雾里一芽》", passport: "查看茶护照" }[journey.nextStep];
 }
+
+const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
 export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: string; mode: "brew" | "taste"; origin?: TeaOrigin }) {
   const [session, setSession] = useState<VoiceSession | null>(null);
@@ -391,9 +393,19 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
       setPaused(false);
       await flushPendingTurns();
       if (turnPersistenceFailedRef.current) setTranscriptWarning("会话已保存，但有少量实时字幕未能写入短期记录。");
-      const result = await authenticated<VoiceStop>(`/voice/sessions/${session.voiceSessionId}/stop`, {
+      const stopRequest = () => authenticated<VoiceStop>(`/voice/sessions/${session.voiceSessionId}/stop`, {
         method: "POST", ...jsonBody({ saveUserText: mode === "taste" ? savedTextRef.current || undefined : undefined, infusionNumber }),
       });
+      let result: VoiceStop;
+      try {
+        result = await stopRequest();
+      } catch (cause) {
+        const error = cause as ApiFailure;
+        if (!["VOICE_STOP_FAILED", "VOICE_SESSION_BUSY"].includes(error.code || "")) throw cause;
+        setStatus("正在确认这一口已经收好…");
+        await wait(450);
+        result = await stopRequest();
+      }
       const completed = { ...session, status: "completed" as const };
       setCompletion(result); setSession(completed); sessionRef.current = completed; setStatus("会话已完成"); setVoicePhase("complete");
     } catch (cause) {
@@ -433,7 +445,7 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
     <section className="voice-page voice-complete">
       <CheckCircle size={56} weight="duotone" />
       <p className="eyebrow">{completion.experienceCompleted ? "已经收好" : "本次已结束"}</p>
-      <h1 className="title">{completion.experienceCompleted ? (mode === "brew" ? "这一泡，记下了。" : "这句话，收好了。") : (mode === "brew" ? "还差最后一步。" : "还想听你说一句。")}</h1>
+      <h1 className="title">{completion.experienceCompleted ? (mode === "brew" ? "这一泡，记下了。" : "这一口，记下了。") : (mode === "brew" ? "还差最后一步。" : "还想听你说一句。")}</h1>
       {completion.tasteResult ? <><p>你说：“{completion.tasteResult.userWords}”</p><div className="tags light-tags">{completion.tasteResult.normalizedTags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div><p className="subtitle">{completion.tasteResult.explanation}</p></> : null}
       {transcriptWarning ? <p className="error">{transcriptWarning}</p> : null}
       {completion.experienceCompleted ? <Link className="button primary block" href={journeyHref(completion.journey, origin)}>{journeyLabel(completion.journey)} <ArrowRight size={18} /></Link> : <button className="button primary block" onClick={resetExperience}>{mode === "brew" ? "继续陪泡" : "补充一句感受"} <ArrowRight size={18} /></button>}
@@ -457,7 +469,7 @@ export function VoiceExperience({ teaId, mode, origin = "swipe" }: { teaId: stri
       {active ? <div className="voice-composer"><textarea disabled={connectionIssue} className="text-input" value={text} onChange={(event) => setText(event.target.value)} placeholder="也可以写下这一口…" /><button className="button" aria-label="发送文字" disabled={busy || connectionIssue} onClick={() => void submitText()}><PaperPlaneTilt size={20} weight="fill" /></button></div> : null}
       {error ? <p className="error">{error}</p> : null}
       {active && !isMock && connectionIssue ? <button className="button block" disabled={busy} onClick={() => void reconnect()}>重新连接实时语音</button> : null}
-      <div className="voice-primary-action">{!active ? <button disabled={busy} className="button primary block" onClick={startFromUserGesture}><Microphone size={19} />{voicePhase === "requesting_permission" ? "正在申请权限…" : "打开麦克风"}</button> : <button disabled={busy} className="button warm block" onClick={() => void stop()}><StopCircle size={19} />{voicePhase === "finishing" ? "正在收好最后一句…" : mode === "brew" ? "完成泡茶并进入品饮" : "结束并保存"}</button>}</div>
+      <div className="voice-primary-action">{!active ? <button disabled={busy} className="button primary block" onClick={startFromUserGesture}><Microphone size={19} />{voicePhase === "requesting_permission" ? "正在申请权限…" : "打开麦克风"}</button> : <button disabled={busy} className="button warm block" onClick={() => void stop()}><StopCircle size={19} />{voicePhase === "finishing" ? "正在收好这一口…" : mode === "brew" ? "完成泡茶并进入品饮" : "完成品茶"}</button>}</div>
       {mode === "brew" && active ? <p className="voice-save-hint">点击后会记下这一泡，并直接进入品饮。</p> : null}
     </section>
   );

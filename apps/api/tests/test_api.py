@@ -647,6 +647,16 @@ def test_voice_stop_only_records_explicit_brew_completion_and_confirmed_taste(cl
     assert no_words["journey"]["tasted"] is False
     assert no_words["journey"]["nextStep"] == "taste"
 
+    persisted = client.post("/api/v1/voice/sessions", headers=auth, json={"mode": "taste", "teaId": "duyun-maojian"}).json()
+    client.post(f"/api/v1/voice/sessions/{persisted['voiceSessionId']}/start", headers=auth)
+    client.post(f"/api/v1/voice/sessions/{persisted['voiceSessionId']}/turns", headers=auth, json={
+        "turns": [{"clientTurnId": "taste-final-turn", "role": "user", "text": "入口清鲜，后面有一点甜"}],
+    })
+    persisted_stop = client.post(f"/api/v1/voice/sessions/{persisted['voiceSessionId']}/stop", headers=auth, json={}).json()
+    assert persisted_stop["experienceCompleted"] is True
+    assert persisted_stop["journey"]["tasted"] is True
+    assert persisted_stop["journey"]["nextStep"] == "realm"
+
 
 def test_errors_use_contract_envelope(client):
     response = client.get("/api/v1/bootstrap")

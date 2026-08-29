@@ -142,8 +142,8 @@ describe("VoiceExperience", () => {
     fireEvent.change(screen.getByPlaceholderText("也可以写下这一口…"), { target: { value: "像青草，后面有点甜" } });
     fireEvent.click(screen.getByRole("button", { name: "发送文字" }));
     expect(screen.getByText("像青草，后面有点甜")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "结束并保存" }));
-    expect(await screen.findByText("这句话，收好了。")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "完成品茶" }));
+    expect(await screen.findByText("这一口，记下了。")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /进入《雾里一芽》/ })).toHaveAttribute("href", "/realm/duyun-maojian-mist-bud?entry=tea&teaId=duyun-maojian&origin=swipe");
     await waitFor(() => expect(authenticated).toHaveBeenCalledWith("/voice/sessions/voice-1/turns", expect.anything()));
   });
@@ -158,10 +158,35 @@ describe("VoiceExperience", () => {
     render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
     fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
     await screen.findByText("演示模式");
-    fireEvent.click(screen.getByRole("button", { name: "结束并保存" }));
+    fireEvent.click(screen.getByRole("button", { name: "完成品茶" }));
     expect(await screen.findByText("还想听你说一句。")).toBeInTheDocument();
-    expect(screen.queryByText("这句话，收好了。")).not.toBeInTheDocument();
+    expect(screen.queryByText("这一口，记下了。")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /补充一句感受/ })).toBeInTheDocument();
+  });
+
+  it("automatically retries a transient provider stop so taste closes in one user action", async () => {
+    let stopCount = 0;
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/voice/sessions") return { voiceSessionId: "voice-stop-retry", providerMode: "browser_mock", status: "prepared", expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。", rtc: null } as never;
+      if (path === "/voice/sessions/voice-stop-retry/start") return { voiceSessionId: "voice-stop-retry", providerMode: "browser_mock", status: "active", expiresAt: new Date(Date.now() + 60_000).toISOString(), welcomeMessage: "先说说这一口。", rtc: null } as never;
+      if (path === "/voice/sessions/voice-stop-retry/turns") return { acceptedCount: 1 } as never;
+      if (path === "/voice/sessions/voice-stop-retry/stop") {
+        stopCount += 1;
+        if (stopCount === 1) throw Object.assign(new Error("provider still stopping"), { code: "VOICE_STOP_FAILED" });
+        return { status: "completed", experienceCompleted: true, journey: { teaId: "duyun-maojian", brewed: true, tasted: true, realmId: "duyun-maojian-mist-bud", realmCompleted: false, nextStep: "realm" }, tasteResult: { userWords: "清鲜，后面甜", normalizedTags: ["fresh", "sweet"], explanation: "接近清鲜与甜感。", providerMode: "server_mock", tasteProfile: {}, passportEntry: {} } } as never;
+      }
+      throw new Error(`Unexpected path: ${path}`);
+    });
+
+    render(<VoiceExperience teaId="duyun-maojian" mode="taste" />);
+    fireEvent.click(screen.getByRole("button", { name: "打开麦克风" }));
+    await screen.findByText("演示模式");
+    fireEvent.change(screen.getByPlaceholderText("也可以写下这一口…"), { target: { value: "清鲜，后面甜" } });
+    fireEvent.click(screen.getByRole("button", { name: "发送文字" }));
+    fireEvent.click(screen.getByRole("button", { name: "完成品茶" }));
+
+    expect(await screen.findByText("这一口，记下了。", {}, { timeout: 2000 })).toBeInTheDocument();
+    expect(stopCount).toBe(2);
   });
 
   it("sends typed text into the real companion context", async () => {
@@ -229,7 +254,7 @@ describe("VoiceExperience", () => {
     await screen.findByText("已暂停，点击继续");
     fireEvent.click(screen.getByRole("button", { name: "下一泡" }));
     fireEvent.click(screen.getByRole("button", { name: "完成泡茶并进入品饮" }));
-    expect(await screen.findByRole("button", { name: "正在收好最后一句…" })).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "正在收好这一口…" })).toBeDisabled();
     finishDrain();
     await screen.findByText("这一泡，记下了。");
     expect(screen.getByRole("link", { name: /接着说出这一口/ })).toHaveAttribute("href", "/taste/duyun-maojian?origin=swipe");

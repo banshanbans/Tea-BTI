@@ -99,10 +99,14 @@ describe("Realm scene visual controllers", () => {
     render(<WokCraftVisual animated={false} busy={false} mode="pointer" gamma={0} tiltRef={{ current: { x: 0, y: 0 } }} onFallback={onFallback} onTone={vi.fn()} onAdvance={vi.fn().mockResolvedValue(true)} />);
     expect(getUserMedia).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "吹开蒸汽" }));
-    await waitFor(() => expect(getUserMedia).toHaveBeenCalledWith({ audio: true }));
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalledWith({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }));
     await waitFor(() => expect(stop).toHaveBeenCalled());
     expect(onFallback).toHaveBeenCalledWith("microphone_unsupported");
     expect(screen.getByRole("button", { name: "左右擦开蒸汽" })).toBeInTheDocument();
+    const wok = screen.getByRole("button", { name: "制茶手势区域" });
+    fireEvent.pointerDown(wok, { pointerId: 1, clientX: 20 });
+    fireEvent.pointerMove(wok, { pointerId: 1, clientX: 80 });
+    expect(screen.getByText("向前推")).toBeInTheDocument();
   });
 
   it("releases microphone and AudioContext on page hide, then offers the wipe fallback", async () => {

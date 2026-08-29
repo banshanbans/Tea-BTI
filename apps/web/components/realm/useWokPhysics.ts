@@ -165,6 +165,7 @@ export function useWokPhysics({ active, tiltRef }: {
   }, [active, tiltRef]);
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
     const wok = wokRef.current;
     if (!wok) return;
     const rect = wok.getBoundingClientRect();
@@ -176,10 +177,11 @@ export function useWokPhysics({ active, tiltRef }: {
       vy: 0,
       active: true,
     };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+    try { event.currentTarget.setPointerCapture?.(event.pointerId); } catch {}
   }, []);
 
   const onPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
     const previous = pointerRef.current;
     const wok = wokRef.current;
     if (!previous || !wok) return;

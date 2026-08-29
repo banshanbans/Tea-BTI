@@ -69,17 +69,20 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
   }, [current, onMultitouchFallback]);
 
   const pointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
     const rect = event.currentTarget.getBoundingClientRect();
     tracksRef.current.set(event.pointerId, [{ x: event.clientX - rect.left, y: event.clientY - rect.top, time: performance.now() }]);
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+    try { event.currentTarget.setPointerCapture?.(event.pointerId); } catch {}
   }, []);
 
   const pointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
     const track = tracksRef.current.get(event.pointerId);
     if (!track) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const native = event.nativeEvent;
-    const samples = typeof native.getCoalescedEvents === "function" ? native.getCoalescedEvents() : [native];
+    const coalesced = typeof native.getCoalescedEvents === "function" ? native.getCoalescedEvents() : [];
+    const samples = coalesced.length ? coalesced : [native];
     for (const sample of samples) track.push({ x: sample.clientX - rect.left, y: sample.clientY - rect.top, time: performance.now() });
   }, []);
 
@@ -127,7 +130,7 @@ export function useCraftController({ orientationActive, gamma, reducedMotion, on
 
   const assist = useCallback(() => complete("assisted", 50, Math.max(2, current ? attempts[current] : 2)), [attempts, complete, current]);
   const keyboard = useCallback(() => complete(reducedMotion ? "reducedMotion" : "keyboard", 60, 1), [complete, reducedMotion]);
-  const canAssist = Boolean(current && attempts[current] >= 2);
+  const canAssist = Boolean(current && attempts[current] >= 1);
   const reset = useCallback(() => {
     setIndex(0); setAttempts({ killGreen: 0, rolling: 0, balling: 0, pekoe: 0 });
     setResults({}); setForwardPushes(0); tracksRef.current.clear(); finishedTracksRef.current = []; tiltSamplesRef.current = [];

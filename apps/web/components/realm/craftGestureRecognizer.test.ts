@@ -17,7 +17,7 @@ describe("Tea Realm craft gesture recognizers", () => {
     expect(recognizeTiltAlternations([7, 9, 10, 12]).matched).toBe(false);
   });
 
-  it("requires three valid forward pushes at the controller boundary", () => {
+  it("accepts a deliberate vertical push in either natural screen direction", () => {
     expect(recognizeForwardPush([point(50, 180, 0), point(54, 65, 500)], 200, 300).matched).toBe(true);
     expect(recognizeForwardPush([point(20, 180, 0), point(170, 150, 500)], 200, 300).matched).toBe(false);
   });
@@ -27,6 +27,9 @@ describe("Tea Realm craft gesture recognizers", () => {
     const random = [point(20, 20, 0), point(25, 130, 100), point(30, 40, 200), point(32, 160, 300), point(35, 60, 400), point(38, 170, 500)];
     expect(recognizeRolling(rolling, 200, 240).matched).toBe(true);
     expect(recognizeRolling(random, 200, 240).matched).toBe(false);
+    const smooth = [20, 24, 28, 32, 36, 40, 36, 32, 28, 24, 20, 24, 28, 32, 36, 40, 36, 32, 28, 24, 20]
+      .map((x, index) => point(x, 100 + index % 2, index * 20));
+    expect(recognizeRolling(smooth, 100, 180).matched).toBe(true);
   });
 
   it("recognizes a closed circle near 360 degrees and rejects a small loop", () => {

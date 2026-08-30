@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BrewCompanionExperience } from "./BrewCompanionExperience";
-import { authenticated } from "@/lib/api";
+import { authenticated, authenticatedBinary } from "@/lib/api";
 
 const rtcMocks = vi.hoisted(() => ({
   connect: vi.fn(), disconnect: vi.fn(), pauseCapture: vi.fn(), resumeCapture: vi.fn(), stopCaptureAndDrain: vi.fn(),
@@ -61,6 +61,7 @@ describe("BrewCompanionExperience", () => {
     rtcMocks.pauseCapture.mockReset().mockResolvedValue(undefined);
     rtcMocks.resumeCapture.mockReset().mockResolvedValue(undefined);
     rtcMocks.stopCaptureAndDrain.mockReset().mockResolvedValue(undefined);
+    vi.mocked(authenticatedBinary).mockReset();
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: { getUserMedia: vi.fn().mockRejectedValue(new Error("permission denied")) },
@@ -135,6 +136,46 @@ describe("BrewCompanionExperience", () => {
     expect(screen.getByText("投茶", { selector: ".stage.active" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "对" }));
     await waitFor(() => expect(screen.getByText("注水", { selector: ".stage.active" })).toBeInTheDocument());
+  });
+
+  it("keeps uploading camera frames throughout a new assisted session", async () => {
+    const videoTrack = { stop: vi.fn(), addEventListener: vi.fn() };
+    const audioTrack = { stop: vi.fn() };
+    const stream = {
+      getTracks: () => [videoTrack],
+      getVideoTracks: () => [videoTrack],
+      getAudioTracks: () => [audioTrack],
+    } as unknown as MediaStream;
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn().mockResolvedValue(stream) },
+    });
+    Object.defineProperty(HTMLVideoElement.prototype, "videoWidth", { configurable: true, get: () => 720 });
+    Object.defineProperty(HTMLVideoElement.prototype, "videoHeight", { configurable: true, get: () => 720 });
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ drawImage: vi.fn() } as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, "toBlob").mockImplementation((callback) => {
+      callback(new Blob(["frame"], { type: "image/jpeg" }));
+    });
+    const assisted = state({ cameraEnabled: true });
+    vi.mocked(authenticated).mockImplementation(async (path: string) => {
+      if (path === "/teas/duyun-maojian") return tea as never;
+      if (path === "/voice/sessions") return session("prepared", assisted) as never;
+      if (path === "/voice/sessions/brew-voice-1/start") return session("active", assisted) as never;
+      throw new Error(`Unexpected path: ${path}`);
+    });
+    vi.mocked(authenticatedBinary).mockResolvedValue({
+      event: "none", candidate: false, targetStage: null, prompt: null, brewState: assisted,
+    } as never);
+
+    render(<BrewCompanionExperience teaId="duyun-maojian" />);
+    await screen.findByRole("heading", { name: "都匀毛尖" });
+    fireEvent.click(screen.getByRole("button", { name: "开始陪泡" }));
+
+    await waitFor(() => expect(authenticatedBinary).toHaveBeenCalled(), { timeout: 2_000 });
+    expect(vi.mocked(authenticatedBinary).mock.calls[0][0]).toContain("/vision/observations?stage=prepare");
+    const createCall = vi.mocked(authenticated).mock.calls.find(([path]) => path === "/voice/sessions");
+    expect(JSON.parse(String(createCall?.[1]?.body))).toMatchObject({ cameraEnabled: true });
   });
 
   it("recovers the server stage after refresh before reconnecting capture", async () => {

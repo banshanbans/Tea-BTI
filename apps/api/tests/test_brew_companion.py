@@ -93,7 +93,9 @@ def test_matcha_is_one_pass_and_starts_at_add_powder(client, auth):
 
 
 def test_visual_frames_only_create_candidate_and_confirmation_is_required(client, auth, monkeypatch):
+    from app.db import SessionLocal
     from app.main import settings
+    from app.models import VoiceSession
 
     monkeypatch.setattr(settings, "ai_mode", "auto")
     monkeypatch.setattr(settings, "ark_api_key", "test-key")
@@ -107,8 +109,21 @@ def test_visual_frames_only_create_candidate_and_confirmation_is_required(client
     created = create_brew(client, auth, cameraEnabled=True)
     session_id = created["voiceSessionId"]
     client.post(f"/api/v1/voice/sessions/{session_id}/start", headers=auth)
+    with SessionLocal() as db:
+        voice_session = db.get(VoiceSession, session_id)
+        voice_session.provider_mode = "volcengine_rtc"
+        voice_session.room_id = "vision-room"
+        voice_session.task_id = "vision-task"
+        db.commit()
+    visual_contexts = []
+
+    async def update_context(**kwargs):
+        visual_contexts.append(kwargs["message"])
+
+    monkeypatch.setattr("app.main.voice_provider.update_context", update_context)
     brew_event(client, auth, session_id, "vision-stage-1", "confirm_stage", stage="warm_vessel")
     brew_event(client, auth, session_id, "vision-stage-2", "confirm_stage", stage="add_leaves")
+    visual_contexts.clear()
 
     url = f"/api/v1/voice/sessions/{session_id}/vision/observations?stage=add_leaves&infusionNumber=1"
     frame = b"\xff\xd8fixed-jpeg-frame\xff\xd9"
@@ -120,6 +135,9 @@ def test_visual_frames_only_create_candidate_and_confirmation_is_required(client
     assert second["candidate"] is True
     assert second["targetStage"] == "pour"
     assert second["brewState"]["currentStage"] == "add_leaves"
+    assert len(visual_contexts) == 2
+    assert "目前只有一帧证据" in visual_contexts[0]
+    assert "连续两帧" in visual_contexts[1]
 
     stale = brew_event(
         client, auth, session_id, "wrong-camera-confirm", "confirm_stage",

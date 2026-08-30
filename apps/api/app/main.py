@@ -823,11 +823,18 @@ async def start_voice_session(session_id: str, user: CurrentUser, db: Db):
     db.refresh(voice_session)
     voice_session.status = "starting"
     db.commit()
+    camera_enabled = False
+    if voice_session.mode == "brew" and settings.brew_companion_v2:
+        try:
+            camera_enabled = require_brew_run(db, session_id, user.id).camera_enabled
+        except BrewError:
+            camera_enabled = False
     try:
         await voice_provider.start(
             room_id=voice_session.room_id, task_id=voice_session.task_id, target_user_id=user.id,
             tea_id=voice_session.tea_id, mode=voice_session.mode,
             user_context=voice_user_context(db, user.id, voice_session.tea_id),
+            camera_enabled=camera_enabled,
         )
     except ProviderError as exc:
         record_provider_error(db, voice_session, exc)
@@ -1039,12 +1046,26 @@ async def post_vision_observation(
     except ProviderError as exc:
         raise ApiError(503, "VISION_UNAVAILABLE", "摄像头判断暂不可用", retryable=True) from exc
     db.commit()
-    if candidate and prompt and voice_session.provider_mode == "volcengine_rtc" and voice_session.status == "active":
+    visual_context = None
+    if candidate and prompt:
+        visual_context = prompt + " 这是连续两帧得到的视觉候选，必须等用户口头确认后才能推进阶段。"
+    elif event != "none" and run.vision_streak_count == 1:
+        event_labels = {
+            "leaves_present": "疑似已经投茶",
+            "water_pouring": "疑似正在注水",
+            "decanting": "疑似正在出汤",
+        }
+        if event in event_labels:
+            visual_context = (
+                f"画面辅助刚识别到{event_labels[event]}，但目前只有一帧证据。"
+                "这只是实时观察状态，不要推进阶段；可以告诉用户正在通过画面辅助继续确认。"
+            )
+    if visual_context and voice_session.provider_mode == "volcengine_rtc" and voice_session.status == "active":
         try:
             await voice_provider.update_context(
                 room_id=voice_session.room_id,
                 task_id=voice_session.task_id,
-                message=prompt + " 这只是视觉候选，必须等用户口头确认后才能推进阶段。",
+                message=visual_context,
             )
         except ProviderError:
             logger.warning("Failed to announce vision candidate session=%s", session_id)

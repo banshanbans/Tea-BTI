@@ -87,6 +87,7 @@ def test_voice_adapter_emits_start_update_and_stop_contracts():
     asyncio.run(provider.start(
         room_id="room-1", task_id="task-1", target_user_id="user-1",
         tea_id="duyun-maojian", mode="brew", user_context="Taste Profile 已形成。",
+        camera_enabled=True,
     ))
     asyncio.run(provider.update_context(room_id="room-1", task_id="task-1", message="用户确认已注水"))
     asyncio.run(provider.stop(room_id="room-1", task_id="task-1"))
@@ -97,7 +98,9 @@ def test_voice_adapter_emits_start_update_and_stop_contracts():
     assert "Tools" not in start["Config"]["LLMConfig"]
     assert "FunctionCallingConfig" not in start["Config"]
     assert start["Config"]["SubtitleConfig"]["DisableRTSSubtitle"] is False
-    assert "不能声称看到" in "".join(start["Config"]["LLMConfig"]["SystemMessages"])
+    messages = "".join(start["Config"]["LLMConfig"]["SystemMessages"])
+    assert "我可以通过画面辅助判断动作" in messages
+    assert "不是连续观看视频" in messages
     assert "another product prompt" not in start["Config"]["LLMConfig"]["SystemMessages"]
     assert "Taste Profile 已形成" in "".join(start["Config"]["LLMConfig"]["SystemMessages"])
     assert "ApiResourceId" not in start["Config"]["ASRConfig"]["ProviderParams"]

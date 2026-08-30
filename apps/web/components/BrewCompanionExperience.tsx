@@ -241,9 +241,18 @@ export function BrewCompanionExperience({ teaId, origin = "swipe" }: { teaId: st
           video: { facingMode: { ideal: "environment" }, width: { ideal: 720 }, height: { ideal: 720 } },
         });
         stream.getAudioTracks().forEach((track) => track.stop());
+        cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
         cameraStreamRef.current = stream;
-        setCameraWorking(stream.getVideoTracks().length > 0);
-        return { audio: true, video: stream.getVideoTracks().length > 0 };
+        const videoTrack = stream.getVideoTracks()[0];
+        const hasVideo = Boolean(videoTrack);
+        if (videoTrack) {
+          videoTrack.addEventListener("ended", () => {
+            setCameraWorking(false);
+            setError("摄像头画面已停止；语音仍可继续，需要画面时请重新进入陪泡。");
+          }, { once: true });
+        }
+        setCameraWorking(hasVideo);
+        return { audio: true, video: hasVideo };
       } catch {
         setCameraWorking(false);
       }
@@ -403,10 +412,10 @@ export function BrewCompanionExperience({ teaId, origin = "swipe" }: { teaId: st
 
   useEffect(() => {
     if (!active || !brewState?.cameraEnabled || !cameraWorking || !visionWorking) return;
-    if (!["add_leaves", "pour", "steep"].includes(brewState.currentStage)) return;
+    if (brewState.currentStage === "complete") return;
     const sessionId = session.voiceSessionId;
-    const timer = window.setInterval(async () => {
-      if (visionInFlightRef.current || !videoRef.current) return;
+    const uploadFrame = async () => {
+      if (document.visibilityState !== "visible" || visionInFlightRef.current || !videoRef.current) return;
       visionInFlightRef.current = true;
       try {
         const frame = await jpegFrame(videoRef.current);
@@ -429,8 +438,13 @@ export function BrewCompanionExperience({ teaId, origin = "swipe" }: { teaId: st
       } finally {
         visionInFlightRef.current = false;
       }
-    }, 1500);
-    return () => window.clearInterval(timer);
+    };
+    const firstFrame = window.setTimeout(() => void uploadFrame(), 250);
+    const timer = window.setInterval(() => void uploadFrame(), 1500);
+    return () => {
+      window.clearTimeout(firstFrame);
+      window.clearInterval(timer);
+    };
   }, [active, brewState?.cameraEnabled, brewState?.currentStage, brewState?.infusionNumber, cameraWorking, visionWorking, session?.voiceSessionId]);
 
   useEffect(() => {

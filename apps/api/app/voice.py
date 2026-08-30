@@ -171,7 +171,13 @@ class VoiceProvider:
             "agentUserId": "tea_companion",
         }
 
-    def _system_messages(self, tea_id: str, mode: str, user_context: str | None = None) -> list[str]:
+    def _system_messages(
+        self,
+        tea_id: str,
+        mode: str,
+        user_context: str | None = None,
+        camera_enabled: bool = False,
+    ) -> list[str]:
         tea = catalog.require_tea(tea_id)
         guide = tea["brewingGuide"]
         factual_context = (
@@ -179,9 +185,17 @@ class VoiceProvider:
             f"审核感官描述：{tea['officialDescription']}；建议器具：{guide['vessel']}；"
             f"建议水温：{guide['temperatureRange']}；建议时间：{guide['steepTime']}。"
         )
+        visual_boundary = (
+            "本次会话已开启画面辅助。你可以通过服务端视觉模型获得离散的冲泡动作候选。"
+            "如果用户问你能否看到画面，要回答：‘我可以通过画面辅助判断动作，但不是连续观看视频。’"
+            "只有收到服务端发来的视觉上下文后，才能提及对应动作；没有收到时要说还没有识别到明确动作。"
+            if camera_enabled else
+            "本次会话未开启画面辅助。你不能声称已经看到用户或茶具；如有需要，请用户重新开启带摄像头的陪泡会话。"
+        )
         boundaries = (
             "你是 Tea-BTI 的茶伴，表达简短、温和、一次只给一到两个动作。"
-            "你不能直接看到摄像头画面；服务端可能告诉你一个尚未确认的动作候选，"
+            + visual_boundary
+            + "你不能直接观看连续视频或自行解析原始画面；服务端可能告诉你一个尚未确认的动作候选，"
             "你必须先询问用户并等待用户回答‘对’或‘开始’，才能把它当作已发生。"
             "不能声称看到或知道水温、茶叶克数、水量、香气、滋味、茶叶品质或最佳出汤点；"
             "不能给出未经资料支持的精确值。"
@@ -207,6 +221,7 @@ class VoiceProvider:
     async def start(
         self, *, room_id: str, task_id: str, target_user_id: str,
         tea_id: str, mode: str, user_context: str | None = None,
+        camera_enabled: bool = False,
     ) -> None:
         settings = self.settings
         try:
@@ -247,7 +262,9 @@ class VoiceProvider:
         if not isinstance(llm, dict) or not llm.get("ModelName"):
             raise ProviderError("火山 RTC Voice Config 缺少 ModelName")
         # Never inherit another product's role, camera, or tool configuration.
-        llm["SystemMessages"] = self._system_messages(tea_id, mode, user_context)
+        llm["SystemMessages"] = self._system_messages(
+            tea_id, mode, user_context, camera_enabled=camera_enabled,
+        )
         llm.pop("VisionConfig", None)
         llm.pop("Tools", None)
         config.pop("FunctionCallingConfig", None)
